@@ -1,0 +1,118 @@
+{
+  "nav": {
+    "home": "Pocetna",
+    "about": "O nama",
+    "programs": "Programi",
+    "booking": "Rezervacija",
+    "blog": "Blog",
+    "contact": "Kontakt"
+  },
+  "footer": {
+    "tagline": "Toplo, moderno mesto za kvalitetno ucenje srpskog jezika.",
+    "quickLinks": "Brzi linkovi",
+    "about": "O nama",
+    "programs": "Programi",
+    "booking": "Rezervacija",
+    "contact": "Kontakt"
+  },
+  "common": {
+    "single": "Pojedinacni cas",
+    "semester": "Semestar",
+    "readMore": "Procitaj vise"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Kutak za srpski",
+      "title": "Jezik, kultura i sigurnost u govoru.",
+      "subtitle": "Strucno vodjeni programi sa toplom podrskom za siguran razvoj srpskog jezika.",
+      "primaryCta": "Rezervisi cas",
+      "secondaryCta": "Pogledaj programe"
+    },
+    "programsEyebrow": "Programi",
+    "programsTitle": "Programi prilagodjeni uzrastu i tempu svakog deteta",
+    "programsDescription": "Radimo autoritativno i pazljivo: jasna metodologija, kontinuitet i nezan pedagoski pristup.",
+    "bookingEyebrow": "Rezervacija",
+    "bookingTitle": "Rezervisite pojedinacni cas ili ceo semestar",
+    "bookingDescription": "Jednostavan proces prijave bez kreiranja naloga za roditelje.",
+    "bookingCta": "Idi na rezervaciju",
+    "blogEyebrow": "Blog",
+    "blogTitle": "Saveti za roditelje i inspiracija",
+    "blogDescription": "Balansirano: edukativni tekstovi i price iz svakodnevnog rada u Kutku."
+  },
+  "about": {
+    "title": "O nama",
+    "intro": "Kutak za srpski je premium edukativni prostor u kojem je svako dete vidjeno, podrzano i motivisano.",
+    "cards": {
+      "1": {
+        "title": "Pedagoski pristup",
+        "text": "Gradimo znanje kroz strukturu, rutinu i toplu komunikaciju."
+      },
+      "2": {
+        "title": "Kultura i identitet",
+        "text": "Jezik povezujemo sa pricom, tradicijom i savremenim temama."
+      },
+      "3": {
+        "title": "Rezultati sa merom",
+        "text": "Pratimo napredak i prilagodjavamo plan svakom detetu."
+      }
+    }
+  },
+  "programs": {
+    "title": "Programi",
+    "intro": "Izaberite format rada koji odgovara potrebama vase porodice.",
+    "availability": "Slobodna mesta",
+    "spacesAvailable": "Ima mesta - prijavi se",
+    "spacesUnavailable": "Nema mesta - posalji upit",
+    "applyNow": "Prijavi se sada",
+    "sendInquiry": "Posalji upit"
+  },
+  "calendar": {
+    "title": "Dodaj u kalendar",
+    "description": "Izaberite kako zelite da dodate cas u vasu kalendar:",
+    "googleCalendar": "+ Google Calendar",
+    "downloadIcs": "📥 Preuzmi (Apple/Outlook)",
+    "downloadSemester": "📅 Preuzmi ceo raspored",
+    "individualEvent": "Pojedinacni cas",
+    "semesterSchedule": "Ceo semestar"
+  },
+  "booking": {
+    "title": "Rezervacija",
+    "intro": "Popunite formu i dobicete dalje korake za potpisivanje dokumentacije i potvrdu mesta.",
+    "validityNotice": "Vazno: rezervacija postaje vazeca tek nakon potpisivanja waiver dokumenta i evidentirane uplate. Online placanje trenutno nije aktivno.",
+    "form": {
+      "parentName": "Ime i prezime roditelja",
+      "parentEmail": "Email roditelja",
+      "parentPhone": "Telefon roditelja",
+      "childName": "Ime deteta",
+      "childAge": "Uzrast deteta",
+      "class": "Program",
+      "term": "Termin",
+      "bookingType": "Tip rezervacije",
+      "single": "Pojedinacni cas",
+      "semester": "Semestar",
+      "message": "Dodatna poruka",
+      "required": "Molimo popunite sva obavezna polja.",
+      "success": "Rezervacija je poslata. Mesto je potvrdeno tek nakon potpisanog waiver dokumenta i uplate.",
+      "error": "Doslo je do greske. Pokusajte ponovo.",
+      "submit": "Posalji rezervaciju",
+      "submitting": "Slanje..."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "intro": "Strucni saveti za roditelje i price iz Kutka. Svaki novi blog automatski saljemo newsletter pretplatnicima."
+  },
+  "contact": {
+    "title": "Kontakt",
+    "intro": "Rado cemo pomoci oko izbora programa i rasporeda.",
+    "visit": "Posetite nas",
+    "visitText": "Nastava je dostupna online i uzivo po dogovoru."
+  },
+  "newsletter": {
+    "title": "Newsletter",
+    "description": "Primajte korisne savete i novosti o upisu jednom mesecno.",
+    "cta": "Prijavi se",
+    "success": "Uspesno ste prijavljeni na newsletter.",
+    "error": "Prijava nije uspela. Pokusajte kasnije."
+  }
+}

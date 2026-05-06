@@ -1,0 +1,118 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "programs": "Programs",
+    "booking": "Booking",
+    "blog": "Blog",
+    "contact": "Contact"
+  },
+  "footer": {
+    "tagline": "A warm and modern place for meaningful Serbian language learning.",
+    "quickLinks": "Quick links",
+    "about": "About",
+    "programs": "Programs",
+    "booking": "Booking",
+    "contact": "Contact"
+  },
+  "common": {
+    "single": "Single class",
+    "semester": "Semester",
+    "readMore": "Read more"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Kutak za srpski",
+      "title": "Language, culture and speaking confidence.",
+      "subtitle": "Expert-led programs with warm guidance for confident Serbian language growth.",
+      "primaryCta": "Book a class",
+      "secondaryCta": "Explore programs"
+    },
+    "programsEyebrow": "Programs",
+    "programsTitle": "Programs tailored to each child and pace",
+    "programsDescription": "Authoritative pedagogy with a warm touch: clear structure, consistency and caring guidance.",
+    "bookingEyebrow": "Booking",
+    "bookingTitle": "Book a single class or full semester",
+    "bookingDescription": "Simple reservation flow with no parent account required.",
+    "bookingCta": "Go to booking",
+    "blogEyebrow": "Blog",
+    "blogTitle": "Parent insights and inspiration",
+    "blogDescription": "Balanced content: educational guidance plus stories from everyday life at Kutak."
+  },
+  "about": {
+    "title": "About",
+    "intro": "Kutak za srpski is a premium educational space where every child is seen, supported and inspired.",
+    "cards": {
+      "1": {
+        "title": "Pedagogical approach",
+        "text": "We build progress through structure, routine and warm communication."
+      },
+      "2": {
+        "title": "Culture and identity",
+        "text": "Language learning is connected with stories, tradition and modern topics."
+      },
+      "3": {
+        "title": "Measured outcomes",
+        "text": "We track progress and tailor the plan for each learner."
+      }
+    }
+  },
+  "programs": {
+    "title": "Programs",
+    "intro": "Choose a learning format that fits your family schedule and goals.",
+    "availability": "Available spaces",
+    "spacesAvailable": "Spaces available - apply now",
+    "spacesUnavailable": "No spaces - send inquiry",
+    "applyNow": "Apply now",
+    "sendInquiry": "Send inquiry"
+  },
+  "calendar": {
+    "title": "Add to calendar",
+    "description": "Choose how you'd like to add this class to your calendar:",
+    "googleCalendar": "+ Google Calendar",
+    "downloadIcs": "📥 Download (Apple/Outlook)",
+    "downloadSemester": "📅 Download full schedule",
+    "individualEvent": "Individual class",
+    "semesterSchedule": "Full semester"
+  },
+  "booking": {
+    "title": "Booking",
+    "intro": "Complete the form and receive next steps for signed documentation and seat confirmation.",
+    "validityNotice": "Important: a reservation becomes valid only after a signed waiver and recorded payment. Online payment is currently unavailable.",
+    "form": {
+      "parentName": "Parent full name",
+      "parentEmail": "Parent email",
+      "parentPhone": "Parent phone",
+      "childName": "Child name",
+      "childAge": "Child age",
+      "class": "Program",
+      "term": "Term",
+      "bookingType": "Booking type",
+      "single": "Single class",
+      "semester": "Semester",
+      "message": "Additional message",
+      "required": "Please complete all required fields.",
+      "success": "Booking submitted. Your seat is confirmed only after a signed waiver and payment.",
+      "error": "Something went wrong. Please try again.",
+      "submit": "Submit booking",
+      "submitting": "Submitting..."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "intro": "Expert parent guidance and stories from Kutak. Every new post is automatically sent to newsletter subscribers."
+  },
+  "contact": {
+    "title": "Contact",
+    "intro": "We are happy to help with program recommendations and scheduling.",
+    "visit": "Visit us",
+    "visitText": "Classes are available online and in person by arrangement."
+  },
+  "newsletter": {
+    "title": "Newsletter",
+    "description": "Get practical tips and enrollment updates once a month.",
+    "cta": "Subscribe",
+    "success": "You are subscribed to the newsletter.",
+    "error": "Subscription failed. Please try again later."
+  }
+}
