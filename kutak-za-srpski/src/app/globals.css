@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #fffaf4;
+  --surface: #fffdf9;
+  --surface-2: #f9f1e7;
+  --text: #2f2822;
+  --muted: #6d5f53;
+  --brand: #c9895b;
+  --brand-2: #8e5d3d;
+  --line: #eadaca;
+  --shadow: 0 14px 32px -20px rgba(54, 34, 14, 0.4);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-line: var(--line);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-heading);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top right, #f6dfc5 0%, transparent 40%),
+    radial-gradient(circle at 20% 10%, #f8ebda 0%, transparent 45%),
+    var(--bg);
+  font-family: var(--font-body), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), serif;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(201, 137, 91, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(201, 137, 91, 0.25);
+  }
+}
+
+.animate-rise {
+  animation: riseIn 0.7s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+.reveal {
+  animation: riseIn 0.7s ease-out both;
+}
+
+main section {
+  scroll-margin-top: 100px;
+}
