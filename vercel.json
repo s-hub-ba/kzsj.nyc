@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd kutak-za-srpski && npm install && npm run build",
+  "outputDirectory": "kutak-za-srpski/.next",
+  "installCommand": "cd kutak-za-srpski && npm install",
+  "framework": "nextjs",
+  "devCommand": "cd kutak-za-srpski && npm run dev"
+}
