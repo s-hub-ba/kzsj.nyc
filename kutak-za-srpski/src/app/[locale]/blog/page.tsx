@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { BlogCard } from "@/components/BlogCard";
+import { BlogPostsGrid } from "@/components/BlogPostsGrid";
 import { SectionTitle } from "@/components/SectionTitle";
 import { getPublishedBlogPosts } from "@/lib/firestoreServer";
 import { Locale } from "@/types/models";
@@ -26,12 +26,12 @@ export default async function BlogPage({ params }: BlogPageProps) {
 
   return (
     <div className="space-y-10">
-      <SectionTitle title={t("title")} description={t("intro")} />
-      <div className="grid gap-6 md:grid-cols-2">
-        {posts.map((post) => (
-          <BlogCard key={post.id} post={post} locale={locale} />
-        ))}
-      </div>
+      <SectionTitle title={t("title")} description={t("intro")} locale={locale} />
+      <BlogPostsGrid
+        locale={locale}
+        initialPosts={posts}
+        emptyMessage={locale === "sr" ? "Još nema objavljenih članaka." : "No published blog posts yet."}
+      />
     </div>
   );
 }

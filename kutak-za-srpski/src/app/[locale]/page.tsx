@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Hero } from "@/components/Hero";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ProgramCard } from "@/components/ProgramCard";
-import { BlogCard } from "@/components/BlogCard";
+import { BlogPostsGrid } from "@/components/BlogPostsGrid";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { Link } from "@/i18n/navigation";
 import { getActiveClasses, getActiveTerms, getPublishedBlogPosts } from "@/lib/firestoreServer";
@@ -72,11 +72,7 @@ export default async function HomePage({ params }: HomePageProps) {
           description={t("blogDescription")}
           locale={locale}
         />
-        <div className="grid gap-6 md:grid-cols-2">
-          {posts.slice(0, 2).map((post) => (
-            <BlogCard key={post.id} post={post} locale={locale} />
-          ))}
-        </div>
+        <BlogPostsGrid locale={locale} initialPosts={posts} limit={2} />
       </section>
 
       <section className="reveal">

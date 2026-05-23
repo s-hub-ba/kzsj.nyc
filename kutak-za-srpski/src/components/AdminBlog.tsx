@@ -116,6 +116,25 @@ export function AdminBlog({ posts, onPostUpdate }: AdminBlogProps) {
     setShowNewForm(true);
   };
 
+  const handlePublishDraft = async (post: BlogPost) => {
+    setSaving(true);
+    try {
+      const publishedPost: BlogPost = {
+        ...post,
+        published: true,
+        publishedAt: post.publishedAt ?? new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        sendAsNewsletter: post.sendAsNewsletter ?? false,
+      };
+
+      await saveBlogPost(publishedPost);
+
+      onPostUpdate(posts.map((item) => (item.id === post.id ? publishedPost : item)));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const formatDate = (isoString?: string) => {
     if (!isoString) return "—";
     try {
@@ -310,7 +329,7 @@ export function AdminBlog({ posts, onPostUpdate }: AdminBlogProps) {
                       Uredi
                     </button>
                     <button
-                      onClick={() => void handleSave(false)}
+                      onClick={() => void handlePublishDraft(post)}
                       className="rounded-lg bg-accent/20 px-3 py-1 text-xs font-medium text-accent transition hover:bg-accent/30"
                     >
                       Objavi

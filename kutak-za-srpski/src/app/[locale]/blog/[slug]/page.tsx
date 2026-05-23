@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { BlogPostArticle } from "@/components/BlogPostArticle";
 import { getPublishedBlogPostBySlug } from "@/lib/firestoreServer";
 import { Locale } from "@/types/models";
 
@@ -26,17 +26,12 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { locale, slug } = await params;
   const post = await getPublishedBlogPostBySlug(slug);
 
-  if (!post) {
-    notFound();
-  }
-
   return (
-    <article className="mx-auto max-w-3xl rounded-3xl border border-line bg-surface p-8 shadow-[var(--shadow)]">
-      <h1 className="text-4xl">{locale === "sr" ? post.title_sr : post.title_en}</h1>
-      <p className="mt-4 text-muted">{locale === "sr" ? post.excerpt_sr : post.excerpt_en}</p>
-      <div className="mt-8 whitespace-pre-line text-lg leading-8 text-text">
-        {locale === "sr" ? post.content_sr : post.content_en}
-      </div>
-    </article>
+    <BlogPostArticle
+      locale={locale}
+      slug={slug}
+      initialPost={post}
+      notFoundMessage={locale === "sr" ? "Članak nije pronađen." : "Article not found."}
+    />
   );
 }
