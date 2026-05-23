@@ -27,8 +27,8 @@ export function NewsletterForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow)] md:p-8">
-      <h3 className="text-3xl text-[var(--brand-2)]">{t("title")}</h3>
+    <form onSubmit={onSubmit} className="rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-6 md:p-8 max-[375px]:rounded-2xl">
+      <h3 className="text-2xl text-[var(--brand-2)] sm:text-3xl">{t("title")}</h3>
       <p className="mt-2 text-sm text-[var(--muted)]">{t("description")}</p>
       <div className="mt-4 flex flex-col gap-3 md:flex-row">
         <input
@@ -37,12 +37,9 @@ export function NewsletterForm() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="name@email.com"
-          className="w-full rounded-full border border-line bg-[var(--surface-2)] px-4 py-3 outline-none transition focus:border-[var(--brand)] focus:bg-white"
+          className="w-full rounded-full border border-line bg-[var(--surface-2)] px-4 py-3 text-sm outline-none transition focus:border-[var(--brand)] focus:bg-white"
         />
-        <button
-          type="submit"
-          className="rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-2)]"
-        >
+        <button type="submit" className="btn-primary w-full md:w-auto">
           {t("cta")}
         </button>
       </div>

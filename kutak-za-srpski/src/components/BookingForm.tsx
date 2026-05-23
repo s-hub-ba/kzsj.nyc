@@ -99,7 +99,7 @@ export function BookingForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow)] md:p-8">
+    <form onSubmit={onSubmit} className="rounded-3xl border border-line bg-white p-4 shadow-[var(--shadow)] sm:p-6 md:p-8 max-[375px]:rounded-2xl">
       <div className="grid gap-4 md:grid-cols-2">
         <label className="text-sm text-[var(--muted)]">
           {t("parentName")}
@@ -213,11 +213,7 @@ export function BookingForm() {
       {error ? <p className="mt-4 text-sm text-[var(--accent-berry)]">{error}</p> : null}
       {success ? <p className="mt-4 text-sm text-[color-mix(in_oklab,var(--accent-leaf)_58%,#1f6f2f)]">{success}</p> : null}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-6 rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-2)] disabled:opacity-70"
-      >
+      <button type="submit" disabled={loading} className="btn-primary mt-6 w-full sm:w-auto disabled:opacity-70">
         {loading ? t("submitting") : t("submit")}
       </button>
     </form>

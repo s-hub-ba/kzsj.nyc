@@ -34,7 +34,7 @@ export default async function HomePage({ params }: HomePageProps) {
   ]);
 
   return (
-    <div className="space-y-18">
+    <div className="space-y-12 max-[375px]:space-y-8 md:space-y-18">
       <Hero />
 
       <section className="reveal space-y-8">
@@ -42,6 +42,7 @@ export default async function HomePage({ params }: HomePageProps) {
           eyebrow={t("programsEyebrow")}
           title={t("programsTitle")}
           description={t("programsDescription")}
+          locale={locale}
         />
         <div className="grid gap-6 md:grid-cols-2">
           {classes.slice(0, 2).map((item) => (
@@ -55,12 +56,10 @@ export default async function HomePage({ params }: HomePageProps) {
           eyebrow={t("bookingEyebrow")}
           title={t("bookingTitle")}
           description={t("bookingDescription")}
+          locale={locale}
         />
         <div className="mt-6">
-          <Link
-            href="/booking"
-            className="rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-2)]"
-          >
+          <Link href="/booking" className="btn-primary w-full sm:w-auto">
             {t("bookingCta")}
           </Link>
         </div>
@@ -71,6 +70,7 @@ export default async function HomePage({ params }: HomePageProps) {
           eyebrow={t("blogEyebrow")}
           title={t("blogTitle")}
           description={t("blogDescription")}
+          locale={locale}
         />
         <div className="grid gap-6 md:grid-cols-2">
           {posts.slice(0, 2).map((post) => (

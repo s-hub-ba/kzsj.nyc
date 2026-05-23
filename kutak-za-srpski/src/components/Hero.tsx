@@ -6,28 +6,22 @@ export function Hero() {
   const t = useTranslations("home.hero");
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-line bg-white p-8 shadow-[var(--shadow)] md:p-14">
-      <div className="relative z-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+    <section className="relative overflow-hidden rounded-[2rem] border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-8 md:p-14 max-[375px]:rounded-2xl max-[375px]:p-4">
+      <div className="relative z-10 grid gap-7 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
         <div className="animate-rise max-w-3xl">
-        <span className="mb-5 inline-flex rounded-full border border-line bg-[var(--surface-2)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-2)]">
-          {t("eyebrow")}
-        </span>
-        <h1 className="text-5xl leading-[0.94] text-[var(--brand-2)] md:text-7xl">{t("title")}</h1>
-        <p className="mt-6 max-w-2xl text-lg text-[var(--muted)] md:text-xl">{t("subtitle")}</p>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Link
-            href="/booking"
-            className="animate-pulse-glow rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-2)]"
-          >
-            {t("primaryCta")}
-          </Link>
-          <Link
-            href="/programs"
-            className="rounded-full border border-line bg-white px-6 py-3 text-sm font-semibold text-[var(--brand-2)] transition hover:bg-[var(--surface-2)]"
-          >
-            {t("secondaryCta")}
-          </Link>
-        </div>
+          <span className="mb-4 inline-flex rounded-full border border-line bg-[var(--surface-2)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--brand-2)] sm:mb-5 sm:px-4 sm:py-1.5 sm:text-xs">
+            {t("eyebrow")}
+          </span>
+          <h1 className="text-[2.2rem] leading-[0.93] text-[var(--brand-2)] sm:text-5xl md:text-7xl">{t("title")}</h1>
+          <p className="mt-4 max-w-2xl text-[15px] text-[var(--muted)] sm:mt-6 sm:text-lg md:text-xl">{t("subtitle")}</p>
+          <div className="mt-6 flex flex-wrap gap-3 sm:mt-8 sm:gap-4">
+            <Link href="/booking" className="btn-primary animate-pulse-glow w-full sm:w-auto">
+              {t("primaryCta")}
+            </Link>
+            <Link href="/programs" className="btn-secondary w-full sm:w-auto">
+              {t("secondaryCta")}
+            </Link>
+          </div>
         </div>
 
         <div className="relative hidden lg:block">

@@ -64,14 +64,14 @@ export function ProgramCard({ item, terms, locale }: ProgramCardProps) {
         {hasAvailability ? (
           <Link
             href={`/${currentLocale}/booking`}
-            className="inline-block rounded-full bg-[var(--brand)] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[var(--brand-2)]"
+            className="btn-primary btn-compact inline-flex"
           >
             {tPrograms("applyNow")}
           </Link>
         ) : (
           <Link
             href={`/${currentLocale}/contact`}
-            className="inline-block rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-[var(--brand-2)] transition hover:bg-[var(--surface-2)]"
+            className="btn-secondary btn-compact inline-flex"
           >
             {tPrograms("sendInquiry")}
           </Link>

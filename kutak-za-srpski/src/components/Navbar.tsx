@@ -21,10 +21,10 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line/80 bg-white/80 backdrop-blur-xl">
-      <nav className="mx-auto w-full max-w-6xl px-4 py-3 md:px-8">
+      <nav className="mx-auto w-full max-w-6xl px-4 py-3 md:px-8 max-[375px]:px-3">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="group inline-flex items-center gap-3">
-            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-line bg-white shadow-sm md:h-12 md:w-12">
+            <div className="relative h-9 w-9 overflow-hidden rounded-full border border-line bg-white shadow-sm md:h-12 md:w-12">
               <Image
                 src="/Logo.jpeg"
                 alt="Kutak za srpski logo"
@@ -35,7 +35,7 @@ export function Navbar() {
               />
             </div>
             <div className="leading-none">
-              <span className="block text-xl font-semibold tracking-wide text-brand-2 transition group-hover:text-[var(--brand)] md:text-2xl">
+              <span className="block text-lg font-semibold tracking-wide text-brand-2 transition group-hover:text-[var(--brand)] md:text-2xl">
                 Kutak za srpski
               </span>
               <span className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] md:block">
@@ -61,7 +61,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setOpen((prev) => !prev)}
-              className="rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold text-[var(--brand-2)] md:hidden"
+              className="rounded-full border border-line bg-white px-3 py-2 text-sm font-semibold text-[var(--brand-2)] md:hidden"
             >
               Menu
             </button>
