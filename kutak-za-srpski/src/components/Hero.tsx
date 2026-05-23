@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
@@ -6,7 +7,8 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-line bg-white p-8 shadow-[var(--shadow)] md:p-14">
-      <div className="animate-rise relative z-10 max-w-3xl">
+      <div className="relative z-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div className="animate-rise max-w-3xl">
         <span className="mb-5 inline-flex rounded-full border border-line bg-[var(--surface-2)] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-2)]">
           {t("eyebrow")}
         </span>
@@ -25,6 +27,22 @@ export function Hero() {
           >
             {t("secondaryCta")}
           </Link>
+        </div>
+        </div>
+
+        <div className="relative hidden lg:block">
+          <div className="animate-float-slow relative mx-auto h-[340px] w-[340px] overflow-hidden rounded-[2.2rem] border border-line bg-white p-4 shadow-[0_24px_52px_-30px_rgba(21,50,80,0.45)]">
+            <div className="relative h-full w-full overflow-hidden rounded-[1.8rem] bg-[var(--surface-2)]">
+              <Image
+                src="/Logo.jpeg"
+                alt="Kutak za srpski logo"
+                fill
+                sizes="340px"
+                className="object-contain p-6"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </div>
 

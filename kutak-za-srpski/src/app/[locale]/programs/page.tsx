@@ -25,8 +25,11 @@ export default async function ProgramsPage({ params }: ProgramsPageProps) {
   const [classes, terms] = await Promise.all([getActiveClasses(), getActiveTerms()]);
 
   return (
-    <div className="space-y-10">
-      <SectionTitle title={t("title")} description={t("intro")} />
+    <div className="space-y-12">
+      <section className="rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
+        <SectionTitle title={t("title")} description={t("intro")} />
+      </section>
+
       <div className="grid gap-6 md:grid-cols-2">
         {classes.map((item) => (
           <ProgramCard key={item.id} item={item} terms={terms} locale={locale} />

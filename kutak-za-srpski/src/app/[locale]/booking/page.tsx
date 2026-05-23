@@ -22,11 +22,15 @@ export default async function BookingPage() {
   const t = await getTranslations("booking");
 
   return (
-    <div className="space-y-8">
-      <SectionTitle title={t("title")} description={t("intro")} />
-      <p className="rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-muted">
+    <div className="space-y-10">
+      <section className="rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
+        <SectionTitle title={t("title")} description={t("intro")} />
+      </section>
+
+      <p className="rounded-2xl border border-line bg-white px-5 py-4 text-sm leading-relaxed text-[var(--muted)] shadow-[var(--shadow)]">
         {t("validityNotice")}
       </p>
+
       <BookingForm />
     </div>
   );

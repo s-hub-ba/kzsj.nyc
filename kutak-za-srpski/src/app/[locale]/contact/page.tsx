@@ -21,17 +21,20 @@ export default async function ContactPage() {
   const t = await getTranslations("contact");
 
   return (
-    <div className="space-y-8">
-      <SectionTitle title={t("title")} description={t("intro")} />
+    <div className="space-y-10">
+      <section className="rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
+        <SectionTitle title={t("title")} description={t("intro")} />
+      </section>
+
       <section className="grid gap-6 md:grid-cols-2">
-        <article className="rounded-3xl border border-line bg-surface p-6">
-          <h3 className="text-2xl">{t("visit")}</h3>
-          <p className="mt-3 text-muted">{t("visitText")}</p>
+        <article className="rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow)]">
+          <h3 className="text-3xl text-[var(--brand-2)]">{t("visit")}</h3>
+          <p className="mt-3 leading-relaxed text-[var(--muted)]">{t("visitText")}</p>
         </article>
-        <article className="rounded-3xl border border-line bg-surface p-6">
-          <h3 className="text-2xl">{t("write")}</h3>
-          <p className="mt-3 text-muted">hello@kutakzasrpski.com</p>
-          <p className="text-muted">+381 60 123 4567</p>
+        <article className="rounded-3xl border border-line bg-white p-7 shadow-[var(--shadow)]">
+          <h3 className="text-3xl text-[var(--brand-2)]">{t("write")}</h3>
+          <p className="mt-3 text-lg font-semibold text-[var(--brand)]">hello@kutakzasrpski.com</p>
+          <p className="text-lg font-semibold text-[var(--brand)]">+381 60 123 4567</p>
         </article>
       </section>
     </div>

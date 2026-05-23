@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -22,9 +23,25 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b border-line/80 bg-white/80 backdrop-blur-xl">
       <nav className="mx-auto w-full max-w-6xl px-4 py-3 md:px-8">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="group inline-flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-berry)] transition-transform duration-300 group-hover:scale-125" />
-            <span className="text-2xl font-semibold tracking-wide text-brand-2 md:text-3xl">Kutak za srpski</span>
+          <Link href="/" className="group inline-flex items-center gap-3">
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-line bg-white shadow-sm md:h-12 md:w-12">
+              <Image
+                src="/Logo.jpeg"
+                alt="Kutak za srpski logo"
+                fill
+                sizes="48px"
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div className="leading-none">
+              <span className="block text-xl font-semibold tracking-wide text-brand-2 transition group-hover:text-[var(--brand)] md:text-2xl">
+                Kutak za srpski
+              </span>
+              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] md:block">
+                Bilingual learning studio
+              </span>
+            </div>
           </Link>
 
           <div className="hidden items-center gap-2 text-sm md:flex">
