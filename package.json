@@ -1,0 +1,14 @@
+{
+  "name": "kzsj-root",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix kutak-za-srpski",
+    "dev": "npm run dev --prefix kutak-za-srpski",
+    "build": "npm run build --prefix kutak-za-srpski",
+    "start": "npm run start --prefix kutak-za-srpski",
+    "lint": "npm run lint --prefix kutak-za-srpski"
+  },
+  "dependencies": {
+    "next": "16.2.4"
+  }
+}
