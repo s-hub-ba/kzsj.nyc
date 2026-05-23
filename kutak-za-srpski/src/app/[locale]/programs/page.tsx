@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { ProgramCard } from "@/components/ProgramCard";
-import { SectionTitle } from "@/components/SectionTitle";
+import { PageHero } from "@/components/PageHero";
 import { getActiveClasses, getActiveTerms } from "@/lib/firestoreServer";
 import { Locale } from "@/types/models";
 
@@ -25,10 +25,8 @@ export default async function ProgramsPage({ params }: ProgramsPageProps) {
   const [classes, terms] = await Promise.all([getActiveClasses(), getActiveTerms()]);
 
   return (
-    <div className="space-y-12">
-      <section className="rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
-        <SectionTitle title={t("title")} description={t("intro")} />
-      </section>
+    <div className="space-y-8 max-[375px]:space-y-6">
+      <PageHero locale={locale} title={t("title")} description={t("intro")} variant="programs" />
 
       <div className="grid gap-6 md:grid-cols-2">
         {classes.map((item) => (
