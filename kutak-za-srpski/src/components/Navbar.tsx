@@ -19,16 +19,21 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-[#fffaf4]/95 backdrop-blur-md">
-      <nav className="mx-auto w-full max-w-6xl px-4 py-4 md:px-8">
+    <header className="sticky top-0 z-40 border-b border-line/80 bg-white/80 backdrop-blur-xl">
+      <nav className="mx-auto w-full max-w-6xl px-4 py-3 md:px-8">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="text-2xl font-semibold tracking-wide text-brand-2">
-            Kutak za srpski
+          <Link href="/" className="group inline-flex items-center gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent-berry)] transition-transform duration-300 group-hover:scale-125" />
+            <span className="text-2xl font-semibold tracking-wide text-brand-2 md:text-3xl">Kutak za srpski</span>
           </Link>
 
-          <div className="hidden items-center gap-6 text-sm md:flex">
+          <div className="hidden items-center gap-2 text-sm md:flex">
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-brand-2">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-full px-4 py-2 font-semibold text-[var(--muted)] transition hover:bg-[var(--surface-2)] hover:text-[var(--brand-2)]"
+              >
                 {link.label}
               </Link>
             ))}
@@ -39,7 +44,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setOpen((prev) => !prev)}
-              className="rounded-full border border-line px-3 py-1 text-sm md:hidden"
+              className="rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold text-[var(--brand-2)] md:hidden"
             >
               Menu
             </button>
@@ -47,13 +52,13 @@ export function Navbar() {
         </div>
 
         {open ? (
-          <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3 md:hidden">
+          <div className="glass mt-4 flex flex-col gap-2 rounded-2xl p-3 md:hidden">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm hover:bg-surface-2"
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-[var(--brand-2)] hover:bg-white"
               >
                 {link.label}
               </Link>

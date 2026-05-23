@@ -50,7 +50,7 @@ export default async function HomePage({ params }: HomePageProps) {
         </div>
       </section>
 
-      <section className="reveal rounded-3xl border border-line bg-surface p-8 shadow-[var(--shadow)]">
+      <section className="reveal rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
         <SectionTitle
           eyebrow={t("bookingEyebrow")}
           title={t("bookingTitle")}
@@ -59,7 +59,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <div className="mt-6">
           <Link
             href="/booking"
-            className="rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-2"
+            className="rounded-full bg-[var(--brand)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-2)]"
           >
             {t("bookingCta")}
           </Link>

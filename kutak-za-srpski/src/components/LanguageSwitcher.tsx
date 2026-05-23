@@ -14,12 +14,14 @@ export function LanguageSwitcher() {
   };
 
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-2 py-1 text-sm">
+    <div className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-1 py-1 text-sm shadow-sm">
       <button
         type="button"
         onClick={() => setLocale("sr")}
         className={`rounded-full px-3 py-1 transition ${
-          locale === "sr" ? "bg-brand text-white" : "hover:bg-surface-2"
+          locale === "sr"
+            ? "bg-[var(--brand)] text-white"
+            : "font-semibold text-[var(--muted)] hover:bg-[var(--surface-2)]"
         }`}
       >
         SR
@@ -28,7 +30,9 @@ export function LanguageSwitcher() {
         type="button"
         onClick={() => setLocale("en")}
         className={`rounded-full px-3 py-1 transition ${
-          locale === "en" ? "bg-brand text-white" : "hover:bg-surface-2"
+          locale === "en"
+            ? "bg-[var(--brand)] text-white"
+            : "font-semibold text-[var(--muted)] hover:bg-[var(--surface-2)]"
         }`}
       >
         EN
