@@ -12,12 +12,11 @@ export function getGoogleCalendarUrl(
 ): string {
   const className = locale === 'sr' ? schoolClass.title_sr : schoolClass.title_en;
   const eventTitle = `${className} - ${booking.childName}`;
-  const eventTime = new Date(term.startTime);
-  const endTime = new Date(term.endTime);
+  const { startAt, endAt } = getTermDateTimes(term);
   
   // Format: YYYYMMDDTHHMMSSZ (UTC)
-  const startTime = formatDateISO(eventTime);
-  const endTimeStr = formatDateISO(endTime);
+  const startTime = formatDateISO(startAt);
+  const endTimeStr = formatDateISO(endAt);
   
   const description = encodeURIComponent(
     `Program: ${className}\nChild: ${booking.childName}\nParent: ${booking.parentName}\nEmail: ${booking.parentEmail}`
@@ -44,11 +43,10 @@ export function generateICS(
   locale: 'sr' | 'en'
 ): string {
   const className = locale === 'sr' ? schoolClass.title_sr : schoolClass.title_en;
-  const eventTime = new Date(term.startTime);
-  const endTime = new Date(term.endTime);
+  const { startAt, endAt } = getTermDateTimes(term);
   
-  const dtstart = formatICSDate(eventTime);
-  const dtend = formatICSDate(endTime);
+  const dtstart = formatICSDate(startAt);
+  const dtend = formatICSDate(endAt);
   
   const uid = `${booking.id}-${schoolClass.id}@kutakzasrpski.rs`;
   const title = `${className} - ${booking.childName}`;
@@ -89,10 +87,11 @@ export function generateSemesterICS(
   const classDescription = locale === 'sr' ? schoolClass.description_sr : schoolClass.description_en;
   
   const events = terms
-    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+    .sort((a, b) => getTermDateTimes(a).startAt.getTime() - getTermDateTimes(b).startAt.getTime())
     .map(term => {
-      const dtstart = formatICSDate(new Date(term.startTime));
-      const dtend = formatICSDate(new Date(term.endTime));
+      const { startAt, endAt } = getTermDateTimes(term);
+      const dtstart = formatICSDate(startAt);
+      const dtend = formatICSDate(endAt);
       const uid = `${schoolClass.id}-${term.id}@kutakzasrpski.rs`;
       
       return `BEGIN:VEVENT
@@ -169,11 +168,36 @@ export function getCalendarFileName(
   }
   
   if (term) {
-    const date = new Date(term.startTime)
-      .toISOString()
-      .split('T')[0];
+    const date = term.date || getTermDateTimes(term).startAt.toISOString().split('T')[0];
     return `${sanitizedName}-${date}.ics`;
   }
   
   return `${sanitizedName}.ics`;
+}
+
+function getTermDateTimes(term: Term) {
+  const datePart = (term.date || new Date().toISOString().split('T')[0]).trim();
+  const startTimePart = normalizeTimePart(term.startTime, '00:00');
+  const endTimePart = normalizeTimePart(term.endTime, '00:00');
+
+  const startAt = new Date(`${datePart}T${startTimePart}:00`);
+  const endAt = new Date(`${datePart}T${endTimePart}:00`);
+
+  if (!Number.isNaN(startAt.getTime()) && !Number.isNaN(endAt.getTime())) {
+    return { startAt, endAt };
+  }
+
+  // Fallback for legacy records where startTime/endTime might contain full ISO strings.
+  return {
+    startAt: new Date(term.startTime),
+    endAt: new Date(term.endTime),
+  };
+}
+
+function normalizeTimePart(value: string | undefined, fallback: string) {
+  if (!value) return fallback;
+  const match = value.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return fallback;
+  const hh = match[1].padStart(2, '0');
+  return `${hh}:${match[2]}`;
 }

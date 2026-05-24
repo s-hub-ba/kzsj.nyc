@@ -96,6 +96,8 @@ export function AdminBlog({ posts, onPostUpdate }: AdminBlogProps) {
       });
       setEditingId(null);
       setShowNewForm(false);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Čuvanje blog objave nije uspelo.");
     } finally {
       setSaving(false);
     }
@@ -130,6 +132,8 @@ export function AdminBlog({ posts, onPostUpdate }: AdminBlogProps) {
       await saveBlogPost(publishedPost);
 
       onPostUpdate(posts.map((item) => (item.id === post.id ? publishedPost : item)));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Objavljivanje nacrta nije uspelo.");
     } finally {
       setSaving(false);
     }

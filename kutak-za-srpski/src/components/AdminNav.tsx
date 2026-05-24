@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-
-export type AdminTab = "overview" | "bookings" | "classes" | "payments" | "blog";
+export type AdminTab = "overview" | "bookings" | "applications" | "classes" | "payments" | "invoices" | "blog" | "emails";
 
 interface AdminNavProps {
   currentTab: AdminTab;
@@ -14,9 +11,12 @@ export function AdminNav({ currentTab, onTabChange }: AdminNavProps) {
   const tabs: { id: AdminTab; label: string; icon: string }[] = [
     { id: "overview", label: "Pregled", icon: "📊" },
     { id: "bookings", label: "Prijave", icon: "📝" },
+    { id: "applications", label: "Posao", icon: "👩‍🏫" },
     { id: "classes", label: "Časovi", icon: "🎓" },
     { id: "payments", label: "Plaćanja", icon: "💳" },
+    { id: "invoices", label: "Fakture", icon: "🧾" },
     { id: "blog", label: "Blog", icon: "📰" },
+    { id: "emails", label: "Email log", icon: "✉️" },
   ];
 
   return (

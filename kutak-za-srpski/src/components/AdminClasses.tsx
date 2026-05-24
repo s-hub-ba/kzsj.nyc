@@ -26,6 +26,7 @@ type ClassForm = {
 
 type TermForm = {
   classId: string;
+  assignmentType: "regular" | "vanredno";
   title_sr: string;
   title_en: string;
   date: string;
@@ -49,6 +50,7 @@ const emptyClassForm = (): ClassForm => ({
 
 const emptyTermForm = (classId = ""): TermForm => ({
   classId,
+  assignmentType: "regular",
   title_sr: "",
   title_en: "",
   date: "",
@@ -65,6 +67,7 @@ export function AdminClasses({
   onClassesUpdate,
   onTermsUpdate,
 }: AdminClassesProps) {
+  const MANUAL_TERM_FORM = "__manual__";
   const [showClassForm, setShowClassForm] = useState(false);
   const [editingClass, setEditingClass] = useState<SchoolClass | null>(null);
   const [classForm, setClassForm] = useState<ClassForm>(emptyClassForm());
@@ -122,6 +125,8 @@ export function AdminClasses({
       onClassesUpdate(updated);
       setShowClassForm(false);
       setEditingClass(null);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Čuvanje grupe nije uspelo.");
     } finally {
       setSavingClass(false);
     }
@@ -129,11 +134,15 @@ export function AdminClasses({
 
   const handleDeleteClass = async (cls: SchoolClass) => {
     if (!confirm(`Obrisati grupu "${cls.title_sr}"? Svi termini će biti obrisani.`)) return;
-    await deleteClass(cls.id);
-    const classTerms = terms.filter((t) => t.classId === cls.id);
-    await Promise.all(classTerms.map((t) => deleteTerm(t.id)));
-    onClassesUpdate(classes.filter((c) => c.id !== cls.id));
-    onTermsUpdate(terms.filter((t) => t.classId !== cls.id));
+    try {
+      await deleteClass(cls.id);
+      const classTerms = terms.filter((t) => t.classId === cls.id);
+      await Promise.all(classTerms.map((t) => deleteTerm(t.id)));
+      onClassesUpdate(classes.filter((c) => c.id !== cls.id));
+      onTermsUpdate(terms.filter((t) => t.classId !== cls.id));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Brisanje grupe nije uspelo.");
+    }
   };
 
   // ── Term CRUD ──────────────────────────────────────────────────────────────
@@ -143,6 +152,7 @@ export function AdminClasses({
     setEditingTerm(null);
     setTermForm({
       ...emptyTermForm(classId),
+      assignmentType: "regular",
       title_sr: cls ? `${cls.title_sr} – Termin` : "",
       title_en: cls ? `${cls.title_en} – Session` : "",
     });
@@ -150,10 +160,25 @@ export function AdminClasses({
     setExpandedClass(classId);
   };
 
+  const openManualTerm = () => {
+    const firstClass = classes[0];
+    setEditingTerm(null);
+    setTermForm({
+      ...emptyTermForm(firstClass?.id ?? ""),
+      assignmentType: "vanredno",
+      title_sr: "Vanredni čas",
+      title_en: "Extra class",
+    });
+    setShowTermForm(MANUAL_TERM_FORM);
+    setExpandedClass(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const openEditTerm = (term: Term) => {
     setEditingTerm(term);
     setTermForm({
       classId: term.classId,
+      assignmentType: term.assignmentType ?? "regular",
       title_sr: term.title_sr,
       title_en: term.title_en,
       date: term.date,
@@ -166,7 +191,7 @@ export function AdminClasses({
   };
 
   const handleSaveTerm = async () => {
-    if (!termForm.date || !termForm.startTime || !termForm.endTime) return;
+    if (!termForm.classId || !termForm.date || !termForm.startTime || !termForm.endTime) return;
     setSavingTerm(true);
     try {
       const payload = editingTerm ? { id: editingTerm.id, ...termForm } : { ...termForm };
@@ -186,6 +211,8 @@ export function AdminClasses({
       onTermsUpdate(updated);
       setShowTermForm(null);
       setEditingTerm(null);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Čuvanje termina nije uspelo.");
     } finally {
       setSavingTerm(false);
     }
@@ -193,8 +220,12 @@ export function AdminClasses({
 
   const handleDeleteTerm = async (term: Term) => {
     if (!confirm(`Obrisati termin "${term.title_sr}" (${term.date})?`)) return;
-    await deleteTerm(term.id);
-    onTermsUpdate(terms.filter((t) => t.id !== term.id));
+    try {
+      await deleteTerm(term.id);
+      onTermsUpdate(terms.filter((t) => t.id !== term.id));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Brisanje termina nije uspelo.");
+    }
   };
 
   const formatDate = (d: string) => {
@@ -229,7 +260,128 @@ export function AdminClasses({
         >
           + Nova grupa
         </button>
+        <button
+          onClick={openManualTerm}
+          disabled={classes.length === 0}
+          className="rounded-xl border border-brand/40 bg-brand/10 px-5 py-2.5 text-sm font-semibold text-brand transition hover:bg-brand/20 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          + Vanredni termin
+        </button>
       </div>
+
+      {showTermForm === MANUAL_TERM_FORM && (
+        <div className="rounded-3xl border-2 border-brand/30 bg-surface p-6 shadow-lg">
+          <h3 className="mb-4 text-xl font-semibold">Dodaj vanredni termin</h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Dodeljena grupa *</label>
+              <select
+                value={termForm.classId}
+                onChange={(e) => setTermForm((f) => ({ ...f, classId: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              >
+                <option value="">– Izaberi grupu –</option>
+                {classes.map((cls) => (
+                  <option key={cls.id} value={cls.id}>{cls.title_sr}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Tip termina</label>
+              <select
+                value={termForm.assignmentType}
+                onChange={(e) =>
+                  setTermForm((f) => ({ ...f, assignmentType: e.target.value as "regular" | "vanredno" }))
+                }
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              >
+                <option value="vanredno">Vanredno</option>
+                <option value="regular">Regularno</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Naziv termina (srpski)</label>
+              <input
+                value={termForm.title_sr}
+                onChange={(e) => setTermForm((f) => ({ ...f, title_sr: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Naziv termina (engleski)</label>
+              <input
+                value={termForm.title_en}
+                onChange={(e) => setTermForm((f) => ({ ...f, title_en: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Datum *</label>
+              <input
+                type="date"
+                value={termForm.date}
+                onChange={(e) => setTermForm((f) => ({ ...f, date: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Početak *</label>
+              <input
+                type="time"
+                value={termForm.startTime}
+                onChange={(e) => setTermForm((f) => ({ ...f, startTime: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Kraj *</label>
+              <input
+                type="time"
+                value={termForm.endTime}
+                onChange={(e) => setTermForm((f) => ({ ...f, endTime: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted">Kapacitet</label>
+              <input
+                type="number"
+                min={1}
+                max={30}
+                value={termForm.capacity}
+                onChange={(e) => setTermForm((f) => ({ ...f, capacity: Number(e.target.value) }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="mb-1 block text-xs font-medium text-muted">Lokacija</label>
+              <input
+                value={termForm.location}
+                onChange={(e) => setTermForm((f) => ({ ...f, location: e.target.value }))}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex gap-3">
+            <button
+              onClick={() => void handleSaveTerm()}
+              disabled={savingTerm || !termForm.classId || !termForm.date || !termForm.startTime || !termForm.endTime}
+              className="rounded-xl bg-brand px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            >
+              {savingTerm ? "Čuva se..." : "Dodaj termin"}
+            </button>
+            <button
+              onClick={() => {
+                setShowTermForm(null);
+                setEditingTerm(null);
+              }}
+              className="rounded-xl border border-line px-5 py-2 text-sm font-medium transition hover:bg-surface-2"
+            >
+              Otkaži
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Class create / edit form */}
       {showClassForm && (
@@ -476,6 +628,19 @@ export function AdminClasses({
                         />
                       </div>
                       <div>
+                        <label className="mb-1 block text-xs font-medium text-muted">Tip termina</label>
+                        <select
+                          value={termForm.assignmentType}
+                          onChange={(e) =>
+                            setTermForm((f) => ({ ...f, assignmentType: e.target.value as "regular" | "vanredno" }))
+                          }
+                          className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+                        >
+                          <option value="regular">Regularno</option>
+                          <option value="vanredno">Vanredno</option>
+                        </select>
+                      </div>
+                      <div>
                         <label className="mb-1 block text-xs font-medium text-muted">
                           Datum *
                         </label>
@@ -580,6 +745,7 @@ export function AdminClasses({
                           <thead>
                             <tr className="border-b border-line bg-surface-2 text-xs text-muted">
                               <th className="py-2 px-4">Naziv</th>
+                              <th className="py-2 px-4">Tip</th>
                               <th className="py-2 px-4">Datum</th>
                               <th className="py-2 px-4">Vreme</th>
                               <th className="py-2 px-4">Lokacija</th>
@@ -597,6 +763,15 @@ export function AdminClasses({
                                   className="border-b border-line/50 hover:bg-surface-2"
                                 >
                                   <td className="py-2.5 px-4 font-medium">{term.title_sr}</td>
+                                  <td className="py-2.5 px-4">
+                                    <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                                      (term.assignmentType ?? "regular") === "vanredno"
+                                        ? "bg-warning/20 text-warning"
+                                        : "bg-info/20 text-info"
+                                    }`}>
+                                      {(term.assignmentType ?? "regular") === "vanredno" ? "Vanredno" : "Regularno"}
+                                    </span>
+                                  </td>
                                   <td className="py-2.5 px-4">{formatDate(term.date)}</td>
                                   <td className="py-2.5 px-4 whitespace-nowrap">
                                     {term.startTime} – {term.endTime}

@@ -1,5 +1,5 @@
-import { BlogPost, Booking, NewsletterSubscriber, SchoolClass, Term } from "@/types/models";
-import { getGoogleCalendarUrl, generateICS, generateSemesterICS, getCalendarFileName } from "@/services/calendarService";
+import { BlogPost, Booking, Invoice, NewsletterSubscriber, SchoolClass, Term } from "@/types/models";
+import { getGoogleCalendarUrl } from "@/services/calendarService";
 
 export interface BookingEmailPayload {
   booking: Booking;
@@ -45,11 +45,15 @@ async function sendViaResend({
   to,
   subject,
   intro,
+  includeCalendar = false,
+  footerNote,
 }: {
   payload: BookingEmailPayload;
   to: string;
   subject: string;
   intro: string;
+  includeCalendar?: boolean;
+  footerNote?: string;
 }): Promise<EmailResult> {
   const resendApiKey = process.env.RESEND_API_KEY;
   const emailFrom = process.env.EMAIL_FROM;
@@ -70,22 +74,21 @@ async function sendViaResend({
   let googleCalendarUrl = "";
   let icsIndividualLink = "";
   let icsSemesterLink = "";
-  let semesterIcsContent = "";
-  
-  if (payload.selectedClass && payload.selectedTerm) {
+  const isSemesterBooking = payload.booking.bookingType === "semester";
+
+  if (includeCalendar && payload.selectedClass && payload.selectedTerm) {
     const locale = payload.booking.preferredLanguage as 'sr' | 'en';
     googleCalendarUrl = getGoogleCalendarUrl(payload.booking, payload.selectedClass, payload.selectedTerm, locale);
     
     // Generate API links for calendar downloads
     const siteUrl = getSiteUrl();
     icsIndividualLink = `${siteUrl}/api/calendar/ics?bookingId=${payload.booking.id}&type=individual`;
-    if (payload.allTerms && payload.allTerms.length > 0) {
+    if (isSemesterBooking && payload.allTerms && payload.allTerms.length > 0) {
       icsSemesterLink = `${siteUrl}/api/calendar/ics?classId=${payload.selectedClass.id}&type=semester`;
-      semesterIcsContent = generateSemesterICS([], payload.selectedClass, payload.allTerms, locale);
     }
   }
 
-  const calendarHtml = googleCalendarUrl ? `
+  const calendarHtml = includeCalendar && googleCalendarUrl ? `
     <div style="background-color: #f5f1ed; padding: 20px; border-radius: 8px; margin: 20px 0;">
       <h3 style="margin-top: 0; color: #2f2822;">📅 Dodaj u kalendar</h3>
       <p style="margin-bottom: 15px;">Izaberite kako zelite da dodate cas u vasu kalendar:</p>
@@ -122,15 +125,15 @@ async function sendViaResend({
         <ul>
           <li><strong>Program:</strong> ${summary.className}</li>
           <li><strong>Termin:</strong> ${summary.termName}</li>
+          <li><strong>Tip prijave:</strong> ${isSemesterBooking ? "Semestar" : "Pojedinacni cas"}</li>
           <li><strong>Datum:</strong> ${summary.date}</li>
           <li><strong>Vreme:</strong> ${summary.time}</li>
           <li><strong>Dete:</strong> ${payload.booking.childName}</li>
           <li><strong>Roditelj:</strong> ${payload.booking.parentName}</li>
-          <li><strong>Status rezervacije:</strong> ${payload.booking.status}</li>
+          <li><strong>Status prijave:</strong> ${payload.booking.status}</li>
         </ul>
         ${calendarHtml}
-        <p><strong>Vazno:</strong> Rezervacija postaje vazeca tek nakon potpisanog waiver dokumenta i evidentirane uplate.</p>
-        <p><strong>Napomena:</strong> Online placanje trenutno nije aktivno.</p>
+        ${footerNote ? `<p>${footerNote}</p>` : ""}
       </div>
     `,
   });
@@ -191,8 +194,29 @@ export async function sendBookingConfirmation(payload: BookingEmailPayload): Pro
   return sendViaResend({
     payload,
     to: payload.booking.parentEmail,
-    subject: "Kutak za srpski | Potvrda rezervacije",
-    intro: "Hvala na rezervaciji. U nastavku su osnovni podaci.",
+    subject: "Kutak za srpski | Hvala na prijavi",
+    intro:
+      "Hvala vam na prijavi za Kutak za srpski jezik. U narednim koracima finalizujemo registraciju, saljemo waiver dokumentaciju i instrukcije za uplatu. Po potrebi mozemo organizovati i kratke konsultacije oko odabira programa.",
+    footerNote:
+      "Rezervacija postaje vazeca tek nakon potpisanog waiver dokumenta i evidentirane uplate. Online placanje preko sajta trenutno nije ukljuceno.",
+  });
+}
+
+export async function sendPaymentReceivedConfirmation(
+  payload: BookingEmailPayload,
+): Promise<EmailResult> {
+  const isSemesterBooking = payload.booking.bookingType === "semester";
+
+  return sendViaResend({
+    payload,
+    to: payload.booking.parentEmail,
+    subject: "Kutak za srpski | Uplata je evidentirana",
+    intro:
+      "Uplata je uspesno evidentirana. Dobrodosli u toplo i podsticajno okruzenje Kutka za srpski jezik - radujemo se dolasku vaseg deteta i cele porodice.",
+    includeCalendar: true,
+    footerNote: isSemesterBooking
+      ? "U nastavku su linkovi da raspored semestra odmah dodate u kalendar (Google, Apple ili Outlook)."
+      : "U nastavku su linkovi da izabrani cas odmah dodate u kalendar (Google, Apple ili Outlook).",
   });
 }
 
@@ -217,6 +241,204 @@ export async function sendAdminBookingNotification(payload: BookingEmailPayload)
 export interface BlogNewsletterPayload {
   post: BlogPost;
   subscribers: NewsletterSubscriber[];
+}
+
+export interface InvoiceEmailPayload {
+  invoice: Invoice;
+}
+
+export interface InvoiceReminderEmailPayload {
+  invoice: Invoice;
+  daysOverdue?: number;
+}
+
+function formatInvoiceDate(dateIso: string) {
+  try {
+    return new Date(dateIso).toLocaleDateString("sr-RS");
+  } catch {
+    return dateIso;
+  }
+}
+
+function formatInvoiceAmount(amount: number, currency: string) {
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toFixed(2)} ${currency}`;
+  }
+}
+
+export async function sendInvoiceEmail(payload: InvoiceEmailPayload): Promise<EmailResult> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM;
+
+  if (!resendApiKey) {
+    throw new Error("RESEND_API_KEY nije konfigurisan.");
+  }
+
+  if (!emailFrom) {
+    throw new Error("EMAIL_FROM nije konfigurisan.");
+  }
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(resendApiKey);
+  const issueDate = formatInvoiceDate(payload.invoice.issueDate);
+  const dueDate = formatInvoiceDate(payload.invoice.dueDate);
+  const amount = formatInvoiceAmount(payload.invoice.amount, payload.invoice.currency);
+
+  const response = await resend.emails.send({
+    from: emailFrom,
+    to: payload.invoice.parentEmail,
+    subject: "Invoice for your Kutak za srpski booking",
+    html: `
+      <div style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#243247;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e7ecf4;box-shadow:0 10px 28px rgba(31,41,55,0.08);">
+                <tr>
+                  <td style="padding:28px 30px;background:linear-gradient(135deg,#ffffff,#edf5fe);border-bottom:1px solid #e7ecf4;">
+                    <p style="margin:0;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#5d7087;font-weight:700;">Kutak za srpski</p>
+                    <h1 style="margin:10px 0 0;font-size:28px;line-height:1.2;color:#1f2a37;">Invoice ${payload.invoice.invoiceNumber}</h1>
+                    <p style="margin:10px 0 0;font-size:15px;color:#4b5c70;line-height:1.6;">Dear ${payload.invoice.parentName}, thank you for your trust. Please find your invoice details below.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:26px 30px 8px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                      <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#5b6f86;">Parent</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#1f2a37;font-weight:600;text-align:right;">${payload.invoice.parentName}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#5b6f86;">Child</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#1f2a37;font-weight:600;text-align:right;">${payload.invoice.childName}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#5b6f86;">Service</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#1f2a37;font-weight:600;text-align:right;">${payload.invoice.serviceDescription}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#5b6f86;">Issue date</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#1f2a37;font-weight:600;text-align:right;">${issueDate}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#5b6f86;">Due date</td>
+                        <td style="padding:12px 0;border-bottom:1px solid #eff3f8;font-size:14px;color:#1f2a37;font-weight:600;text-align:right;">${dueDate}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:14px 0;font-size:14px;color:#5b6f86;font-weight:700;">Amount</td>
+                        <td style="padding:14px 0;font-size:18px;color:#1f2a37;font-weight:800;text-align:right;">${amount}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 30px 8px;">
+                    <div style="background:#f5f9ff;border:1px solid #dce7f5;border-radius:12px;padding:14px 16px;">
+                      <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.6px;text-transform:uppercase;color:#55708c;font-weight:700;">Payment instructions</p>
+                      <p style="margin:0;font-size:14px;color:#243247;line-height:1.6;white-space:pre-line;">${payload.invoice.paymentInstructions}</p>
+                    </div>
+                  </td>
+                </tr>
+                ${payload.invoice.notes?.trim() ? `
+                <tr>
+                  <td style="padding:8px 30px 8px;">
+                    <p style="margin:0 0 6px;font-size:12px;letter-spacing:0.6px;text-transform:uppercase;color:#55708c;font-weight:700;">Notes</p>
+                    <p style="margin:0;font-size:14px;color:#243247;line-height:1.6;white-space:pre-line;">${payload.invoice.notes}</p>
+                  </td>
+                </tr>
+                ` : ""}
+                <tr>
+                  <td style="padding:24px 30px 30px;">
+                    <p style="margin:0;font-size:13px;color:#5f7288;line-height:1.6;">If you have any questions, simply reply to this email. We appreciate your partnership in your child's language journey.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `,
+  });
+
+  return {
+    queued: true,
+    provider: "resend",
+    id: response.data?.id,
+  };
+}
+
+export async function sendInvoiceReminderEmail(
+  payload: InvoiceReminderEmailPayload,
+): Promise<EmailResult> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM;
+
+  if (!resendApiKey) {
+    throw new Error("RESEND_API_KEY nije konfigurisan.");
+  }
+
+  if (!emailFrom) {
+    throw new Error("EMAIL_FROM nije konfigurisan.");
+  }
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(resendApiKey);
+  const dueDate = formatInvoiceDate(payload.invoice.dueDate);
+  const amount = formatInvoiceAmount(payload.invoice.amount, payload.invoice.currency);
+  const overdueLine =
+    payload.daysOverdue && payload.daysOverdue > 0
+      ? `<p style="margin:0 0 12px;font-size:14px;color:#8a3a3a;">This invoice is currently ${payload.daysOverdue} day(s) overdue.</p>`
+      : "";
+
+  const response = await resend.emails.send({
+    from: emailFrom,
+    to: payload.invoice.parentEmail,
+    subject: `Payment reminder: ${payload.invoice.invoiceNumber}`,
+    html: `
+      <div style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#243247;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:24px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e7ecf4;box-shadow:0 10px 28px rgba(31,41,55,0.08);">
+                <tr>
+                  <td style="padding:24px 28px;background:linear-gradient(135deg,#ffffff,#edf5fe);border-bottom:1px solid #e7ecf4;">
+                    <p style="margin:0;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:#5d7087;font-weight:700;">Kutak za srpski</p>
+                    <h2 style="margin:10px 0 0;font-size:24px;line-height:1.2;color:#1f2a37;">Payment Reminder</h2>
+                    <p style="margin:10px 0 0;font-size:14px;color:#4b5c70;line-height:1.6;">Dear ${payload.invoice.parentName}, this is a friendly reminder regarding your invoice ${payload.invoice.invoiceNumber}.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 28px;">
+                    ${overdueLine}
+                    <p style="margin:0 0 8px;font-size:14px;"><strong>Child:</strong> ${payload.invoice.childName}</p>
+                    <p style="margin:0 0 8px;font-size:14px;"><strong>Service:</strong> ${payload.invoice.serviceDescription}</p>
+                    <p style="margin:0 0 8px;font-size:14px;"><strong>Due date:</strong> ${dueDate}</p>
+                    <p style="margin:0 0 16px;font-size:16px;"><strong>Amount due:</strong> ${amount}</p>
+                    <div style="background:#f5f9ff;border:1px solid #dce7f5;border-radius:12px;padding:14px 16px;">
+                      <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.6px;text-transform:uppercase;color:#55708c;font-weight:700;">Payment instructions</p>
+                      <p style="margin:0;font-size:14px;color:#243247;line-height:1.6;white-space:pre-line;">${payload.invoice.paymentInstructions}</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `,
+  });
+
+  return {
+    queued: true,
+    provider: "resend",
+    id: response.data?.id,
+  };
 }
 
 export async function sendBlogNewsletter(payload: BlogNewsletterPayload): Promise<EmailResult> {

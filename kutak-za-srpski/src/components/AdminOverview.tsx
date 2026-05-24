@@ -1,6 +1,6 @@
 "use client";
 
-import { Booking, Term } from "@/types/models";
+import { Booking, JobApplication, Term } from "@/types/models";
 import { AdminStatCard } from "./AdminStatCard";
 
 interface AdminOverviewProps {
@@ -8,6 +8,7 @@ interface AdminOverviewProps {
   terms: Term[];
   publishedPostsCount: number;
   newsletterCount: number;
+  jobApplications: JobApplication[];
 }
 
 export function AdminOverview({
@@ -15,6 +16,7 @@ export function AdminOverview({
   terms,
   publishedPostsCount,
   newsletterCount,
+  jobApplications,
 }: AdminOverviewProps) {
   const pending = bookings.filter((b) => b.status === "pending").length;
   const confirmed = bookings.filter((b) => b.status === "confirmed").length;
@@ -51,9 +53,58 @@ export function AdminOverview({
       </section>
 
       {/* Blog & Newsletter */}
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 sm:grid-cols-3">
         <AdminStatCard title="Objavljenih blog postova" value={publishedPostsCount} />
         <AdminStatCard title="Newsletter pretplatnika" value={newsletterCount} />
+        <AdminStatCard title="Prijava za posao" value={jobApplications.length} />
+      </section>
+
+      <section className="rounded-3xl border border-line bg-surface p-6">
+        <h2 className="text-2xl font-semibold">Najnovije prijave za posao</h2>
+        <p className="mt-1 text-sm text-muted">Ko se prijavio i kada, sa direktnim pristupom CV-ju.</p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-muted">
+                <th className="px-2 py-3">Kandidat</th>
+                <th className="px-2 py-3">Kontakt</th>
+                <th className="px-2 py-3">Angažman</th>
+                <th className="px-2 py-3">CV</th>
+                <th className="px-2 py-3">Prijavljeno</th>
+              </tr>
+            </thead>
+            <tbody>
+              {jobApplications.slice(0, 8).map((application) => (
+                <tr key={application.id} className="border-b border-line/60 hover:bg-surface-2">
+                  <td className="px-2 py-3 font-medium">{application.fullName}</td>
+                  <td className="px-2 py-3 text-muted">
+                    <div>{application.email}</div>
+                    <div>{application.phone}</div>
+                  </td>
+                  <td className="px-2 py-3">{application.employmentType}</td>
+                  <td className="px-2 py-3">
+                    {application.cvFileUrl ? (
+                      <a
+                        href={application.cvFileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium text-accent hover:underline"
+                      >
+                        {application.cvFileName || "Otvori CV"}
+                      </a>
+                    ) : (
+                      <span className="text-muted">Nije dodat</span>
+                    )}
+                  </td>
+                  <td className="px-2 py-3 text-muted">
+                    {application.createdAt ? new Date(application.createdAt).toLocaleString("sr-RS") : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {jobApplications.length === 0 ? <p className="py-4 text-sm text-muted">Još nema prijava za posao.</p> : null}
+        </div>
       </section>
 
       {/* Group Fill Chart */}

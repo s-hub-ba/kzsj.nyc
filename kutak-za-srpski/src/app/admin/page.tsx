@@ -6,18 +6,15 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminNav, AdminTab } from "@/components/AdminNav";
 import { AdminOverview } from "@/components/AdminOverview";
 import { AdminBookings } from "@/components/AdminBookings";
+import { AdminJobApplications } from "@/components/AdminJobApplications";
 import { AdminClasses } from "@/components/AdminClasses";
 import { AdminPayments } from "@/components/AdminPayments";
+import { AdminInvoices } from "@/components/AdminInvoices";
 import { AdminBlog } from "@/components/AdminBlog";
+import { AdminEmailLog } from "@/components/AdminEmailLog";
 import { adminSignOut, onAdminAuthStateChanged } from "@/lib/auth";
-import {
-  getAllClasses,
-  getAllTerms,
-  getBookings,
-  getNewsletterSubscribers,
-  getPublishedBlogPosts,
-} from "@/lib/firestore";
-import { Booking, BlogPost, SchoolClass, Term } from "@/types/models";
+import { getAdminDashboardData } from "@/lib/firestore";
+import { Booking, BlogPost, EmailLog, JobApplication, SchoolClass, Term } from "@/types/models";
 
 export default function AdminDashboardPage() {
   const [currentTab, setCurrentTab] = useState<AdminTab>("overview");
@@ -26,7 +23,10 @@ export default function AdminDashboardPage() {
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [terms, setTerms] = useState<Term[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
   const [newsletterCount, setNewsletterCount] = useState(0);
+  const [pendingInvoiceBookingId, setPendingInvoiceBookingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Subscribe to admin auth
@@ -39,28 +39,28 @@ export default function AdminDashboardPage() {
 
   // Load all data
   useEffect(() => {
+    if (!currentAdmin?.email) {
+      return;
+    }
+
     const loadData = async () => {
       try {
-        const [allBookings, allClasses, allTerms, subscribers, blogPosts] = await Promise.all([
-          getBookings(),
-          getAllClasses(),
-          getAllTerms(),
-          getNewsletterSubscribers(),
-          getPublishedBlogPosts(),
-        ]);
+        const data = await getAdminDashboardData();
 
-        setBookings(allBookings);
-        setClasses(allClasses);
-        setTerms(allTerms);
-        setPosts(blogPosts);
-        setNewsletterCount(subscribers.length);
+        setBookings(data.bookings);
+        setClasses(data.classes);
+        setTerms(data.terms);
+        setJobApplications(data.jobApplications);
+        setPosts(data.posts);
+        setEmailLogs(data.emailLogs);
+        setNewsletterCount(data.newsletterSubscribers.length);
       } finally {
         setLoading(false);
       }
     };
 
     void loadData();
-  }, []);
+  }, [currentAdmin?.email]);
 
   const handleBookingUpdate = (bookingId: string, updates: Partial<Booking>) => {
     setBookings((prev) =>
@@ -76,6 +76,11 @@ export default function AdminDashboardPage() {
 
   const handlePostsUpdate = (updatedPosts: BlogPost[]) => {
     setPosts(updatedPosts);
+  };
+
+  const handleCreateInvoiceFromBooking = (bookingId: string) => {
+    setPendingInvoiceBookingId(bookingId);
+    setCurrentTab("invoices");
   };
 
   const publishedPostsCount = posts.filter((p) => p.published).length;
@@ -117,6 +122,7 @@ export default function AdminDashboardPage() {
                     terms={terms}
                     publishedPostsCount={publishedPostsCount}
                     newsletterCount={newsletterCount}
+                    jobApplications={jobApplications}
                   />
                 )}
 
@@ -125,7 +131,12 @@ export default function AdminDashboardPage() {
                     bookings={bookings}
                     currentAdminEmail={currentAdmin.email}
                     onBookingUpdate={handleBookingUpdate}
+                    onCreateInvoice={handleCreateInvoiceFromBooking}
                   />
+                )}
+
+                {currentTab === "applications" && (
+                  <AdminJobApplications applications={jobApplications} />
                 )}
 
                 {currentTab === "classes" && (
@@ -141,14 +152,27 @@ export default function AdminDashboardPage() {
                 {currentTab === "payments" && (
                   <AdminPayments
                     bookings={bookings}
+                    classes={classes}
+                    terms={terms}
                     currentAdminEmail={currentAdmin.email}
                     onBookingUpdate={handleBookingUpdate}
+                  />
+                )}
+
+                {currentTab === "invoices" && (
+                  <AdminInvoices
+                    bookings={bookings}
+                    classes={classes}
+                    initialBookingId={pendingInvoiceBookingId}
+                    onInitialBookingHandled={() => setPendingInvoiceBookingId(null)}
                   />
                 )}
 
                 {currentTab === "blog" && (
                   <AdminBlog posts={posts} onPostUpdate={handlePostsUpdate} />
                 )}
+
+                {currentTab === "emails" && <AdminEmailLog logs={emailLogs} />}
               </>
             ) : null}
           </div>

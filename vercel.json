@@ -1,4 +1,10 @@
 {
   "framework": "nextjs",
-  "outputDirectory": "kutak-za-srpski/.next"
+  "outputDirectory": "kutak-za-srpski/.next",
+  "crons": [
+    {
+      "path": "/api/cron/invoice-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }

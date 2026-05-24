@@ -10,17 +10,29 @@ interface BookingPageProps {
 export async function generateMetadata({ params }: BookingPageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Rezervacija | Kutak za srpski" : "Booking | Kutak za srpski",
+    title: locale === "sr" ? "Prijava | Kutak za srpski" : "Sign up | Kutak za srpski",
     description:
       locale === "sr"
-        ? "Rezervisite pojedinacni cas ili semestar online."
-        : "Book a single class or semester online.",
+        ? "Prijavite dete na pojedinacni cas ili semestar online."
+        : "Sign up for a single class or semester online.",
   };
 }
 
 export default async function BookingPage({ params }: BookingPageProps) {
   const { locale } = await params;
   const t = await getTranslations("booking");
+  const processNotes =
+    locale === "sr"
+      ? [
+          "1. Popunjavate prijavu za zeljeni program i termin.",
+          "2. Tim Kutka vam salje waiver dokumentaciju i instrukcije za uplatu.",
+          "3. Mesto je potvrdeno tek kada su waiver i uplata evidentirani.",
+        ]
+      : [
+          "1. Submit the form for the program and term you want.",
+          "2. The Kutak team sends you the waiver documents and payment instructions.",
+          "3. Your place is confirmed only after both the waiver and payment are recorded.",
+        ];
 
   return (
     <div className="space-y-8 max-[375px]:space-y-6">
@@ -29,6 +41,17 @@ export default async function BookingPage({ params }: BookingPageProps) {
       <p className="rounded-2xl border border-line bg-white px-4 py-3 text-sm leading-relaxed text-[var(--muted)] shadow-[var(--shadow)] sm:px-5 sm:py-4">
         {t("validityNotice")}
       </p>
+
+      <section className="grid gap-3 md:grid-cols-3">
+        {processNotes.map((note) => (
+          <p
+            key={note}
+            className="rounded-2xl border border-line bg-white px-4 py-4 text-sm leading-relaxed text-[var(--muted)] shadow-[var(--shadow)]"
+          >
+            {note}
+          </p>
+        ))}
+      </section>
 
       <BookingForm />
     </div>

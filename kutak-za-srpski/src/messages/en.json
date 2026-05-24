@@ -3,8 +3,15 @@
     "home": "Home",
     "about": "About",
     "programs": "Programs",
-    "booking": "Booking",
+    "programAges": {
+      "1-3": "Age 1-3",
+      "3-5": "Age 3-5",
+      "5-7": "Age 5-7"
+    },
+    "booking": "Sign up",
+    "careers": "Careers",
     "blog": "Blog",
+    "newsletter": "Newsletter",
     "contact": "Contact"
   },
   "footer": {
@@ -12,7 +19,9 @@
     "quickLinks": "Quick links",
     "about": "About",
     "programs": "Programs",
-    "booking": "Booking",
+    "booking": "Sign up",
+    "careers": "Careers",
+    "newsletter": "Newsletter",
     "contact": "Contact"
   },
   "common": {
@@ -25,41 +34,41 @@
       "eyebrow": "Kutak za srpski",
       "title": "Language, culture and speaking confidence.",
       "subtitle": "Expert-led programs with warm guidance for confident Serbian language growth.",
-      "primaryCta": "Book a class",
+      "primaryCta": "Sign up for a class",
       "secondaryCta": "Explore programs"
     },
     "programsEyebrow": "Programs",
     "programsTitle": "Programs tailored to each child and pace",
     "programsDescription": "Authoritative pedagogy with a warm touch: clear structure, consistency and caring guidance.",
-    "bookingEyebrow": "Booking",
-    "bookingTitle": "Book a single class or full semester",
-    "bookingDescription": "Simple reservation flow with no parent account required.",
-    "bookingCta": "Go to booking",
+    "bookingEyebrow": "Sign up",
+    "bookingTitle": "Sign up for a single class or full semester",
+    "bookingDescription": "Simple signup flow with no parent account required.",
+    "bookingCta": "Go to sign up",
     "blogEyebrow": "Blog",
     "blogTitle": "Parent insights and inspiration",
     "blogDescription": "Balanced content: educational guidance plus stories from everyday life at Kutak."
   },
   "about": {
     "title": "About",
-    "intro": "Kutak za srpski is a premium educational space where every child is seen, supported and inspired.",
+    "intro": "Kutak was founded to give children growing up in New York and the surrounding area a place to learn the language, build friendships and stay connected to the culture of their Balkan roots.",
     "cards": {
       "1": {
-        "title": "Pedagogical approach",
-        "text": "We build progress through structure, routine and warm communication."
+        "title": "Language in community",
+        "text": "We believe language and culture are best practiced in a group, through conversation, play and shared experience."
       },
       "2": {
-        "title": "Culture and identity",
-        "text": "Language learning is connected with stories, tradition and modern topics."
+        "title": "Belonging and identity",
+        "text": "Kutak helps children build a natural relationship with the language, culture and family roots they inherit."
       },
       "3": {
-        "title": "Measured outcomes",
-        "text": "We track progress and tailor the plan for each learner."
+        "title": "Families that connect",
+        "text": "We want Kutak to bring families together so children can grow together and stay motivated to speak our language while growing up in New York."
       }
     }
   },
   "programs": {
     "title": "Programs",
-    "intro": "Choose a learning format that fits your family schedule and goals.",
+    "intro": "Autumn 2026 programs are organized by age, with a clear Saturday schedule and steady family support.",
     "availability": "Available spaces",
     "spacesAvailable": "Spaces available - apply now",
     "spacesUnavailable": "No spaces - send inquiry",
@@ -76,9 +85,9 @@
     "semesterSchedule": "Full semester"
   },
   "booking": {
-    "title": "Booking",
-    "intro": "Complete the form and receive next steps for signed documentation and seat confirmation.",
-    "validityNotice": "Important: a reservation becomes valid only after a signed waiver and recorded payment. Online payment is currently unavailable.",
+    "title": "Sign up for a class or semester",
+    "intro": "Complete the form and we will send the next steps for waiver paperwork and seat confirmation.",
+    "validityNotice": "A sign-up becomes valid only after a signed waiver and recorded payment. Online payment through the website is not enabled yet.",
     "form": {
       "parentName": "Parent full name",
       "parentEmail": "Parent email",
@@ -86,15 +95,33 @@
       "childName": "Child name",
       "childAge": "Child age",
       "class": "Program",
+      "ageGroupSelector": "Age group",
+      "programCardsHelp": "Choose one program for the selected age group.",
+      "noProgramsForAgeGroup": "No programs are currently available for this age group.",
+      "programQuickPick": "Quick program pick",
+      "ageGroupLabel": "Age group",
+      "levelLabel": "Level",
+      "formatLabel": "Format",
+      "priceLabel": "Price",
+      "ageRecommendationTitle": "Age-based recommendation",
+      "ageRecommendationFound": "For age {age}, the closest match is: {program}.",
+      "ageRecommendationNone": "There is no direct age match right now. You can choose the closest program by level.",
+      "ageRecommendationInvalid": "Enter a numeric age (e.g. 5 or 5.5) to get a recommendation.",
+      "chooseRecommended": "Choose recommended program",
+      "recommendedBadge": "Recommended",
       "term": "Term",
-      "bookingType": "Booking type",
+      "group": "Group",
+      "bookingType": "Sign-up type",
       "single": "Single class",
       "semester": "Semester",
+      "typeHelpSingle": "Single class sign-up applies only to the selected class date.",
+      "typeHelpSemester": "Semester sign-up follows the recurring Saturday schedule. After payment is confirmed, we send the full semester calendar.",
       "message": "Additional message",
+      "newsletterOptIn": "I also want to subscribe to the newsletter (booking emails remain separate from the newsletter list).",
       "required": "Please complete all required fields.",
-      "success": "Booking submitted. Your seat is confirmed only after a signed waiver and payment.",
+      "success": "Sign-up submitted. Your seat is held only after a signed waiver and recorded payment.",
       "error": "Something went wrong. Please try again.",
-      "submit": "Submit booking",
+      "submit": "Submit sign-up",
       "submitting": "Submitting..."
     }
   },
@@ -106,6 +133,7 @@
     "title": "Contact",
     "intro": "We are happy to help with program recommendations and scheduling.",
     "visit": "Visit us",
+    "write": "Write to us",
     "visitText": "Classes are available online and in person by arrangement."
   },
   "newsletter": {
@@ -114,5 +142,47 @@
     "cta": "Subscribe",
     "success": "You are subscribed to the newsletter.",
     "error": "Subscription failed. Please try again later."
+  },
+  "newsletterPage": {
+    "title": "Newsletter",
+    "intro": "A monthly email with practical parent tips and enrollment updates.",
+    "whatYouGet": "What you get",
+    "items": {
+      "1": "Short, actionable ideas for supporting language at home.",
+      "2": "Program, schedule, and enrollment updates.",
+      "3": "Notifications about new blog posts and workshops."
+    },
+    "separationNote": "Note: an email used in booking is not automatically added to the newsletter list unless the parent explicitly opts in."
+  },
+  "careers": {
+    "title": "We are hiring teachers",
+    "intro": "We are open to full-time and part-time collaboration with educators who enjoy working with children.",
+    "whyTitle": "Why work with Kutak",
+    "benefits": {
+      "1": "Clear pedagogy framework and support in planning activities.",
+      "2": "Flexible options: full-time or occasional engagement.",
+      "3": "A warm family community and focus on quality language growth."
+    },
+    "form": {
+      "fullName": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "employmentType": "Engagement type",
+      "fullTime": "Full-time",
+      "partTime": "Part-time",
+      "both": "Open to both",
+      "experienceSummary": "Teaching experience",
+      "cv": "CV",
+      "cvHint": "PDF, DOC, or DOCX up to 10 MB.",
+      "cvRequired": "Please attach a CV.",
+      "cvInvalidType": "The CV must be a PDF, DOC, or DOCX file.",
+      "cvTooLarge": "The CV must be 10 MB or smaller.",
+      "message": "Additional message",
+      "required": "Please fill in all required fields.",
+      "success": "Application submitted successfully. We will contact you soon.",
+      "error": "Application failed to submit. Please try again.",
+      "submit": "Submit application",
+      "submitting": "Submitting..."
+    }
   }
 }
