@@ -13,9 +13,19 @@ export function Navbar() {
   const links = [
     { href: "/", label: t("home") },
     { href: "/about", label: t("about") },
-    { href: "/programs", label: t("programs") },
+    {
+      href: "/programs",
+      label: t("programs"),
+      children: [
+        { href: "/programs/1-3", label: t("programAges.1-3") },
+        { href: "/programs/3-5", label: t("programAges.3-5") },
+        { href: "/programs/5-7", label: t("programAges.5-7") },
+      ],
+    },
     { href: "/booking", label: t("booking") },
+    { href: "/careers", label: t("careers") },
     { href: "/blog", label: t("blog") },
+    { href: "/newsletter", label: t("newsletter") },
     { href: "/contact", label: t("contact") },
   ];
 
@@ -44,15 +54,30 @@ export function Navbar() {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-2 text-sm md:flex">
+          <div className="hidden items-center gap-1 text-sm md:flex">
             {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-full px-4 py-2 font-semibold text-[var(--muted)] transition hover:bg-[var(--surface-2)] hover:text-[var(--brand-2)]"
-              >
-                {link.label}
-              </Link>
+              <div key={link.href} className="relative group">
+                <Link
+                  href={link.href}
+                  className="whitespace-nowrap rounded-full px-3 py-2 text-[15px] font-semibold leading-none text-[var(--muted)] transition hover:bg-[var(--surface-2)] hover:text-[var(--brand-2)]"
+                >
+                  {link.label}
+                </Link>
+
+                {link.children ? (
+                  <div className="pointer-events-none absolute left-0 top-full z-50 mt-1 min-w-44 rounded-2xl border border-line bg-white p-2 opacity-0 shadow-[var(--shadow)] transition group-hover:pointer-events-auto group-hover:opacity-100">
+                    {link.children.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="block rounded-xl px-3 py-2 text-sm font-semibold text-[var(--brand-2)] transition hover:bg-[var(--surface-2)]"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             ))}
           </div>
 
@@ -71,14 +96,29 @@ export function Navbar() {
         {open ? (
           <div className="glass mt-4 flex flex-col gap-2 rounded-2xl p-3 md:hidden">
             {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-[var(--brand-2)] hover:bg-white"
-              >
-                {link.label}
-              </Link>
+              <div key={link.href} className="space-y-1">
+                <Link
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-sm font-semibold text-[var(--brand-2)] hover:bg-white"
+                >
+                  {link.label}
+                </Link>
+                {link.children ? (
+                  <div className="ml-4 space-y-1 border-l border-line pl-3">
+                    {link.children.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className="block rounded-lg px-2 py-1.5 text-xs font-semibold text-[var(--muted)] hover:bg-white"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             ))}
           </div>
         ) : null}

@@ -13,7 +13,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { db, storage } from "@/lib/firebase";
 import {
   sendAdminBookingNotification,
   sendBlogNewsletter,
@@ -24,16 +25,78 @@ import {
   Booking,
   BookingInput,
   BookingStatus,
+  EmailLog,
+  Invoice,
+  JobApplication,
+  JobApplicationInput,
   Locale,
   NewsletterSubscriber,
   PaymentStatus,
+  ReceivedPaymentMethod,
   SchoolClass,
   TermCapacityPolicy,
   Term,
 } from "@/types/models";
 import { sampleBlogPosts, sampleClasses, sampleTerms } from "@/lib/sampleData";
+import { auth } from "@/lib/firebase";
 
 const isServerRuntime = typeof window === "undefined";
+
+type AdminDashboardData = {
+  bookings: Booking[];
+  classes: SchoolClass[];
+  terms: Term[];
+  newsletterSubscribers: NewsletterSubscriber[];
+  jobApplications: JobApplication[];
+  posts: BlogPost[];
+  emailLogs: EmailLog[];
+  invoices: Invoice[];
+};
+
+export async function getAdminDashboardData(): Promise<AdminDashboardData> {
+  if (!isServerRuntime) {
+    return callAdminApi<AdminDashboardData>("getDashboardData");
+  }
+
+  return {
+    bookings: await getBookings(),
+    classes: await getAllClasses(),
+    terms: await getAllTerms(),
+    newsletterSubscribers: await getNewsletterSubscribers(),
+    jobApplications: await getJobApplications(),
+    posts: await getAllBlogPosts(),
+    emailLogs: [],
+    invoices: [],
+  };
+}
+
+async function callAdminApi<T>(action: string, payload?: Record<string, unknown>): Promise<T> {
+  if (isServerRuntime) {
+    throw new Error("Admin API je dostupna samo iz browser-a.");
+  }
+
+  const currentUser = auth?.currentUser;
+  if (!currentUser) {
+    throw new Error("Admin korisnik nije prijavljen.");
+  }
+
+  const token = await currentUser.getIdToken(true);
+  const response = await fetch("/api/admin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ action, payload }),
+  });
+
+  const data = (await response.json().catch(() => ({}))) as T & { message?: string };
+  if (!response.ok) {
+    throw new Error(data.message ?? "Admin operacija nije uspela.");
+  }
+
+  return data;
+}
 
 function requireDb() {
   if (!db) {
@@ -41,6 +104,14 @@ function requireDb() {
   }
 
   return db;
+}
+
+function requireStorage() {
+  if (!storage) {
+    throw new Error("Firebase Storage nije konfigurisan. Dodajte NEXT_PUBLIC_FIREBASE_* promenljive.");
+  }
+
+  return storage;
 }
 
 function mapDoc<T extends { id: string }>(
@@ -59,14 +130,22 @@ export async function getActiveClasses(): Promise<SchoolClass[]> {
 }
 
 export async function getAllClasses(): Promise<SchoolClass[]> {
-  if (!db || isServerRuntime) return sampleClasses;
+  if (!db) return sampleClasses;
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.classes;
+  }
 
   const snapshot = await getDocs(collection(db, "classes"));
   return snapshot.docs.map((d) => mapDoc<SchoolClass>(d.id, d.data()));
 }
 
 export async function getAllTerms(): Promise<Term[]> {
-  if (!db || isServerRuntime) return sampleTerms;
+  if (!db) return sampleTerms;
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.terms;
+  }
 
   const snapshot = await getDocs(collection(db, "terms"));
   return snapshot.docs.map((d) => mapDoc<Term>(d.id, d.data()));
@@ -124,16 +203,7 @@ export async function createBooking(input: BookingInput): Promise<Booking> {
 
   const selectedClass = classes.find((item) => item.id === input.selectedClassId);
   const selectedTerm = allTerms.find((item) => item.id === input.selectedTermId);
-  
-  // Check if this is the first booking for this parent
-  const existingBookingsQuery = query(
-    collection(firestore, "bookings"),
-    where("parentEmail", "==", input.parentEmail),
-    where("status", "in", ["confirmed", "pending"])
-  );
-  const existingBookings = await getDocs(existingBookingsQuery);
-  const isFirstBooking = existingBookings.size <= 1; // <= 1 because we just added one
-  
+
   // Filter all terms for this class for semester schedule
   const classTerms = allTerms.filter(t => t.classId === input.selectedClassId);
 
@@ -142,14 +212,12 @@ export async function createBooking(input: BookingInput): Promise<Booking> {
       booking, 
       selectedClass, 
       selectedTerm,
-      isFirstBooking,
       allTerms: classTerms
     }),
     sendAdminBookingNotification({ 
       booking, 
       selectedClass, 
       selectedTerm,
-      isFirstBooking,
       allTerms: classTerms
     }),
   ]);
@@ -185,11 +253,29 @@ export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost
   return first ? mapDoc<BlogPost>(first.id, first.data()) : null;
 }
 
-export async function subscribeToNewsletter(email: string, preferredLanguage: Locale) {
+export async function subscribeToNewsletter(
+  email: string,
+  preferredLanguage: Locale,
+  source: "newsletter-page" | "booking-opt-in" = "newsletter-page",
+) {
   const firestore = requireDb();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const existingQuery = query(
+    collection(firestore, "newsletterSubscribers"),
+    where("email", "==", normalizedEmail),
+  );
+  const existingSnapshot = await getDocs(existingQuery);
+  const first = existingSnapshot.docs[0];
+
+  if (first) {
+    return mapDoc<NewsletterSubscriber>(first.id, first.data());
+  }
+
   const payload = {
-    email,
+    email: normalizedEmail,
     preferredLanguage,
+    source,
     createdAt: serverTimestamp(),
   };
 
@@ -197,8 +283,59 @@ export async function subscribeToNewsletter(email: string, preferredLanguage: Lo
   return mapDoc<NewsletterSubscriber>(docRef.id, payload);
 }
 
+export async function submitJobApplication(input: JobApplicationInput): Promise<JobApplication> {
+  const firestore = requireDb();
+  const payload = {
+    ...input,
+    email: input.email.trim().toLowerCase(),
+    createdAt: serverTimestamp(),
+  };
+
+  const docRef = await addDoc(collection(firestore, "jobApplications"), payload);
+  return mapDoc<JobApplication>(docRef.id, payload);
+}
+
+function sanitizeFileName(fileName: string) {
+  return fileName.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+}
+
+export async function uploadJobApplicationCv(file: File) {
+  const firebaseStorage = requireStorage();
+  const safeName = sanitizeFileName(file.name || "cv");
+  const filePath = `career-cvs/${Date.now()}-${safeName}`;
+  const storageRef = ref(firebaseStorage, filePath);
+
+  await uploadBytes(storageRef, file, {
+    contentType: file.type || "application/octet-stream",
+  });
+
+  return {
+    fileName: file.name,
+    fileUrl: await getDownloadURL(storageRef),
+    storagePath: filePath,
+    contentType: file.type || "application/octet-stream",
+    fileSize: file.size,
+  };
+}
+
+export async function getJobApplications() {
+  if (!db) return [] as JobApplication[];
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.jobApplications;
+  }
+
+  const q = query(collection(db, "jobApplications"), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => mapDoc<JobApplication>(d.id, d.data()));
+}
+
 export async function getBookings() {
   if (!db) return [] as Booking[];
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.bookings;
+  }
 
   const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
@@ -218,6 +355,11 @@ export async function updateBookingStatuses(
 }
 
 export async function saveClass(payload: Partial<SchoolClass> & Pick<SchoolClass, "title_sr" | "title_en">) {
+  if (!isServerRuntime) {
+    const result = await callAdminApi<{ id: string }>("saveClass", payload as Record<string, unknown>);
+    return result.id;
+  }
+
   const firestore = requireDb();
   if (payload.id) {
     const { id, ...rest } = payload;
@@ -234,11 +376,21 @@ export async function saveClass(payload: Partial<SchoolClass> & Pick<SchoolClass
 }
 
 export async function deleteClass(id: string) {
+  if (!isServerRuntime) {
+    await callAdminApi<{ ok: true }>("deleteClass", { id });
+    return;
+  }
+
   const firestore = requireDb();
   await deleteDoc(doc(firestore, "classes", id));
 }
 
 export async function saveTerm(payload: Partial<Term> & Pick<Term, "classId" | "title_sr" | "title_en">) {
+  if (!isServerRuntime) {
+    const result = await callAdminApi<{ id: string }>("saveTerm", payload as Record<string, unknown>);
+    return result.id;
+  }
+
   const firestore = requireDb();
   if (payload.id) {
     const { id, ...rest } = payload;
@@ -256,6 +408,11 @@ export async function saveTerm(payload: Partial<Term> & Pick<Term, "classId" | "
 }
 
 export async function deleteTerm(id: string) {
+  if (!isServerRuntime) {
+    await callAdminApi<{ ok: true }>("deleteTerm", { id });
+    return;
+  }
+
   const firestore = requireDb();
   await deleteDoc(doc(firestore, "terms", id));
 }
@@ -265,6 +422,11 @@ export async function updateTermCapacityPolicy(
   policy: TermCapacityPolicy,
   adminEmail: string,
 ) {
+  if (!isServerRuntime) {
+    await callAdminApi<{ ok: true }>("updateTermCapacityPolicy", { termId, policy });
+    return;
+  }
+
   const firestore = requireDb();
   const now = new Date().toISOString();
 
@@ -301,10 +463,16 @@ export async function updateBookingWorkflow(
   input: {
     waiverSigned: boolean;
     paymentStatus: PaymentStatus;
+    paymentMethod?: ReceivedPaymentMethod;
     status?: BookingStatus;
   },
   adminEmail: string,
 ) {
+  if (!isServerRuntime) {
+    await callAdminApi<{ ok: true }>("updateBookingWorkflow", { bookingId, input });
+    return;
+  }
+
   const firestore = requireDb();
   const isValidBooking = input.waiverSigned && input.paymentStatus === "paid";
   const now = new Date().toISOString();
@@ -320,6 +488,11 @@ export async function updateBookingWorkflow(
 }
 
 export async function saveBlogPost(payload: Partial<BlogPost> & Pick<BlogPost, "slug" | "title_sr" | "title_en">) {
+  if (!isServerRuntime) {
+    const result = await callAdminApi<{ id: string }>("saveBlogPost", payload as Record<string, unknown>);
+    return result.id;
+  }
+
   const firestore = requireDb();
   let shouldSendNewsletter = false;
   let postId = payload.id;
@@ -369,14 +542,34 @@ export async function saveBlogPost(payload: Partial<BlogPost> & Pick<BlogPost, "
 }
 
 export async function deleteBlogPost(id: string) {
+  if (!isServerRuntime) {
+    await callAdminApi<{ ok: true }>("deleteBlogPost", { id });
+    return;
+  }
+
   const firestore = requireDb();
   await deleteDoc(doc(firestore, "blogPosts", id));
 }
 
 export async function getNewsletterSubscribers() {
   if (!db) return [] as NewsletterSubscriber[];
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.newsletterSubscribers;
+  }
 
   const q = query(collection(db, "newsletterSubscribers"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => mapDoc<NewsletterSubscriber>(d.id, d.data()));
+}
+
+export async function getAllBlogPosts(): Promise<BlogPost[]> {
+  if (!db) return sampleBlogPosts;
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.posts;
+  }
+
+  const snapshot = await getDocs(query(collection(db, "blogPosts"), orderBy("createdAt", "desc")));
+  return snapshot.docs.map((d) => mapDoc<BlogPost>(d.id, d.data()));
 }

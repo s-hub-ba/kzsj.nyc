@@ -2,8 +2,69 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { createBooking, getActiveClasses, getActiveTerms } from "@/lib/firestore";
+import { createBooking, getActiveClasses, getActiveTerms, subscribeToNewsletter } from "@/lib/firestore";
 import { ClassType, Locale, SchoolClass, Term } from "@/types/models";
+
+const GROUP_TERM_PATTERN = /\b(grupa|group)\b/i;
+
+function isGroupTerm(term: Term) {
+  return GROUP_TERM_PATTERN.test(term.title_sr) || GROUP_TERM_PATTERN.test(term.title_en);
+}
+
+function sortTermsBySchedule(items: Term[]) {
+  return [...items].sort((a, b) => {
+    const dateCompare = (a.date || "").localeCompare(b.date || "");
+    if (dateCompare !== 0) return dateCompare;
+    return (a.startTime || "").localeCompare(b.startTime || "");
+  });
+}
+
+function selectTermsForType(classTerms: Term[], bookingType: ClassType) {
+  const sorted = sortTermsBySchedule(classTerms);
+
+  if (bookingType === "semester") {
+    const groupTerms = sorted.filter(isGroupTerm);
+    return groupTerms.length > 0 ? groupTerms : sorted;
+  }
+
+  const singleTerms = sorted.filter((term) => !isGroupTerm(term));
+  return singleTerms.length > 0 ? singleTerms : sorted;
+}
+
+function parseAgeRange(value: string) {
+  const matches = value.match(/\d+/g);
+  if (!matches || matches.length === 0) return null;
+
+  const min = Number(matches[0]);
+  const max = Number(matches[matches.length > 1 ? 1 : 0]);
+
+  if (Number.isNaN(min) || Number.isNaN(max)) return null;
+  return { min: Math.min(min, max), max: Math.max(min, max) };
+}
+
+function parseChildAge(value: string) {
+  const match = value.trim().match(/\d+(?:[.,]\d+)?/);
+  if (!match) return null;
+  const normalized = match[0].replace(",", ".");
+  const parsed = Number(normalized);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function normalizeAgeGroup(value: string) {
+  return value.replace(/\s+/g, "").replace(/[–—]/g, "-").toLowerCase();
+}
+
+function toCanonicalAgeGroup(value: string) {
+  const parsed = parseAgeRange(value);
+  if (!parsed) return normalizeAgeGroup(value);
+  return `${parsed.min}-${parsed.max}`;
+}
+
+function formatAgeGroupLabel(value: string, locale: Locale) {
+  const parsed = parseAgeRange(value);
+  if (!parsed) return value.trim();
+  return locale === "sr" ? `${parsed.min}-${parsed.max} godina` : `${parsed.min}-${parsed.max} years`;
+}
 
 export function BookingForm() {
   const t = useTranslations("booking.form");
@@ -14,6 +75,7 @@ export function BookingForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [selectedAgeGroupFilter, setSelectedAgeGroupFilter] = useState("");
 
   const [form, setForm] = useState({
     parentName: "",
@@ -25,6 +87,7 @@ export function BookingForm() {
     selectedTermId: "",
     bookingType: "single" as ClassType,
     message: "",
+    newsletterOptIn: false,
   });
 
   useEffect(() => {
@@ -50,10 +113,95 @@ export function BookingForm() {
     void loadData();
   }, []);
 
-  const filteredTerms = useMemo(
-    () => terms.filter((term) => term.classId === form.selectedClassId),
-    [terms, form.selectedClassId],
-  );
+  const filteredTerms = useMemo(() => {
+    const classTerms = terms.filter((term) => term.classId === form.selectedClassId);
+    return selectTermsForType(classTerms, form.bookingType);
+  }, [terms, form.selectedClassId, form.bookingType]);
+
+  const ageGroupOptions = useMemo(() => {
+    const grouped = new Map<string, string>();
+
+    classes.forEach((item) => {
+      if (!item.ageGroup) return;
+      const key = toCanonicalAgeGroup(item.ageGroup);
+      if (!grouped.has(key)) {
+        grouped.set(key, item.ageGroup);
+      }
+    });
+
+    return Array.from(grouped.entries()).map(([value, rawValue]) => ({
+      value,
+      label: formatAgeGroupLabel(rawValue, locale),
+    }));
+  }, [classes, locale]);
+
+  const classesForAgeGroup = useMemo(() => {
+    if (!selectedAgeGroupFilter) return classes;
+    const normalizedSelected = toCanonicalAgeGroup(selectedAgeGroupFilter);
+    return classes.filter((item) => toCanonicalAgeGroup(item.ageGroup) === normalizedSelected);
+  }, [classes, selectedAgeGroupFilter]);
+
+  const recommendedClass = useMemo(() => {
+    const childAge = parseChildAge(form.childAge);
+    if (childAge === null) return null;
+
+    const inRange = classes.filter((item) => {
+      const range = parseAgeRange(item.ageGroup);
+      if (!range) return false;
+      return childAge >= range.min && childAge <= range.max;
+    });
+
+    if (inRange.length === 0) return null;
+    const byType = inRange.find((item) => item.type === form.bookingType);
+    return byType ?? inRange[0];
+  }, [classes, form.childAge, form.bookingType]);
+
+  const recommendationMessage = useMemo(() => {
+    const childAge = parseChildAge(form.childAge);
+    if (!form.childAge.trim()) return "";
+    if (childAge === null) return t("ageRecommendationInvalid");
+    if (!recommendedClass) return t("ageRecommendationNone");
+
+    const programName = locale === "sr" ? recommendedClass.title_sr : recommendedClass.title_en;
+    return t("ageRecommendationFound", {
+      age: childAge,
+      program: programName,
+    });
+  }, [form.childAge, recommendedClass, t, locale]);
+
+  useEffect(() => {
+    if (!selectedAgeGroupFilter && ageGroupOptions.length > 0) {
+      setSelectedAgeGroupFilter(ageGroupOptions[0].value);
+    }
+  }, [selectedAgeGroupFilter, ageGroupOptions]);
+
+  useEffect(() => {
+    if (classesForAgeGroup.length === 0) {
+      setForm((prev) => ({ ...prev, selectedClassId: "", selectedTermId: "" }));
+      return;
+    }
+
+    const stillValid = classesForAgeGroup.some((item) => item.id === form.selectedClassId);
+    if (!stillValid) {
+      const nextClass = classesForAgeGroup[0];
+      const classTerms = terms.filter((term) => term.classId === nextClass.id);
+      const termsForType = selectTermsForType(classTerms, form.bookingType);
+      setForm((prev) => ({
+        ...prev,
+        selectedClassId: nextClass.id,
+        selectedTermId: termsForType[0]?.id ?? "",
+      }));
+    }
+  }, [classesForAgeGroup, form.selectedClassId, terms, form.bookingType]);
+
+  useEffect(() => {
+    if (!filteredTerms.some((term) => term.id === form.selectedTermId)) {
+      setForm((prev) => ({
+        ...prev,
+        selectedTermId: filteredTerms[0]?.id ?? "",
+      }));
+    }
+  }, [filteredTerms, form.selectedTermId]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -75,10 +223,15 @@ export function BookingForm() {
 
     try {
       setLoading(true);
+      const { newsletterOptIn, ...bookingInput } = form;
       await createBooking({
-        ...form,
+        ...bookingInput,
         preferredLanguage: locale,
       });
+
+      if (form.newsletterOptIn) {
+        await subscribeToNewsletter(form.parentEmail, locale, "booking-opt-in");
+      }
 
       setSuccess(t("success"));
       setForm((prev) => ({
@@ -89,6 +242,7 @@ export function BookingForm() {
         childName: "",
         childAge: "",
         message: "",
+        newsletterOptIn: false,
       }));
     } catch (submissionError) {
       const message = submissionError instanceof Error ? submissionError.message : t("error");
@@ -145,29 +299,71 @@ export function BookingForm() {
             onChange={(e) => setForm((prev) => ({ ...prev, childAge: e.target.value }))}
             className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
           />
+          {recommendationMessage ? (
+            <div className="mt-2 rounded-xl border border-line bg-white px-3 py-2 text-xs text-[var(--muted)]">
+              <p>
+                <span className="font-semibold text-foreground">{t("ageRecommendationTitle")}: </span>
+                {recommendationMessage}
+              </p>
+            </div>
+          ) : null}
         </label>
 
         <label className="text-sm text-[var(--muted)]">
-          {t("class")}
+          {t("ageGroupSelector")}
           <select
-            value={form.selectedClassId}
+            value={selectedAgeGroupFilter}
             onChange={(e) => {
-              const selectedClassId = e.target.value;
-              const firstTermForClass = terms.find((term) => term.classId === selectedClassId);
-              setForm((prev) => ({
-                ...prev,
-                selectedClassId,
-                selectedTermId: firstTermForClass?.id ?? "",
-              }));
+              setSelectedAgeGroupFilter(e.target.value);
             }}
             className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
           >
-            {classes.map((item) => (
-              <option key={item.id} value={item.id}>
-                {locale === "sr" ? item.title_sr : item.title_en}
+            {ageGroupOptions.map((ageGroup) => (
+              <option key={ageGroup.value} value={ageGroup.value}>
+                {ageGroup.label}
               </option>
             ))}
           </select>
+
+          <p className="mt-2 text-xs text-[var(--muted)]">{t("programCardsHelp")}</p>
+
+          <div className="mt-2 grid gap-2">
+            {classesForAgeGroup.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  const classTerms = terms.filter((term) => term.classId === item.id);
+                  const termsForType = selectTermsForType(classTerms, form.bookingType);
+                  setForm((prev) => ({
+                    ...prev,
+                    selectedClassId: item.id,
+                    selectedTermId: termsForType[0]?.id ?? "",
+                  }));
+                }}
+                className={`w-full rounded-xl border px-3 py-2 text-left transition ${
+                  form.selectedClassId === item.id
+                    ? "border-[var(--brand)] bg-[var(--surface-2)]"
+                    : "border-line bg-white hover:bg-[var(--surface-2)]"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-foreground">
+                    {locale === "sr" ? item.title_sr : item.title_en}
+                  </p>
+                  <span className="text-xs text-[var(--muted)]">{item.level}</span>
+                </div>
+                <p className="mt-1 line-clamp-2 text-xs text-[var(--muted)]">
+                  {locale === "sr" ? item.description_sr : item.description_en}
+                </p>
+              </button>
+            ))}
+          </div>
+
+          {classesForAgeGroup.length === 0 ? (
+            <p className="mt-2 text-xs text-[var(--muted)]">{t("noProgramsForAgeGroup")}</p>
+          ) : null}
+
         </label>
 
         <label className="text-sm text-[var(--muted)]">
@@ -182,10 +378,13 @@ export function BookingForm() {
             <option value="single">{t("single")}</option>
             <option value="semester">{t("semester")}</option>
           </select>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            {form.bookingType === "semester" ? t("typeHelpSemester") : t("typeHelpSingle")}
+          </p>
         </label>
 
         <label className="text-sm text-[var(--muted)] md:col-span-2">
-          {t("term")}
+          {form.bookingType === "semester" ? t("group") : t("term")}
           <select
             value={form.selectedTermId}
             onChange={(e) => setForm((prev) => ({ ...prev, selectedTermId: e.target.value }))}
@@ -193,7 +392,11 @@ export function BookingForm() {
           >
             {filteredTerms.map((term) => (
               <option key={term.id} value={term.id}>
-                {locale === "sr" ? term.title_sr : term.title_en} | {term.date} | {term.startTime}
+                {form.bookingType === "semester"
+                  ? locale === "sr"
+                    ? term.title_sr
+                    : term.title_en
+                  : `${locale === "sr" ? term.title_sr : term.title_en} | ${term.date} | ${term.startTime}`}
               </option>
             ))}
           </select>
@@ -207,6 +410,21 @@ export function BookingForm() {
             rows={4}
             className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
           />
+        </label>
+
+        <label className="flex items-start gap-3 rounded-2xl border border-line bg-[var(--surface-2)] px-4 py-3 text-sm text-[var(--muted)] md:col-span-2">
+          <input
+            type="checkbox"
+            checked={form.newsletterOptIn}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                newsletterOptIn: e.target.checked,
+              }))
+            }
+            className="mt-0.5 h-4 w-4 rounded border-line"
+          />
+          <span>{t("newsletterOptIn")}</span>
         </label>
       </div>
 

@@ -30,6 +30,16 @@ export function Footer() {
                 {t("booking")}
               </Link>
             </li>
+            <li>
+              <Link href="/careers" className="font-semibold transition hover:text-[var(--brand-2)]">
+                {t("careers")}
+              </Link>
+            </li>
+            <li>
+              <Link href="/newsletter" className="font-semibold transition hover:text-[var(--brand-2)]">
+                {t("newsletter")}
+              </Link>
+            </li>
           </ul>
         </div>
 

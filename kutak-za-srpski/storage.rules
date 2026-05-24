@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == "ivanadurovic94@gmail.com" ||
+        request.auth.token.email == "amraisakovic.fig@gmail.com"
+      );
+    }
+
+    function isAllowedCareerCv() {
+      return request.resource != null
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('application/pdf|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    }
+
+    match /career-cvs/{allPaths=**} {
+      allow create: if isAllowedCareerCv();
+      allow update, delete: if isAdmin();
+      allow read: if isAdmin();
+    }
+  }
+}

@@ -32,5 +32,18 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
+
+    match /jobApplications/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /invoices/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /invoiceCounters/{docId} {
+      allow read, write: if isAdmin();
+    }
   }
 }
