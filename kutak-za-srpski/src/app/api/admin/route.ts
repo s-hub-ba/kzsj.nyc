@@ -24,9 +24,24 @@ import {
   TermCapacityPolicy,
 } from "@/types/models";
 
-const ADMIN_EMAILS = new Set([
+const STATIC_ADMIN_EMAILS = [
   "ivanadurovic94@gmail.com",
   "amraisakovic.fig@gmail.com",
+];
+
+function getAdminEmailsFromEnv() {
+  const raw = process.env.ADMIN_EMAILS;
+  if (!raw) return [];
+
+  return raw
+    .split(/[;,\s]+/)
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+const ADMIN_EMAILS = new Set([
+  ...STATIC_ADMIN_EMAILS,
+  ...getAdminEmailsFromEnv(),
 ]);
 
 type AdminAction =
@@ -725,6 +740,11 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Admin akcija nije uspela.";
-    return NextResponse.json({ message }, { status: 403 });
+    const isAuthError =
+      /nedostaje admin token|nemate dozvolu|auth|permission|unauthorized|forbidden|id token/i.test(
+        message.toLowerCase(),
+      );
+
+    return NextResponse.json({ message }, { status: isAuthError ? 403 : 500 });
   }
 }

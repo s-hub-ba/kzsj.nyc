@@ -1,21 +1,23 @@
 "use client";
 
-import { Booking, JobApplication, Term } from "@/types/models";
+import { Booking, JobApplication, NewsletterSubscriber, SchoolClass, Term } from "@/types/models";
 import { AdminStatCard } from "./AdminStatCard";
 
 interface AdminOverviewProps {
   bookings: Booking[];
+  classes: SchoolClass[];
   terms: Term[];
   publishedPostsCount: number;
-  newsletterCount: number;
+  newsletterSubscribers: NewsletterSubscriber[];
   jobApplications: JobApplication[];
 }
 
 export function AdminOverview({
   bookings,
+  classes,
   terms,
   publishedPostsCount,
-  newsletterCount,
+  newsletterSubscribers,
   jobApplications,
 }: AdminOverviewProps) {
   const pending = bookings.filter((b) => b.status === "pending").length;
@@ -41,6 +43,9 @@ export function AdminOverview({
       ? (groupFills.reduce((sum, g) => sum + g.fillPercentage, 0) / groupFills.length).toFixed(1)
       : "0";
 
+  const classNameById = new Map(classes.map((item) => [item.id, item.title_sr]));
+  const newsletterCount = newsletterSubscribers.length;
+
   return (
     <div className="space-y-6">
       {/* Top Stats */}
@@ -57,6 +62,42 @@ export function AdminOverview({
         <AdminStatCard title="Objavljenih blog postova" value={publishedPostsCount} />
         <AdminStatCard title="Newsletter pretplatnika" value={newsletterCount} />
         <AdminStatCard title="Prijava za posao" value={jobApplications.length} />
+      </section>
+
+      <section className="rounded-3xl border border-line bg-surface p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold">Newsletter emailovi</h2>
+          <span className="rounded-full bg-surface-2 px-3 py-1 text-xs text-muted">
+            Ukupno: {newsletterCount}
+          </span>
+        </div>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[560px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-muted">
+                <th className="px-2 py-2">Email</th>
+                <th className="px-2 py-2">Izvor</th>
+                <th className="px-2 py-2">Prijavljen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {newsletterSubscribers.slice(0, 12).map((subscriber) => (
+                <tr key={subscriber.id} className="border-b border-line/60 hover:bg-surface-2">
+                  <td className="px-2 py-2 font-medium text-foreground">{subscriber.email}</td>
+                  <td className="px-2 py-2 text-muted">{subscriber.source ?? "newsletter-page"}</td>
+                  <td className="px-2 py-2 text-muted">
+                    {subscriber.createdAt
+                      ? new Date(subscriber.createdAt).toLocaleString("sr-RS")
+                      : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {newsletterSubscribers.length === 0 ? (
+            <p className="py-4 text-sm text-muted">Još nema prijavljenih emailova na newsletter.</p>
+          ) : null}
+        </div>
       </section>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
@@ -110,19 +151,19 @@ export function AdminOverview({
       {/* Group Fill Chart */}
       <section className="rounded-3xl border border-line bg-surface p-6">
         <h2 className="text-2xl font-semibold">Popunjenost grupa</h2>
-        <p className="mt-1 text-sm text-muted">Trenutna zastupljenost po terminima</p>
-        <div className="mt-6 space-y-4">
+        <p className="mt-1 text-sm text-muted">Kompaktan pregled po terminima</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
           {groupFills.length > 0 ? (
             groupFills.map((group) => (
-              <div key={group.termId}>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{group.title}</span>
-                  <span className="text-muted">
+              <div key={group.termId} className="rounded-xl border border-line bg-white p-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="truncate pr-3 font-medium text-foreground">{group.title}</span>
+                  <span className="shrink-0 text-muted">
                     {group.booked} / {group.maxCapacity}
-                    {group.isOverbooked && " ⚠️"}
+                    {group.isOverbooked ? " ⚠" : ""}
                   </span>
                 </div>
-                <div className="mt-1 h-2 overflow-hidden rounded-full bg-line">
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line">
                   <div
                     className={`h-full transition-all ${
                       group.fillPercentage >= 100 ? "bg-danger" : "bg-success"
@@ -133,7 +174,7 @@ export function AdminOverview({
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted">Nema aktivnih termina.</p>
+            <p className="text-sm text-muted md:col-span-2">Nema aktivnih termina.</p>
           )}
         </div>
       </section>
@@ -157,7 +198,9 @@ export function AdminOverview({
                 <tr key={booking.id} className="border-b border-line/60 hover:bg-surface-2">
                   <td className="py-3 px-2 font-medium">{booking.parentName}</td>
                   <td className="py-3 px-2">{booking.childName}</td>
-                  <td className="py-3 px-2 text-sm text-muted">{booking.selectedClassId}</td>
+                  <td className="py-3 px-2 text-sm text-muted">
+                    {classNameById.get(booking.selectedClassId) ?? "Nepoznat program"}
+                  </td>
                   <td className="py-3 px-2">
                     <span
                       className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${

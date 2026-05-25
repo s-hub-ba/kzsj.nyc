@@ -26,7 +26,7 @@
   --color-brand-2: var(--brand-2);
   --color-line: var(--line);
   --font-sans: var(--font-body);
-  --font-serif: var(--font-heading);
+  --font-serif: var(--font-body);
 }
 
 html,
@@ -57,13 +57,6 @@ body::before {
   background-size: 26px 26px;
   opacity: 0.2;
   z-index: -1;
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-heading), serif;
 }
 
 @keyframes riseIn {
