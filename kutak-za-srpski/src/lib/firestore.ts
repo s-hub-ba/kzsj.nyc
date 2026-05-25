@@ -13,8 +13,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import {
   sendAdminBookingNotification,
   sendBlogNewsletter,
@@ -104,14 +103,6 @@ function requireDb() {
   }
 
   return db;
-}
-
-function requireStorage() {
-  if (!storage) {
-    throw new Error("Firebase Storage nije konfigurisan. Dodajte NEXT_PUBLIC_FIREBASE_* promenljive.");
-  }
-
-  return storage;
 }
 
 function mapDoc<T extends { id: string }>(
@@ -295,26 +286,38 @@ export async function submitJobApplication(input: JobApplicationInput): Promise<
   return mapDoc<JobApplication>(docRef.id, payload);
 }
 
-function sanitizeFileName(fileName: string) {
-  return fileName.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-}
-
 export async function uploadJobApplicationCv(file: File) {
-  const firebaseStorage = requireStorage();
-  const safeName = sanitizeFileName(file.name || "cv");
-  const filePath = `career-cvs/${Date.now()}-${safeName}`;
-  const storageRef = ref(firebaseStorage, filePath);
+  const formData = new FormData();
+  formData.append("file", file, file.name);
 
-  await uploadBytes(storageRef, file, {
-    contentType: file.type || "application/octet-stream",
+  const response = await fetch("/api/careers/upload-cv", {
+    method: "POST",
+    body: formData,
   });
 
+  const data = (await response.json().catch(() => ({}))) as {
+    message?: string;
+    fileName?: string;
+    fileUrl?: string;
+    storagePath?: string;
+    contentType?: string;
+    fileSize?: number;
+  };
+
+  if (!response.ok) {
+    throw new Error(data.message ?? "Slanje CV fajla nije uspelo.");
+  }
+
+  if (!data.fileName || !data.fileUrl || !data.storagePath || !data.contentType || typeof data.fileSize !== "number") {
+    throw new Error("Server nije vratio validne podatke o CV fajlu.");
+  }
+
   return {
-    fileName: file.name,
-    fileUrl: await getDownloadURL(storageRef),
-    storagePath: filePath,
-    contentType: file.type || "application/octet-stream",
-    fileSize: file.size,
+    fileName: data.fileName,
+    fileUrl: data.fileUrl,
+    storagePath: data.storagePath,
+    contentType: data.contentType,
+    fileSize: data.fileSize,
   };
 }
 

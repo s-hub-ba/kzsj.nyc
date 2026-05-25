@@ -14,7 +14,7 @@ import { AdminBlog } from "@/components/AdminBlog";
 import { AdminEmailLog } from "@/components/AdminEmailLog";
 import { adminSignOut, onAdminAuthStateChanged } from "@/lib/auth";
 import { getAdminDashboardData } from "@/lib/firestore";
-import { Booking, BlogPost, EmailLog, JobApplication, SchoolClass, Term } from "@/types/models";
+import { Booking, BlogPost, EmailLog, JobApplication, NewsletterSubscriber, SchoolClass, Term } from "@/types/models";
 
 export default function AdminDashboardPage() {
   const [currentTab, setCurrentTab] = useState<AdminTab>("overview");
@@ -25,7 +25,7 @@ export default function AdminDashboardPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
-  const [newsletterCount, setNewsletterCount] = useState(0);
+  const [newsletterSubscribers, setNewsletterSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [pendingInvoiceBookingId, setPendingInvoiceBookingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
         setJobApplications(data.jobApplications);
         setPosts(data.posts);
         setEmailLogs(data.emailLogs);
-        setNewsletterCount(data.newsletterSubscribers.length);
+        setNewsletterSubscribers(data.newsletterSubscribers);
       } finally {
         setLoading(false);
       }
@@ -119,9 +119,10 @@ export default function AdminDashboardPage() {
                 {currentTab === "overview" && (
                   <AdminOverview
                     bookings={bookings}
+                    classes={classes}
                     terms={terms}
                     publishedPostsCount={publishedPostsCount}
-                    newsletterCount={newsletterCount}
+                    newsletterSubscribers={newsletterSubscribers}
                     jobApplications={jobApplications}
                   />
                 )}
