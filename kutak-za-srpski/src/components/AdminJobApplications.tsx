@@ -25,7 +25,7 @@ export function AdminJobApplications({ applications }: AdminJobApplicationsProps
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Prijave za posao</h2>
-          <p className="mt-1 text-sm text-muted">Kompletan pregled kandidata, vremena prijave i priloženog CV-ja.</p>
+          <p className="mt-1 text-sm text-muted">Kompletan pregled kandidata, vremena prijave i CV-ja (ako je dostavljen).</p>
         </div>
         <div className="rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">
           Ukupno kandidata: <span className="font-semibold text-foreground">{applications.length}</span>
