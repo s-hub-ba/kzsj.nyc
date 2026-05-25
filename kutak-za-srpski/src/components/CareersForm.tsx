@@ -46,8 +46,10 @@ export function CareersForm() {
         experienceSummary: "",
         message: "",
       });
-    } catch {
-      setError(t("error"));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t("error");
+      setError(message || t("error"));
+      console.error("Careers form submit failed", err);
     } finally {
       setLoading(false);
     }
