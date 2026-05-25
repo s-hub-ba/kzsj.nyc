@@ -102,7 +102,7 @@ export function AdminOverview({
 
       <section className="rounded-3xl border border-line bg-surface p-6">
         <h2 className="text-2xl font-semibold">Najnovije prijave za posao</h2>
-        <p className="mt-1 text-sm text-muted">Ko se prijavio i kada, sa direktnim pristupom CV-ju.</p>
+        <p className="mt-1 text-sm text-muted">Ko se prijavio i kada, uz CV ako je dostavljen.</p>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>

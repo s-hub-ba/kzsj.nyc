@@ -96,14 +96,14 @@ export function getAdminAuth() {
 export function getAdminStorageBucket() {
   initializeAdminApp();
 
-  const bucketName =
-    process.env.FIREBASE_STORAGE_BUCKET ||
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-    process.env.FIREBASE_ADMIN_PROJECT_ID && process.env.FIREBASE_ADMIN_PROJECT_ID ? `${process.env.FIREBASE_ADMIN_PROJECT_ID}.appspot.com` : undefined;
+  const bucketNameFromEnv = process.env.FIREBASE_STORAGE_BUCKET || process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+  const bucketName = bucketNameFromEnv || (projectId ? `${projectId}.firebasestorage.app` : undefined);
 
   if (!bucketName) {
     throw new Error(
-      "Firebase Storage bucket is missing. Set FIREBASE_STORAGE_BUCKET or NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET in your deployment environment.",
+      "Firebase Storage bucket is missing. Set FIREBASE_STORAGE_BUCKET (recommended) or NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET in your deployment environment.",
     );
   }
 
