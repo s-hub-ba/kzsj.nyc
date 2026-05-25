@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminStorageBucket } from "@/lib/firebaseAdmin";
 
+export const runtime = "nodejs";
+
 const MAX_CV_SIZE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_CONTENT_TYPES = new Set([
   "application/pdf",
@@ -56,6 +58,7 @@ export async function POST(request: Request) {
       fileSize: file.size,
     });
   } catch (error) {
+    console.error("CV upload failed", error);
     const message = error instanceof Error ? error.message : "Slanje CV fajla nije uspelo.";
     return NextResponse.json({ message }, { status: 500 });
   }
