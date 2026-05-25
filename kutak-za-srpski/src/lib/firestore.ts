@@ -275,6 +275,32 @@ export async function subscribeToNewsletter(
 }
 
 export async function submitJobApplication(input: JobApplicationInput): Promise<JobApplication> {
+  if (!isServerRuntime) {
+    const response = await fetch("/api/careers/apply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+    });
+
+    const data = (await response.json().catch(() => ({}))) as { id?: string; message?: string };
+    if (!response.ok) {
+      throw new Error(data.message ?? "Prijava trenutno nije uspela.");
+    }
+
+    if (!data.id) {
+      throw new Error("Server nije vratio ID prijave.");
+    }
+
+    return {
+      id: data.id,
+      ...input,
+      email: input.email.trim().toLowerCase(),
+      createdAt: new Date().toISOString(),
+    };
+  }
+
   const firestore = requireDb();
   const payload = {
     ...input,
