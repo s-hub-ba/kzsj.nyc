@@ -66,6 +66,12 @@ function formatAgeGroupLabel(value: string, locale: Locale) {
   return locale === "sr" ? `${parsed.min}-${parsed.max} godina` : `${parsed.min}-${parsed.max} years`;
 }
 
+function getDistanceToAgeRange(age: number, range: { min: number; max: number }) {
+  if (age < range.min) return range.min - age;
+  if (age > range.max) return age - range.max;
+  return 0;
+}
+
 export function BookingForm() {
   const t = useTranslations("booking.form");
   const locale = useLocale() as Locale;
@@ -75,7 +81,7 @@ export function BookingForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [selectedAgeGroupFilter, setSelectedAgeGroupFilter] = useState("");
+  const [showClosestPrograms, setShowClosestPrograms] = useState(false);
 
   const [form, setForm] = useState({
     parentName: "",
@@ -98,16 +104,6 @@ export function BookingForm() {
       ]);
       setClasses(fetchedClasses);
       setTerms(fetchedTerms);
-      if (fetchedClasses[0]) {
-        const firstClassId = fetchedClasses[0].id;
-        const firstTerm = fetchedTerms.find((term) => term.classId === firstClassId);
-
-        setForm((prev) => ({
-          ...prev,
-          selectedClassId: prev.selectedClassId || firstClassId,
-          selectedTermId: prev.selectedTermId || firstTerm?.id || "",
-        }));
-      }
     };
 
     void loadData();
@@ -118,11 +114,21 @@ export function BookingForm() {
     return selectTermsForType(classTerms, form.bookingType);
   }, [terms, form.selectedClassId, form.bookingType]);
 
-  const ageGroupOptions = useMemo(() => {
+  const parsedChildAge = useMemo(() => parseChildAge(form.childAge), [form.childAge]);
+
+  const inferredAgeGroups = useMemo(() => {
+    if (parsedChildAge === null) {
+      return [] as { value: string; label: string }[];
+    }
+
     const grouped = new Map<string, string>();
 
     classes.forEach((item) => {
       if (!item.ageGroup) return;
+      const range = parseAgeRange(item.ageGroup);
+      if (!range) return;
+      if (parsedChildAge < range.min || parsedChildAge > range.max) return;
+
       const key = toCanonicalAgeGroup(item.ageGroup);
       if (!grouped.has(key)) {
         grouped.set(key, item.ageGroup);
@@ -133,13 +139,42 @@ export function BookingForm() {
       value,
       label: formatAgeGroupLabel(rawValue, locale),
     }));
-  }, [classes, locale]);
+  }, [classes, locale, parsedChildAge]);
 
   const classesForAgeGroup = useMemo(() => {
-    if (!selectedAgeGroupFilter) return classes;
-    const normalizedSelected = toCanonicalAgeGroup(selectedAgeGroupFilter);
-    return classes.filter((item) => toCanonicalAgeGroup(item.ageGroup) === normalizedSelected);
-  }, [classes, selectedAgeGroupFilter]);
+    if (parsedChildAge === null) return [];
+
+    const inferredKeys = new Set(inferredAgeGroups.map((group) => group.value));
+    return classes.filter((item) => inferredKeys.has(toCanonicalAgeGroup(item.ageGroup)));
+  }, [classes, inferredAgeGroups, parsedChildAge]);
+
+  const closestClasses = useMemo(() => {
+    if (parsedChildAge === null) return [] as SchoolClass[];
+
+    return [...classes]
+      .map((item) => {
+        const range = parseAgeRange(item.ageGroup);
+        if (!range) return null;
+        return {
+          item,
+          distance: getDistanceToAgeRange(parsedChildAge, range),
+          bookingTypeScore: item.type === form.bookingType ? 0 : 1,
+        };
+      })
+      .filter((entry): entry is { item: SchoolClass; distance: number; bookingTypeScore: number } => entry !== null)
+      .sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        return a.bookingTypeScore - b.bookingTypeScore;
+      })
+      .slice(0, 4)
+      .map((entry) => entry.item);
+  }, [classes, parsedChildAge, form.bookingType]);
+
+  const classesToDisplay = useMemo(() => {
+    if (classesForAgeGroup.length > 0) return classesForAgeGroup;
+    if (showClosestPrograms) return closestClasses;
+    return [] as SchoolClass[];
+  }, [classesForAgeGroup, showClosestPrograms, closestClasses]);
 
   const recommendedClass = useMemo(() => {
     const childAge = parseChildAge(form.childAge);
@@ -170,20 +205,18 @@ export function BookingForm() {
   }, [form.childAge, recommendedClass, t, locale]);
 
   useEffect(() => {
-    if (!selectedAgeGroupFilter && ageGroupOptions.length > 0) {
-      setSelectedAgeGroupFilter(ageGroupOptions[0].value);
-    }
-  }, [selectedAgeGroupFilter, ageGroupOptions]);
+    setShowClosestPrograms(false);
+  }, [form.childAge]);
 
   useEffect(() => {
-    if (classesForAgeGroup.length === 0) {
+    if (classesToDisplay.length === 0) {
       setForm((prev) => ({ ...prev, selectedClassId: "", selectedTermId: "" }));
       return;
     }
 
-    const stillValid = classesForAgeGroup.some((item) => item.id === form.selectedClassId);
+    const stillValid = classesToDisplay.some((item) => item.id === form.selectedClassId);
     if (!stillValid) {
-      const nextClass = classesForAgeGroup[0];
+      const nextClass = classesToDisplay[0];
       const classTerms = terms.filter((term) => term.classId === nextClass.id);
       const termsForType = selectTermsForType(classTerms, form.bookingType);
       setForm((prev) => ({
@@ -192,7 +225,7 @@ export function BookingForm() {
         selectedTermId: termsForType[0]?.id ?? "",
       }));
     }
-  }, [classesForAgeGroup, form.selectedClassId, terms, form.bookingType]);
+  }, [classesToDisplay, form.selectedClassId, terms, form.bookingType]);
 
   useEffect(() => {
     if (!filteredTerms.some((term) => term.id === form.selectedTermId)) {
@@ -310,25 +343,25 @@ export function BookingForm() {
         </label>
 
         <label className="text-sm text-[var(--muted)]">
-          {t("ageGroupSelector")}
-          <select
-            value={selectedAgeGroupFilter}
-            onChange={(e) => {
-              setSelectedAgeGroupFilter(e.target.value);
-            }}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          >
-            {ageGroupOptions.map((ageGroup) => (
-              <option key={ageGroup.value} value={ageGroup.value}>
-                {ageGroup.label}
-              </option>
-            ))}
-          </select>
+          {t("class")}
+          {form.childAge.trim() && parsedChildAge !== null && inferredAgeGroups.length > 0 ? (
+            <p className="mt-2 rounded-xl border border-line bg-white px-3 py-2 text-xs text-[var(--muted)]">
+              {t("ageGroupAutoDetected", {
+                groups: inferredAgeGroups.map((group) => group.label).join(", "),
+              })}
+            </p>
+          ) : null}
 
-          <p className="mt-2 text-xs text-[var(--muted)]">{t("programCardsHelp")}</p>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            {!form.childAge.trim()
+              ? t("programCardsAwaitingAge")
+              : parsedChildAge === null
+                ? t("ageRecommendationInvalid")
+                : t("programCardsHelpAuto")}
+          </p>
 
           <div className="mt-2 grid gap-2">
-            {classesForAgeGroup.map((item) => (
+            {classesToDisplay.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -360,8 +393,21 @@ export function BookingForm() {
             ))}
           </div>
 
-          {classesForAgeGroup.length === 0 ? (
-            <p className="mt-2 text-xs text-[var(--muted)]">{t("noProgramsForAgeGroup")}</p>
+          {form.childAge.trim() && parsedChildAge !== null && classesForAgeGroup.length === 0 ? (
+            <div className="mt-2 space-y-2">
+              <p className="text-xs text-[var(--muted)]">{t("noProgramsForAgeGroup")}</p>
+              {!showClosestPrograms ? (
+                <button
+                  type="button"
+                  onClick={() => setShowClosestPrograms(true)}
+                  className="rounded-lg border border-line bg-white px-3 py-2 text-xs font-medium text-foreground transition hover:bg-[var(--surface-2)]"
+                >
+                  {t("showClosestPrograms")}
+                </button>
+              ) : (
+                <p className="text-xs text-[var(--muted)]">{t("closestProgramsShown")}</p>
+              )}
+            </div>
           ) : null}
 
         </label>

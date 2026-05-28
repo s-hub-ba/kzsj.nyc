@@ -21,16 +21,16 @@ export async function writeEmailLog(input: WriteEmailLogInput): Promise<string> 
   const db = getAdminDb();
   const payload: Omit<EmailLog, "id"> = {
     type: input.type,
-    bookingId: input.bookingId,
-    parentEmail: input.parentEmail,
-    parentName: input.parentName,
     subject: input.subject,
     status: input.status,
     provider: input.provider,
-    providerMessageId: input.providerMessageId,
-    errorMessage: input.errorMessage,
     triggeredBy: input.triggeredBy,
-    triggeredByEmail: input.triggeredByEmail,
+    ...(input.bookingId !== undefined ? { bookingId: input.bookingId } : {}),
+    ...(input.parentEmail !== undefined ? { parentEmail: input.parentEmail } : {}),
+    ...(input.parentName !== undefined ? { parentName: input.parentName } : {}),
+    ...(input.providerMessageId !== undefined ? { providerMessageId: input.providerMessageId } : {}),
+    ...(input.errorMessage !== undefined ? { errorMessage: input.errorMessage } : {}),
+    ...(input.triggeredByEmail !== undefined ? { triggeredByEmail: input.triggeredByEmail } : {}),
     createdAt: new Date().toISOString(),
   };
 
