@@ -25,6 +25,22 @@ export async function POST(request: Request) {
       );
     }
 
+    if (body.type === "admin-notification" && !process.env.EMAIL_ADMIN_TO) {
+      await writeEmailLog({
+        type: "admin-notification",
+        bookingId: body.payload.booking.id,
+        parentEmail: body.payload.booking.parentEmail,
+        parentName: body.payload.booking.parentName,
+        subject: "Kutak za srpski | Nova rezervacija",
+        status: "failed",
+        provider: "resend",
+        errorMessage: "EMAIL_ADMIN_TO nije konfigurisan.",
+        triggeredBy: "system",
+      });
+
+      return NextResponse.json({ queued: false, provider: "resend", skipped: true });
+    }
+
     const result =
       body.type === "confirmation"
         ? await sendBookingConfirmation(body.payload)
