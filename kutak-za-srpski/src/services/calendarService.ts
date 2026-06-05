@@ -33,6 +33,31 @@ export function getGoogleCalendarUrl(
   return `https://calendar.google.com/calendar/u/0/r/eventedit?${params.toString()}`;
 }
 
+export function getTeacherGoogleCalendarUrl(
+  schoolClass: SchoolClass,
+  term: Term,
+  locale: 'sr' | 'en'
+): string {
+  const className = locale === 'sr' ? schoolClass.title_sr : schoolClass.title_en;
+  const eventTitle = `${className} - Nastava`;
+  const { startAt, endAt } = getTermDateTimes(term);
+  const startTime = formatDateISO(startAt);
+  const endTimeStr = formatDateISO(endAt);
+  const description = encodeURIComponent(
+    `Program: ${className}\nTermin: ${term.title_sr || term.title_en}\nLokacija: ${term.location}`
+  );
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: eventTitle,
+    dates: `${startTime}/${endTimeStr}`,
+    details: description,
+    location: term.location || 'Kutak za srpski jezik',
+  });
+
+  return `https://calendar.google.com/calendar/u/0/r/eventedit?${params.toString()}`;
+}
+
 /**
  * Generate iCalendar (.ics) format for a single event
  */
@@ -118,6 +143,39 @@ ${events}
 END:VCALENDAR`;
   
   return ics;
+}
+
+export function generateTermICS(
+  schoolClass: SchoolClass,
+  term: Term,
+  locale: 'sr' | 'en'
+): string {
+  const className = locale === 'sr' ? schoolClass.title_sr : schoolClass.title_en;
+  const { startAt, endAt } = getTermDateTimes(term);
+  const dtstart = formatICSDate(startAt);
+  const dtend = formatICSDate(endAt);
+  const uid = `${schoolClass.id}-${term.id}@kutakzasrpski.rs`;
+  const title = `${className} - Nastava`;
+  const description = `Program: ${className}\\nTermin: ${term.title_sr || term.title_en}\\nLokacija: ${term.location}`;
+
+  return `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Kutak za srpski jezik//NONSGML Term//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:${className}
+X-WR-TIMEZONE:Europe/Belgrade
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${formatICSDate(new Date())}
+DTSTART:${dtstart}
+DTEND:${dtend}
+SUMMARY:${title}
+DESCRIPTION:${description}
+LOCATION:${term.location || 'Kutak za srpski jezik'}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
 }
 
 /**

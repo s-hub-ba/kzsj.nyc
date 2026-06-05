@@ -7,7 +7,14 @@ interface AdminEmailLogProps {
   logs: EmailLog[];
 }
 
-type LogFilter = "all" | "booking-submitted" | "payment-confirmed" | "admin-notification";
+type LogFilter =
+  | "all"
+  | "booking-submitted"
+  | "payment-confirmed"
+  | "admin-notification"
+  | "invoice-sent"
+  | "invoice-reminder"
+  | "teacher-assignment";
 
 export function AdminEmailLog({ logs }: AdminEmailLogProps) {
   const [filter, setFilter] = useState<LogFilter>("all");
@@ -28,6 +35,9 @@ export function AdminEmailLog({ logs }: AdminEmailLogProps) {
   const typeLabel = (type: EmailLog["type"]) => {
     if (type === "booking-submitted") return "Prijava poslata";
     if (type === "payment-confirmed") return "Potvrda uplate";
+    if (type === "invoice-sent") return "Invoice poslata";
+    if (type === "invoice-reminder") return "Invoice podsetnik";
+    if (type === "teacher-assignment") return "Dodela predavaca";
     return "Admin obavestenje";
   };
 
@@ -50,6 +60,9 @@ export function AdminEmailLog({ logs }: AdminEmailLogProps) {
             <option value="booking-submitted">Prijava poslata</option>
             <option value="payment-confirmed">Potvrda uplate</option>
             <option value="admin-notification">Admin obavestenje</option>
+            <option value="invoice-sent">Invoice poslata</option>
+            <option value="invoice-reminder">Invoice podsetnik</option>
+            <option value="teacher-assignment">Dodela predavaca</option>
           </select>
         </div>
       </div>

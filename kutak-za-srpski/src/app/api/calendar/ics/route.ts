@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { getActiveTerms } from '@/lib/firestoreServer';
-import { generateICS, generateSemesterICS, getCalendarFileName } from '@/services/calendarService';
+import { generateICS, generateSemesterICS, generateTermICS, getCalendarFileName } from '@/services/calendarService';
 import { Booking, SchoolClass, Term } from '@/types/models';
 
 /**
  * GET /api/calendar/ics?bookingId=...&type=individual
  * GET /api/calendar/ics?classId=...&type=semester
+ * GET /api/calendar/ics?termId=...&type=term
  */
 export async function GET(request: NextRequest) {
   try {
@@ -14,8 +15,9 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const bookingId = searchParams.get('bookingId');
     const classId = searchParams.get('classId');
+    const termId = searchParams.get('termId');
 
-    if (!type || !['individual', 'semester'].includes(type)) {
+    if (!type || !['individual', 'semester', 'term'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid type parameter' },
         { status: 400 }
@@ -106,6 +108,45 @@ export async function GET(request: NextRequest) {
       const locale = 'sr'; // Default to Serbian for semester schedule
       const icsContent = generateSemesterICS([], schoolClass, classTerms, locale);
       const fileName = getCalendarFileName(schoolClass, undefined, true);
+
+      return new NextResponse(icsContent, {
+        headers: {
+          'Content-Type': 'text/calendar; charset=utf-8',
+          'Content-Disposition': `attachment; filename="${fileName}"`,
+        },
+      });
+    }
+
+    if (type === 'term') {
+      if (!termId) {
+        return NextResponse.json(
+          { error: 'termId is required for term type' },
+          { status: 400 }
+        );
+      }
+
+      const termDoc = await db.collection('terms').doc(termId).get();
+      if (!termDoc.exists) {
+        return NextResponse.json(
+          { error: 'Term not found' },
+          { status: 404 }
+        );
+      }
+
+      const term = termDoc.data() as Term;
+      const classDoc = await db.collection('classes').doc(term.classId).get();
+
+      if (!classDoc.exists) {
+        return NextResponse.json(
+          { error: 'Class not found' },
+          { status: 404 }
+        );
+      }
+
+      const schoolClass = classDoc.data() as SchoolClass;
+      const locale = 'sr';
+      const icsContent = generateTermICS(schoolClass, term, locale);
+      const fileName = getCalendarFileName(schoolClass, term, false);
 
       return new NextResponse(icsContent, {
         headers: {

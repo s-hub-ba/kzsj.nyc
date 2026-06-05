@@ -26,6 +26,29 @@ export async function generateMetadata({ params }: HomePageProps) {
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   const t = await getTranslations("home");
+  const learningPhotos = [
+    {
+      src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
+      alt:
+        locale === "sr"
+          ? "Deca rade zajedno za stolom u ucionici"
+          : "Children learning together at a classroom table",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
+      alt:
+        locale === "sr"
+          ? "Nastavnica i deca kroz kreativnu aktivnost"
+          : "Teacher and children during a creative lesson",
+    },
+    {
+      src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
+      alt:
+        locale === "sr"
+          ? "Dete pise i vezba jezik"
+          : "Child writing and practicing language skills",
+    },
+  ];
 
   const [classes, terms, posts] = await Promise.all([
     getActiveClasses(),
@@ -36,6 +59,33 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <div className="space-y-12 max-[375px]:space-y-8 md:space-y-18">
       <Hero />
+
+      <section className="reveal rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow)] md:p-8">
+        <SectionTitle
+          eyebrow={t("learningEyebrow")}
+          title={t("learningTitle")}
+          description={t("learningDescription")}
+          locale={locale}
+        />
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {learningPhotos.map((photo, index) => (
+            <article
+              key={photo.src}
+              className={`overflow-hidden rounded-2xl border border-line bg-[var(--surface-2)] ${
+                index === 0 ? "sm:col-span-2 lg:col-span-2" : ""
+              }`}
+            >
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02] sm:h-64"
+                loading="lazy"
+              />
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="reveal space-y-8">
         <SectionTitle
