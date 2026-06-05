@@ -28,7 +28,9 @@ Email:
 
 - RESEND_API_KEY
 - EMAIL_FROM
+- EMAIL_REPLY_TO (optional)
 - EMAIL_ADMIN_TO
+- ALLOW_RESEND_DEV_FROM (optional, default false)
 
 Admin allow-list:
 
@@ -64,6 +66,23 @@ If /api/admin returns 403 or a credentials error, check:
 2. The signed-in Firebase Auth email is included in ADMIN_EMAILS.
 3. FIREBASE_ADMIN_PRIVATE_KEY contains valid newline escapes (\\n) when stored in one line.
 4. A redeploy was triggered after env changes.
+
+## Resend production checklist
+
+1. Verify your sending domain in Resend and add the DNS records they provide (SPF/DKIM, and DMARC if configured).
+2. Set EMAIL_FROM to your verified domain address, for example:
+
+```text
+EMAIL_FROM=Kutak za srpski <info@kutakzasrpski.org>
+```
+
+3. Optionally set EMAIL_REPLY_TO (for inbox replies) and EMAIL_ADMIN_TO (internal notifications).
+4. In production, using onboarding@resend.dev is blocked by default in code to prevent invalid sender setup.
+5. If you intentionally need resend.dev sender outside production-style usage, set:
+
+```text
+ALLOW_RESEND_DEV_FROM=true
+```
 
 ## Build
 

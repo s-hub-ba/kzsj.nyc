@@ -102,15 +102,14 @@ export function AdminOverview({
 
       <section className="rounded-3xl border border-line bg-surface p-6">
         <h2 className="text-2xl font-semibold">Najnovije prijave za posao</h2>
-        <p className="mt-1 text-sm text-muted">Ko se prijavio i kada, uz CV ako je dostavljen.</p>
+        <p className="mt-1 text-sm text-muted">Ko se prijavio i kada.</p>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[620px] text-left text-sm">
             <thead>
               <tr className="border-b border-line text-muted">
                 <th className="px-2 py-3">Kandidat</th>
                 <th className="px-2 py-3">Kontakt</th>
                 <th className="px-2 py-3">Angažman</th>
-                <th className="px-2 py-3">CV</th>
                 <th className="px-2 py-3">Prijavljeno</th>
               </tr>
             </thead>
@@ -123,20 +122,6 @@ export function AdminOverview({
                     <div>{application.phone}</div>
                   </td>
                   <td className="px-2 py-3">{application.employmentType}</td>
-                  <td className="px-2 py-3">
-                    {application.cvFileUrl ? (
-                      <a
-                        href={application.cvFileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-medium text-accent hover:underline"
-                      >
-                        {application.cvFileName || "Otvori CV"}
-                      </a>
-                    ) : (
-                      <span className="text-muted">Nije dodat</span>
-                    )}
-                  </td>
                   <td className="px-2 py-3 text-muted">
                     {application.createdAt ? new Date(application.createdAt).toLocaleString("sr-RS") : "-"}
                   </td>

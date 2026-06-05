@@ -28,7 +28,7 @@ export function Hero() {
           <div className="animate-float-slow relative mx-auto h-[340px] w-[340px] overflow-hidden rounded-[2.2rem] border border-line bg-white p-4 shadow-[0_24px_52px_-30px_rgba(21,50,80,0.45)]">
             <div className="relative h-full w-full overflow-hidden rounded-[1.8rem] bg-[var(--surface-2)]">
               <Image
-                src="/Logo.jpeg"
+                src="/kzjs_logo.png"
                 alt="Kutak za srpski logo"
                 fill
                 sizes="340px"

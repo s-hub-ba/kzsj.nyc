@@ -36,11 +36,11 @@ export function Navbar() {
           <Link href="/" className="group inline-flex items-center gap-3">
             <div className="relative h-9 w-9 overflow-hidden rounded-full border border-line bg-white shadow-sm md:h-12 md:w-12">
               <Image
-                src="/Logo.jpeg"
+                src="/kzjs_logo_notext.png"
                 alt="Kutak za srpski logo"
                 fill
                 sizes="48px"
-                className="object-cover"
+                className="object-contain p-1"
                 priority
               />
             </div>

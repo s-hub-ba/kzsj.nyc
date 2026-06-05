@@ -113,10 +113,6 @@ export function CareersForm() {
           />
         </label>
 
-        <p className="rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--muted)] md:col-span-2">
-          {t("cvLaterNotice")}
-        </p>
-
         <label className="text-sm text-[var(--muted)] md:col-span-2">
           {t("message")}
           <textarea

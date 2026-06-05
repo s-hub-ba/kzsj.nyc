@@ -14,7 +14,7 @@ import { AdminBlog } from "@/components/AdminBlog";
 import { AdminEmailLog } from "@/components/AdminEmailLog";
 import { adminSignOut, onAdminAuthStateChanged } from "@/lib/auth";
 import { getAdminDashboardData } from "@/lib/firestore";
-import { Booking, BlogPost, EmailLog, JobApplication, NewsletterSubscriber, SchoolClass, Term } from "@/types/models";
+import { Booking, BlogPost, EmailLog, JobApplication, NewsletterSubscriber, SchoolClass, Term, WorkerProfile } from "@/types/models";
 
 export default function AdminDashboardPage() {
   const [currentTab, setCurrentTab] = useState<AdminTab>("overview");
@@ -25,6 +25,7 @@ export default function AdminDashboardPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+  const [workers, setWorkers] = useState<WorkerProfile[]>([]);
   const [newsletterSubscribers, setNewsletterSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [pendingInvoiceBookingId, setPendingInvoiceBookingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,7 @@ export default function AdminDashboardPage() {
         setClasses(data.classes);
         setTerms(data.terms);
         setJobApplications(data.jobApplications);
+        setWorkers(data.workers ?? []);
         setPosts(data.posts);
         setEmailLogs(data.emailLogs);
         setNewsletterSubscribers(data.newsletterSubscribers);
@@ -130,14 +132,25 @@ export default function AdminDashboardPage() {
                 {currentTab === "bookings" && (
                   <AdminBookings
                     bookings={bookings}
+                    classes={classes}
+                    terms={terms}
                     currentAdminEmail={currentAdmin.email}
                     onBookingUpdate={handleBookingUpdate}
+                    onTermsUpdate={setTerms}
                     onCreateInvoice={handleCreateInvoiceFromBooking}
                   />
                 )}
 
                 {currentTab === "applications" && (
-                  <AdminJobApplications applications={jobApplications} />
+                  <AdminJobApplications
+                    applications={jobApplications}
+                    workers={workers}
+                    classes={classes}
+                    terms={terms}
+                    currentAdminEmail={currentAdmin.email}
+                    onWorkersUpdate={setWorkers}
+                    onTermsUpdate={setTerms}
+                  />
                 )}
 
                 {currentTab === "classes" && (

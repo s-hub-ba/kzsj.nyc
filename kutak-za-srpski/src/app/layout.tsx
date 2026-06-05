@@ -10,6 +10,11 @@ const bodyFont = Nunito({
 export const metadata: Metadata = {
   title: "Kutak za srpski",
   description: "Dvojezicni sajt skole srpskog jezika.",
+  icons: {
+    icon: "/kzjs_logo_notext.png",
+    shortcut: "/kzjs_logo_notext.png",
+    apple: "/kzjs_logo_notext.png",
+  },
 };
 
 export default function RootLayout({

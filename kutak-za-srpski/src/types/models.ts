@@ -2,16 +2,26 @@ export type Locale = "sr" | "en";
 
 export type ClassType = "single" | "semester";
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
+export type BookingPlacementStatus = "queue" | "assigned";
 export type PaymentStatus = "pending" | "paid" | "cancelled";
 export type InvoiceStatus = "pending" | "paid" | "overdue" | "cancelled";
 export type ReceivedPaymentMethod = "cash" | "zelle" | "bank" | "venmo" | "other";
 export type EmploymentType = "full-time" | "part-time" | "both";
+export type Weekday =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
 export type EmailLogType =
   | "booking-submitted"
   | "payment-confirmed"
   | "admin-notification"
   | "invoice-sent"
-  | "invoice-reminder";
+  | "invoice-reminder"
+  | "teacher-assignment";
 export type TermCapacityPolicy = "strict-10" | "direct-12" | "plus-2-override";
 
 export interface SchoolClass {
@@ -42,6 +52,10 @@ export interface Term {
   bookedCount: number;
   location: string;
   active: boolean;
+  assignedWorkerId?: string;
+  assignedWorkerName?: string;
+  assignedWorkerEmail?: string;
+  assignedWorkerEmploymentType?: EmploymentType;
   createdAt?: string;
   updatedBy?: string;
   updatedAt?: string;
@@ -62,11 +76,37 @@ export interface Booking {
   waiverSigned: boolean;
   waiverSignedAt?: string;
   status: BookingStatus;
+  placementStatus?: BookingPlacementStatus;
   paymentStatus: PaymentStatus;
   paymentMethod?: ReceivedPaymentMethod;
   createdAt?: string;
   updatedBy?: string;
   updatedAt?: string;
+}
+
+export interface WorkerProfile {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  employmentType: EmploymentType;
+  experienceSummary: string;
+  message?: string;
+  preferredLanguage: Locale;
+  sourceApplicationId?: string;
+  active: boolean;
+  notes?: string;
+  weeklyAvailability?: WorkerAvailabilitySlot[];
+  availabilitySource?: "phone" | "email" | "chat" | "in-person" | "other";
+  availabilityConfirmedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WorkerAvailabilitySlot {
+  day: Weekday;
+  startTime: string;
+  endTime: string;
 }
 
 export interface BlogPost {
@@ -131,11 +171,6 @@ export interface JobApplication {
   employmentType: EmploymentType;
   experienceSummary: string;
   message?: string;
-  cvFileName?: string;
-  cvFileUrl?: string;
-  cvStoragePath?: string;
-  cvContentType?: string;
-  cvFileSize?: number;
   preferredLanguage: Locale;
   createdAt?: string;
 }
@@ -176,11 +211,6 @@ export interface JobApplicationInput {
   employmentType: EmploymentType;
   experienceSummary: string;
   message?: string;
-  cvFileName?: string;
-  cvFileUrl?: string;
-  cvStoragePath?: string;
-  cvContentType?: string;
-  cvFileSize?: number;
   preferredLanguage: Locale;
 }
 

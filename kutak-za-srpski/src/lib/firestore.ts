@@ -35,6 +35,7 @@ import {
   SchoolClass,
   TermCapacityPolicy,
   Term,
+  WorkerProfile,
 } from "@/types/models";
 import { sampleBlogPosts, sampleClasses, sampleTerms } from "@/lib/sampleData";
 import { auth } from "@/lib/firebase";
@@ -47,6 +48,7 @@ type AdminDashboardData = {
   terms: Term[];
   newsletterSubscribers: NewsletterSubscriber[];
   jobApplications: JobApplication[];
+  workers: WorkerProfile[];
   posts: BlogPost[];
   emailLogs: EmailLog[];
   invoices: Invoice[];
@@ -63,6 +65,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     terms: await getAllTerms(),
     newsletterSubscribers: await getNewsletterSubscribers(),
     jobApplications: await getJobApplications(),
+    workers: await getWorkers(),
     posts: await getAllBlogPosts(),
     emailLogs: [],
     invoices: [],
@@ -312,41 +315,6 @@ export async function submitJobApplication(input: JobApplicationInput): Promise<
   return mapDoc<JobApplication>(docRef.id, payload);
 }
 
-export async function uploadJobApplicationCv(file: File) {
-  const formData = new FormData();
-  formData.append("file", file, file.name);
-
-  const response = await fetch("/api/careers/upload-cv", {
-    method: "POST",
-    body: formData,
-  });
-
-  const data = (await response.json().catch(() => ({}))) as {
-    message?: string;
-    fileName?: string;
-    fileUrl?: string;
-    storagePath?: string;
-    contentType?: string;
-    fileSize?: number;
-  };
-
-  if (!response.ok) {
-    throw new Error(data.message ?? "Slanje CV fajla nije uspelo.");
-  }
-
-  if (!data.fileName || !data.fileUrl || !data.storagePath || !data.contentType || typeof data.fileSize !== "number") {
-    throw new Error("Server nije vratio validne podatke o CV fajlu.");
-  }
-
-  return {
-    fileName: data.fileName,
-    fileUrl: data.fileUrl,
-    storagePath: data.storagePath,
-    contentType: data.contentType,
-    fileSize: data.fileSize,
-  };
-}
-
 export async function getJobApplications() {
   if (!db) return [] as JobApplication[];
   if (!isServerRuntime) {
@@ -357,6 +325,76 @@ export async function getJobApplications() {
   const q = query(collection(db, "jobApplications"), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => mapDoc<JobApplication>(d.id, d.data()));
+}
+
+export async function getWorkers() {
+  if (!db) return [] as WorkerProfile[];
+  if (!isServerRuntime) {
+    const data = await callAdminApi<AdminDashboardData>("getDashboardData");
+    return data.workers;
+  }
+
+  const q = query(collection(db, "workers"), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => mapDoc<WorkerProfile>(d.id, d.data()));
+}
+
+export async function assignBookingToTerm(bookingId: string, targetTermId: string) {
+  await callAdminApi<{ ok: true }>("assignBookingToTerm", { bookingId, targetTermId });
+}
+
+export async function sendBookingToQueue(bookingId: string) {
+  await callAdminApi<{ ok: true }>("sendBookingToQueue", { bookingId });
+}
+
+export async function createWorkerFromApplication(applicationId: string) {
+  const result = await callAdminApi<{ worker: WorkerProfile }>("createWorkerFromApplication", {
+    applicationId,
+  });
+  return result.worker;
+}
+
+export async function saveWorkerProfile(
+  workerId: string,
+  input: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    employmentType?: WorkerProfile["employmentType"];
+    experienceSummary?: string;
+    active?: boolean;
+    notes?: string;
+    weeklyAvailability?: WorkerProfile["weeklyAvailability"];
+    availabilitySource?: WorkerProfile["availabilitySource"];
+    availabilityConfirmedAt?: string;
+  },
+) {
+  const result = await callAdminApi<{ worker: WorkerProfile }>("saveWorkerProfile", {
+    workerId,
+    ...input,
+  });
+  return result.worker;
+}
+
+export async function assignWorkerToTerm(workerId: string, termId: string) {
+  return callAdminApi<{ ok: true; emailQueued: boolean; emailError?: string }>("assignWorkerToTerm", {
+    workerId,
+    termId,
+  });
+}
+
+export async function assignWorkerToClass(workerId: string, classId: string) {
+  return callAdminApi<{
+    ok: true;
+    assigned: number;
+    skipped: number;
+    emailFailed: number;
+    assignedTermIds: string[];
+    skippedTermIds: string[];
+  }>("assignWorkerToClass", {
+    workerId,
+    classId,
+  });
 }
 
 export async function getBookings() {

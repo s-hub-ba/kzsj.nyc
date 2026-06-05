@@ -1,5 +1,5 @@
-import { BlogPost, Booking, Invoice, NewsletterSubscriber, SchoolClass, Term } from "@/types/models";
-import { getGoogleCalendarUrl } from "@/services/calendarService";
+import { BlogPost, Booking, Invoice, NewsletterSubscriber, SchoolClass, Term, WorkerProfile } from "@/types/models";
+import { getGoogleCalendarUrl, getTeacherGoogleCalendarUrl } from "@/services/calendarService";
 
 export interface BookingEmailPayload {
   booking: Booking;
@@ -14,6 +14,44 @@ type EmailResult = {
   provider: "resend";
   id?: string;
 };
+
+function parseEmailAddress(value: string) {
+  const trimmed = value.trim();
+  const match = trimmed.match(/<([^>]+)>/);
+  return (match?.[1] ?? trimmed).trim().toLowerCase();
+}
+
+async function getResendRuntime() {
+  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  const emailFrom = process.env.EMAIL_FROM?.trim();
+  const replyTo = process.env.EMAIL_REPLY_TO?.trim();
+
+  if (!resendApiKey) {
+    throw new Error("RESEND_API_KEY nije konfigurisan.");
+  }
+
+  if (!emailFrom) {
+    throw new Error("EMAIL_FROM nije konfigurisan.");
+  }
+
+  const fromAddress = parseEmailAddress(emailFrom);
+  const allowResendDevFrom = process.env.ALLOW_RESEND_DEV_FROM === "true";
+
+  if (process.env.NODE_ENV === "production" && fromAddress.endsWith("@resend.dev") && !allowResendDevFrom) {
+    throw new Error(
+      "EMAIL_FROM koristi resend.dev adresu u produkciji. Verifikuj svoj domen na Resend-u i postavi EMAIL_FROM na adresu sa sopstvenim domenom.",
+    );
+  }
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(resendApiKey);
+
+  return {
+    resend,
+    from: emailFrom,
+    replyTo,
+  };
+}
 
 function formatBookingSummary(payload: BookingEmailPayload) {
   const { booking, selectedClass, selectedTerm } = payload;
@@ -55,19 +93,7 @@ async function sendViaResend({
   includeCalendar?: boolean;
   footerNote?: string;
 }): Promise<EmailResult> {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM;
-
-  if (!resendApiKey) {
-    throw new Error("RESEND_API_KEY nije konfigurisan.");
-  }
-
-  if (!emailFrom) {
-    throw new Error("EMAIL_FROM nije konfigurisan.");
-  }
-
-  const { Resend } = await import("resend");
-  const resend = new Resend(resendApiKey);
+  const { resend, from, replyTo } = await getResendRuntime();
   const summary = formatBookingSummary(payload);
 
   // Generate calendar links
@@ -115,7 +141,8 @@ async function sendViaResend({
   ` : '';
 
   const response = await resend.emails.send({
-    from: emailFrom,
+    from,
+    ...(replyTo ? { replyTo } : {}),
     to,
     subject,
     html: `
@@ -252,6 +279,12 @@ export interface InvoiceReminderEmailPayload {
   daysOverdue?: number;
 }
 
+export interface TeacherAssignmentEmailPayload {
+  worker: WorkerProfile;
+  schoolClass: SchoolClass;
+  term: Term;
+}
+
 function formatInvoiceDate(dateIso: string) {
   try {
     return new Date(dateIso).toLocaleDateString("sr-RS");
@@ -273,25 +306,14 @@ function formatInvoiceAmount(amount: number, currency: string) {
 }
 
 export async function sendInvoiceEmail(payload: InvoiceEmailPayload): Promise<EmailResult> {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM;
-
-  if (!resendApiKey) {
-    throw new Error("RESEND_API_KEY nije konfigurisan.");
-  }
-
-  if (!emailFrom) {
-    throw new Error("EMAIL_FROM nije konfigurisan.");
-  }
-
-  const { Resend } = await import("resend");
-  const resend = new Resend(resendApiKey);
+  const { resend, from, replyTo } = await getResendRuntime();
   const issueDate = formatInvoiceDate(payload.invoice.issueDate);
   const dueDate = formatInvoiceDate(payload.invoice.dueDate);
   const amount = formatInvoiceAmount(payload.invoice.amount, payload.invoice.currency);
 
   const response = await resend.emails.send({
-    from: emailFrom,
+    from,
+    ...(replyTo ? { replyTo } : {}),
     to: payload.invoice.parentEmail,
     subject: "Invoice for your Kutak za srpski booking",
     html: `
@@ -376,19 +398,7 @@ export async function sendInvoiceEmail(payload: InvoiceEmailPayload): Promise<Em
 export async function sendInvoiceReminderEmail(
   payload: InvoiceReminderEmailPayload,
 ): Promise<EmailResult> {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM;
-
-  if (!resendApiKey) {
-    throw new Error("RESEND_API_KEY nije konfigurisan.");
-  }
-
-  if (!emailFrom) {
-    throw new Error("EMAIL_FROM nije konfigurisan.");
-  }
-
-  const { Resend } = await import("resend");
-  const resend = new Resend(resendApiKey);
+  const { resend, from, replyTo } = await getResendRuntime();
   const dueDate = formatInvoiceDate(payload.invoice.dueDate);
   const amount = formatInvoiceAmount(payload.invoice.amount, payload.invoice.currency);
   const overdueLine =
@@ -397,7 +407,8 @@ export async function sendInvoiceReminderEmail(
       : "";
 
   const response = await resend.emails.send({
-    from: emailFrom,
+    from,
+    ...(replyTo ? { replyTo } : {}),
     to: payload.invoice.parentEmail,
     subject: `Payment reminder: ${payload.invoice.invoiceNumber}`,
     html: `
@@ -441,6 +452,67 @@ export async function sendInvoiceReminderEmail(
   };
 }
 
+export async function sendTeacherAssignmentEmail(
+  payload: TeacherAssignmentEmailPayload,
+): Promise<EmailResult> {
+  const { resend, from, replyTo } = await getResendRuntime();
+  const locale = payload.worker.preferredLanguage || "sr";
+  const siteUrl = getSiteUrl();
+  const googleCalendarUrl = getTeacherGoogleCalendarUrl(payload.schoolClass, payload.term, locale);
+  const icsTermLink = `${siteUrl}/api/calendar/ics?termId=${payload.term.id}&type=term`;
+  const icsSemesterLink = `${siteUrl}/api/calendar/ics?classId=${payload.schoolClass.id}&type=semester`;
+  const className = locale === "en" ? payload.schoolClass.title_en : payload.schoolClass.title_sr;
+
+  const response = await resend.emails.send({
+    from,
+    ...(replyTo ? { replyTo } : {}),
+    to: payload.worker.email,
+    subject: `Kutak za srpski | Novi dodeljeni termin: ${payload.term.title_sr}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.55; color: #2f2822;">
+        <h2 style="margin: 0 0 12px;">Kutak za srpski</h2>
+        <p>Zdravo ${payload.worker.fullName}, dodeljen vam je novi termin nastave.</p>
+        <ul>
+          <li><strong>Grupa:</strong> ${className}</li>
+          <li><strong>Termin:</strong> ${payload.term.title_sr}</li>
+          <li><strong>Datum:</strong> ${payload.term.date}</li>
+          <li><strong>Vreme:</strong> ${payload.term.startTime} - ${payload.term.endTime}</li>
+          <li><strong>Lokacija:</strong> ${payload.term.location}</li>
+          <li><strong>Tip angazmana:</strong> ${payload.worker.employmentType}</li>
+        </ul>
+
+        <div style="background-color: #f5f1ed; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #2f2822;">Dodaj u kalendar</h3>
+          <p style="margin-bottom: 15px;">Izaberite opciju za kalendar:</p>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px 0;">
+                <a href="${googleCalendarUrl}" style="display: inline-block; background-color: #4285F4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">+ Google Calendar</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0;">
+                <a href="${icsTermLink}" download style="display: inline-block; background-color: #34c759; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">Preuzmi ovaj termin (ICS)</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0;">
+                <a href="${icsSemesterLink}" download style="display: inline-block; background-color: #ff9500; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">Preuzmi raspored grupe (ICS)</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    `,
+  });
+
+  return {
+    queued: true,
+    provider: "resend",
+    id: response.data?.id,
+  };
+}
+
 export async function sendBlogNewsletter(payload: BlogNewsletterPayload): Promise<EmailResult> {
   if (!payload.subscribers.length) {
     return {
@@ -453,19 +525,7 @@ export async function sendBlogNewsletter(payload: BlogNewsletterPayload): Promis
     return callInternalNewsletterApi(payload);
   }
 
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM;
-
-  if (!resendApiKey) {
-    throw new Error("RESEND_API_KEY nije konfigurisan.");
-  }
-
-  if (!emailFrom) {
-    throw new Error("EMAIL_FROM nije konfigurisan.");
-  }
-
-  const { Resend } = await import("resend");
-  const resend = new Resend(resendApiKey);
+  const { resend, from, replyTo } = await getResendRuntime();
 
   const sends = payload.subscribers.map((subscriber) => {
     const title = subscriber.preferredLanguage === "sr" ? payload.post.title_sr : payload.post.title_en;
@@ -476,7 +536,8 @@ export async function sendBlogNewsletter(payload: BlogNewsletterPayload): Promis
     const blogUrl = `${getSiteUrl()}/${localeSegment}/blog/${payload.post.slug}`;
 
     return resend.emails.send({
-      from: emailFrom,
+      from,
+      ...(replyTo ? { replyTo } : {}),
       to: subscriber.email,
       subject: `Kutak za srpski | ${title}`,
       html: `
