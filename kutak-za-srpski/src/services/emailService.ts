@@ -1,4 +1,4 @@
-import { BlogPost, Booking, Invoice, NewsletterSubscriber, SchoolClass, Term, WorkerProfile } from "@/types/models";
+import { BlogPost, Booking, Invoice, NewsletterSubscriber, SchoolClass, Term, WorkerProfile, WorkerShiftOffer } from "@/types/models";
 import { getGoogleCalendarUrl, getTeacherGoogleCalendarUrl } from "@/services/calendarService";
 
 export interface BookingEmailPayload {
@@ -285,6 +285,11 @@ export interface TeacherAssignmentEmailPayload {
   term: Term;
 }
 
+export interface TeacherShiftOfferEmailPayload {
+  worker: WorkerProfile;
+  offer: WorkerShiftOffer;
+}
+
 function formatInvoiceDate(dateIso: string) {
   try {
     return new Date(dateIso).toLocaleDateString("sr-RS");
@@ -502,6 +507,56 @@ export async function sendTeacherAssignmentEmail(
             </tr>
           </table>
         </div>
+      </div>
+    `,
+  });
+
+  return {
+    queued: true,
+    provider: "resend",
+    id: response.data?.id,
+  };
+}
+
+export async function sendTeacherShiftOfferEmail(
+  payload: TeacherShiftOfferEmailPayload,
+): Promise<EmailResult> {
+  const { resend, from, replyTo } = await getResendRuntime();
+  const siteUrl = getSiteUrl();
+  const acceptLink = `${siteUrl}/api/teacher-offers/respond?token=${encodeURIComponent(payload.offer.responseToken)}&decision=accept`;
+  const declineLink = `${siteUrl}/api/teacher-offers/respond?token=${encodeURIComponent(payload.offer.responseToken)}&decision=decline`;
+  const scopeLabel = payload.offer.scope === "term" ? "smenu" : "grupu";
+  const className = payload.offer.classTitleSr ?? payload.offer.classId;
+  const termBlock = payload.offer.scope === "term"
+    ? `
+      <li><strong>Termin:</strong> ${payload.offer.termTitleSr ?? payload.offer.termId ?? "-"}</li>
+      <li><strong>Datum:</strong> ${payload.offer.termDate ?? "-"}</li>
+      <li><strong>Vreme:</strong> ${payload.offer.termStartTime ?? "-"} - ${payload.offer.termEndTime ?? "-"}</li>
+    `
+    : "";
+
+  const response = await resend.emails.send({
+    from,
+    ...(replyTo ? { replyTo } : {}),
+    to: payload.worker.email,
+    subject: `Kutak za srpski | Ponuda za ${scopeLabel}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.55; color: #2f2822;">
+        <h2 style="margin: 0 0 12px;">Kutak za srpski</h2>
+        <p>Zdravo ${payload.worker.fullName}, poslata vam je nova ponuda za ${scopeLabel}.</p>
+        <ul>
+          <li><strong>Grupa:</strong> ${className}</li>
+          ${termBlock}
+          <li><strong>Tip angazmana:</strong> ${payload.worker.employmentType}</li>
+        </ul>
+
+        <div style="background-color: #f5f1ed; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0 0 14px;">Molimo odgovorite klikom na jednu opciju:</p>
+          <a href="${acceptLink}" style="display:inline-block;background:#34c759;color:white;padding:10px 18px;text-decoration:none;border-radius:6px;font-weight:bold;margin-right:10px;">Prihvatam</a>
+          <a href="${declineLink}" style="display:inline-block;background:#ff3b30;color:white;padding:10px 18px;text-decoration:none;border-radius:6px;font-weight:bold;">Odbijam</a>
+        </div>
+
+        <p style="font-size: 12px; color: #666;">Ako ste vec odgovorili na ovu ponudu, link vise nije aktivan.</p>
       </div>
     `,
   });

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { getAdminAuth, getAdminDb } from "@/lib/firebaseAdmin";
 import { writeEmailLog } from "@/lib/emailLogs";
 import {
@@ -6,7 +7,7 @@ import {
   sendInvoiceEmail as sendInvoiceEmailViaResend,
   sendInvoiceReminderEmail,
   sendPaymentReceivedConfirmation,
-  sendTeacherAssignmentEmail,
+  sendTeacherShiftOfferEmail,
 } from "@/services/emailService";
 import {
   BlogPost,
@@ -26,6 +27,7 @@ import {
   Term,
   TermCapacityPolicy,
   WorkerProfile,
+  WorkerShiftOffer,
 } from "@/types/models";
 
 const STATIC_ADMIN_EMAILS = [
@@ -68,8 +70,7 @@ type AdminAction =
   | "sendBookingToQueue"
   | "createWorkerFromApplication"
   | "saveWorkerProfile"
-  | "assignWorkerToTerm"
-  | "assignWorkerToClass"
+  | "createWorkerOffer"
   | "saveBlogPost"
   | "deleteBlogPost";
 
@@ -118,13 +119,14 @@ async function verifyAdmin(request: NextRequest) {
 
 async function getDashboardData() {
   const db = getAdminDb();
-  const [bookingsSnap, classesSnap, termsSnap, subscribersSnap, jobApplicationsSnap, workersSnap, postsSnap, emailLogsSnap, invoicesSnap] = await Promise.all([
+  const [bookingsSnap, classesSnap, termsSnap, subscribersSnap, jobApplicationsSnap, workersSnap, workerOffersSnap, postsSnap, emailLogsSnap, invoicesSnap] = await Promise.all([
     db.collection("bookings").orderBy("createdAt", "desc").get(),
     db.collection("classes").get(),
     db.collection("terms").get(),
     db.collection("newsletterSubscribers").orderBy("createdAt", "desc").get(),
     db.collection("jobApplications").orderBy("createdAt", "desc").get(),
     db.collection("workers").orderBy("createdAt", "desc").get(),
+    db.collection("workerOffers").orderBy("offeredAt", "desc").get(),
     db.collection("blogPosts").orderBy("createdAt", "desc").get(),
     db.collection("emailLogs").orderBy("createdAt", "desc").limit(200).get(),
     db.collection("invoices").orderBy("createdAt", "desc").get(),
@@ -141,6 +143,7 @@ async function getDashboardData() {
       mapDoc<JobApplication>(docRef.id, docRef.data()),
     ),
     workers: workersSnap.docs.map((docRef) => mapDoc<WorkerProfile>(docRef.id, docRef.data())),
+    workerOffers: workerOffersSnap.docs.map((docRef) => mapDoc<WorkerShiftOffer>(docRef.id, docRef.data())),
     posts: postsSnap.docs.map((docRef) => mapDoc<BlogPost>(docRef.id, docRef.data())),
     emailLogs: emailLogsSnap.docs.map((docRef) => mapDoc<EmailLog>(docRef.id, docRef.data())),
     invoices: invoicesSnap.docs.map((docRef) => mapDoc<Invoice>(docRef.id, docRef.data())),
@@ -648,55 +651,6 @@ function isBookingAssigned(booking: Booking) {
   return booking.status === "confirmed";
 }
 
-function toMinutes(timeValue: string) {
-  const match = timeValue.match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return null;
-  const hh = Number(match[1]);
-  const mm = Number(match[2]);
-  if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
-  return hh * 60 + mm;
-}
-
-function getWeekday(dateValue: string) {
-  const [yearStr, monthStr, dayStr] = dateValue.split("-");
-  const year = Number(yearStr);
-  const month = Number(monthStr);
-  const day = Number(dayStr);
-
-  if (!year || !month || !day) {
-    return null;
-  }
-
-  const weekdayIndex = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-  const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
-  return weekdays[weekdayIndex] ?? null;
-}
-
-function isWorkerCompatibleWithTerm(worker: WorkerProfile, term: Term) {
-  if (!worker.active) {
-    return false;
-  }
-
-  const weekday = getWeekday(term.date);
-  const termStart = toMinutes(term.startTime);
-  const termEnd = toMinutes(term.endTime);
-  const slots = worker.weeklyAvailability ?? [];
-
-  if (!weekday || termStart === null || termEnd === null || slots.length === 0) {
-    return false;
-  }
-
-  return slots.some((slot) => {
-    const slotStart = toMinutes(slot.startTime);
-    const slotEnd = toMinutes(slot.endTime);
-    if (slot.day !== weekday || slotStart === null || slotEnd === null) {
-      return false;
-    }
-
-    return slotStart <= termStart && slotEnd >= termEnd;
-  });
-}
-
 async function assignBookingToTerm(bookingId: string, targetTermId: string, adminEmail: string) {
   const db = getAdminDb();
   const bookingRef = db.collection("bookings").doc(bookingId);
@@ -718,8 +672,13 @@ async function assignBookingToTerm(bookingId: string, targetTermId: string, admi
     const targetTerm = mapDoc<Term>(targetTermSnapshot.id, targetTermSnapshot.data() ?? {});
     const wasAssigned = isBookingAssigned(booking);
     const sourceTermId = booking.selectedTermId;
+    const sourceSeatAlreadyCounted =
+      wasAssigned || (!booking.placementStatus && booking.status === "pending");
+    const shouldMoveBetweenTerms = Boolean(sourceTermId && sourceTermId !== targetTermId);
+    const shouldIncrementTarget = !sourceSeatAlreadyCounted || shouldMoveBetweenTerms;
+    const shouldDecrementSource = sourceSeatAlreadyCounted && shouldMoveBetweenTerms;
 
-    if (sourceTermId !== targetTermId) {
+    if (shouldIncrementTarget) {
       const maxAllowed = targetTerm.capacity + (targetTerm.overbookLimit ?? 0);
       const currentCount = targetTerm.bookedCount ?? 0;
       if (currentCount >= maxAllowed) {
@@ -727,7 +686,7 @@ async function assignBookingToTerm(bookingId: string, targetTermId: string, admi
       }
     }
 
-    if (wasAssigned && sourceTermId && sourceTermId !== targetTermId) {
+    if (shouldDecrementSource && sourceTermId) {
       const sourceTermRef = db.collection("terms").doc(sourceTermId);
       const sourceTermSnapshot = await transaction.get(sourceTermRef);
 
@@ -742,7 +701,7 @@ async function assignBookingToTerm(bookingId: string, targetTermId: string, admi
       }
     }
 
-    if (!wasAssigned || sourceTermId !== targetTermId) {
+    if (shouldIncrementTarget) {
       transaction.update(targetTermRef, {
         bookedCount: (targetTerm.bookedCount ?? 0) + 1,
         updatedBy: adminEmail,
@@ -844,8 +803,6 @@ async function createWorkerFromApplication(applicationId: string) {
     sourceApplicationId: application.id,
     active: true,
     notes: "",
-    weeklyAvailability: [],
-    availabilitySource: "other" as const,
     createdAt: now,
     updatedAt: now,
   };
@@ -869,9 +826,6 @@ async function saveWorkerProfile(
     experienceSummary?: string;
     active?: boolean;
     notes?: string;
-    weeklyAvailability?: WorkerProfile["weeklyAvailability"];
-    availabilitySource?: WorkerProfile["availabilitySource"];
-    availabilityConfirmedAt?: string;
   },
 ) {
   const db = getAdminDb();
@@ -898,20 +852,19 @@ async function saveWorkerProfile(
   return { worker: mapDoc<WorkerProfile>(snapshot.id, snapshot.data() ?? {}) };
 }
 
-async function assignWorkerToTerm(workerId: string, termId: string, adminEmail: string) {
+async function createWorkerOffer(
+  workerId: string,
+  scope: "term" | "class",
+  termId: string | undefined,
+  classId: string | undefined,
+  adminEmail: string,
+) {
   const db = getAdminDb();
   const now = new Date().toISOString();
-  const [workerSnapshot, termSnapshot] = await Promise.all([
-    db.collection("workers").doc(workerId).get(),
-    db.collection("terms").doc(termId).get(),
-  ]);
+  const workerSnapshot = await db.collection("workers").doc(workerId).get();
 
   if (!workerSnapshot.exists) {
     throw new Error("Predavac nije pronadjen.");
-  }
-
-  if (!termSnapshot.exists) {
-    throw new Error("Termin nije pronadjen.");
   }
 
   const worker = mapDoc<WorkerProfile>(workerSnapshot.id, workerSnapshot.data() ?? {});
@@ -919,47 +872,82 @@ async function assignWorkerToTerm(workerId: string, termId: string, adminEmail: 
     throw new Error("Predavac nije aktivan.");
   }
 
-  const term = mapDoc<Term>(termSnapshot.id, termSnapshot.data() ?? {});
-  if (!isWorkerCompatibleWithTerm(worker, term)) {
-    throw new Error("Predavac nije dostupan u terminu koji pokusavate da dodelite.");
+  let relatedClass: SchoolClass | null = null;
+  let relatedTerm: Term | null = null;
+
+  if (scope === "term") {
+    if (!termId) {
+      throw new Error("Termin nije prosledjen.");
+    }
+
+    const termSnapshot = await db.collection("terms").doc(termId).get();
+    if (!termSnapshot.exists) {
+      throw new Error("Termin nije pronadjen.");
+    }
+
+    relatedTerm = mapDoc<Term>(termSnapshot.id, termSnapshot.data() ?? {});
+    const classSnapshot = await db.collection("classes").doc(relatedTerm.classId).get();
+    if (!classSnapshot.exists) {
+      throw new Error("Grupa za ovaj termin nije pronadjena.");
+    }
+    relatedClass = mapDoc<SchoolClass>(classSnapshot.id, classSnapshot.data() ?? {});
+    classId = relatedClass.id;
+  } else {
+    if (!classId) {
+      throw new Error("Grupa nije prosledjena.");
+    }
+
+    const classSnapshot = await db.collection("classes").doc(classId).get();
+    if (!classSnapshot.exists) {
+      throw new Error("Grupa nije pronadjena.");
+    }
+    relatedClass = mapDoc<SchoolClass>(classSnapshot.id, classSnapshot.data() ?? {});
   }
 
-  const classSnapshot = await db.collection("classes").doc(term.classId).get();
-  if (!classSnapshot.exists) {
-    throw new Error("Grupa za ovaj termin nije pronadjena.");
-  }
+  const responseToken = `${randomUUID().replaceAll("-", "")}${randomUUID().replaceAll("-", "")}`;
+  const payload: Omit<WorkerShiftOffer, "id"> = {
+    workerId: worker.id,
+    workerName: worker.fullName,
+    workerEmail: worker.email,
+    workerEmploymentType: worker.employmentType,
+    scope,
+    status: "pending",
+    classId: classId!,
+    classTitleSr: relatedClass?.title_sr,
+    classTitleEn: relatedClass?.title_en,
+    ...(relatedTerm
+      ? {
+          termId: relatedTerm.id,
+          termTitleSr: relatedTerm.title_sr,
+          termDate: relatedTerm.date,
+          termStartTime: relatedTerm.startTime,
+          termEndTime: relatedTerm.endTime,
+        }
+      : {}),
+    offeredByEmail: adminEmail,
+    offeredAt: now,
+    responseToken,
+  };
 
-  const schoolClass = mapDoc<SchoolClass>(classSnapshot.id, classSnapshot.data() ?? {});
-
-  await db.collection("terms").doc(term.id).set(
-    {
-      assignedWorkerId: worker.id,
-      assignedWorkerName: worker.fullName,
-      assignedWorkerEmail: worker.email,
-      assignedWorkerEmploymentType: worker.employmentType,
-      updatedBy: adminEmail,
-      updatedAt: now,
-    },
-    { merge: true },
-  );
+  const offerRef = await db.collection("workerOffers").add(payload);
+  const offer = { id: offerRef.id, ...payload };
 
   let emailQueued = false;
   let emailError: string | undefined;
 
   try {
-    const result = await sendTeacherAssignmentEmail({
+    const result = await sendTeacherShiftOfferEmail({
       worker,
-      schoolClass,
-      term,
+      offer,
     });
 
     emailQueued = true;
 
     await writeEmailLog({
-      type: "teacher-assignment",
+      type: "teacher-offer",
       parentEmail: worker.email,
       parentName: worker.fullName,
-      subject: `Kutak za srpski | Dodeljen termin ${term.title_sr}`,
+      subject: `Kutak za srpski | Ponuda za ${scope === "term" ? "smenu" : "grupu"}`,
       status: "sent",
       provider: "resend",
       providerMessageId: result.id,
@@ -970,10 +958,10 @@ async function assignWorkerToTerm(workerId: string, termId: string, adminEmail: 
     emailError = error instanceof Error ? error.message : "Slanje emaila predavacu nije uspelo.";
 
     await writeEmailLog({
-      type: "teacher-assignment",
+      type: "teacher-offer",
       parentEmail: worker.email,
       parentName: worker.fullName,
-      subject: `Kutak za srpski | Dodeljen termin ${term.title_sr}`,
+      subject: `Kutak za srpski | Ponuda za ${scope === "term" ? "smenu" : "grupu"}`,
       status: "failed",
       provider: "resend",
       errorMessage: emailError,
@@ -984,51 +972,9 @@ async function assignWorkerToTerm(workerId: string, termId: string, adminEmail: 
 
   return {
     ok: true,
+    offer,
     emailQueued,
     emailError,
-  };
-}
-
-async function assignWorkerToClass(workerId: string, classId: string, adminEmail: string) {
-  const db = getAdminDb();
-  const [workerSnapshot, classSnapshot, termsSnapshot] = await Promise.all([
-    db.collection("workers").doc(workerId).get(),
-    db.collection("classes").doc(classId).get(),
-    db.collection("terms").where("classId", "==", classId).where("active", "==", true).get(),
-  ]);
-
-  if (!workerSnapshot.exists) {
-    throw new Error("Predavac nije pronadjen.");
-  }
-
-  if (!classSnapshot.exists) {
-    throw new Error("Grupa nije pronadjena.");
-  }
-
-  const worker = mapDoc<WorkerProfile>(workerSnapshot.id, workerSnapshot.data() ?? {});
-  const terms = termsSnapshot.docs.map((docRef) => mapDoc<Term>(docRef.id, docRef.data()));
-
-  const compatibleTerms = terms.filter((term) => isWorkerCompatibleWithTerm(worker, term));
-  const skippedTerms = terms.filter((term) => !isWorkerCompatibleWithTerm(worker, term));
-
-  let assigned = 0;
-  let emailFailed = 0;
-
-  for (const term of compatibleTerms) {
-    const result = await assignWorkerToTerm(worker.id, term.id, adminEmail);
-    assigned += 1;
-    if (!result.emailQueued) {
-      emailFailed += 1;
-    }
-  }
-
-  return {
-    ok: true,
-    assigned,
-    skipped: skippedTerms.length,
-    emailFailed,
-    assignedTermIds: compatibleTerms.map((term) => term.id),
-    skippedTermIds: skippedTerms.map((term) => term.id),
   };
 }
 
@@ -1156,24 +1102,15 @@ export async function POST(request: NextRequest) {
             experienceSummary: payload?.experienceSummary as string | undefined,
             active: payload?.active as boolean | undefined,
             notes: payload?.notes as string | undefined,
-            weeklyAvailability: payload?.weeklyAvailability as WorkerProfile["weeklyAvailability"],
-            availabilitySource: payload?.availabilitySource as WorkerProfile["availabilitySource"],
-            availabilityConfirmedAt: payload?.availabilityConfirmedAt as string | undefined,
           }),
         );
-      case "assignWorkerToTerm":
+      case "createWorkerOffer":
         return NextResponse.json(
-          await assignWorkerToTerm(
+          await createWorkerOffer(
             String(payload?.workerId ?? ""),
-            String(payload?.termId ?? ""),
-            adminEmail,
-          ),
-        );
-      case "assignWorkerToClass":
-        return NextResponse.json(
-          await assignWorkerToClass(
-            String(payload?.workerId ?? ""),
-            String(payload?.classId ?? ""),
+            (payload?.scope as "term" | "class") ?? "term",
+            payload?.termId ? String(payload.termId) : undefined,
+            payload?.classId ? String(payload.classId) : undefined,
             adminEmail,
           ),
         );

@@ -7,22 +7,18 @@ export type PaymentStatus = "pending" | "paid" | "cancelled";
 export type InvoiceStatus = "pending" | "paid" | "overdue" | "cancelled";
 export type ReceivedPaymentMethod = "cash" | "zelle" | "bank" | "venmo" | "other";
 export type EmploymentType = "full-time" | "part-time" | "both";
-export type Weekday =
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday"
-  | "friday"
-  | "saturday"
-  | "sunday";
 export type EmailLogType =
   | "booking-submitted"
   | "payment-confirmed"
   | "admin-notification"
   | "invoice-sent"
   | "invoice-reminder"
-  | "teacher-assignment";
+  | "teacher-assignment"
+  | "teacher-offer"
+  | "teacher-offer-response";
 export type TermCapacityPolicy = "strict-10" | "direct-12" | "plus-2-override";
+export type WorkerOfferScope = "term" | "class";
+export type WorkerOfferStatus = "pending" | "accepted" | "declined" | "expired";
 
 export interface SchoolClass {
   id: string;
@@ -96,17 +92,33 @@ export interface WorkerProfile {
   sourceApplicationId?: string;
   active: boolean;
   notes?: string;
-  weeklyAvailability?: WorkerAvailabilitySlot[];
-  availabilitySource?: "phone" | "email" | "chat" | "in-person" | "other";
-  availabilityConfirmedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
-export interface WorkerAvailabilitySlot {
-  day: Weekday;
-  startTime: string;
-  endTime: string;
+export interface WorkerShiftOffer {
+  id: string;
+  workerId: string;
+  workerName: string;
+  workerEmail: string;
+  workerEmploymentType: EmploymentType;
+  scope: WorkerOfferScope;
+  status: WorkerOfferStatus;
+  classId: string;
+  classTitleSr?: string;
+  classTitleEn?: string;
+  termId?: string;
+  termTitleSr?: string;
+  termDate?: string;
+  termStartTime?: string;
+  termEndTime?: string;
+  offeredByEmail: string;
+  offeredAt: string;
+  respondedAt?: string;
+  responseToken: string;
+  responseMessage?: string;
+  acceptedTermIds?: string[];
+  declinedTermIds?: string[];
 }
 
 export interface BlogPost {
