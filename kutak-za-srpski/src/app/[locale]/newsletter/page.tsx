@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: NewsletterPageProps) {
     title: locale === "sr" ? "Newsletter | Kutak za srpski" : "Newsletter | Kutak za srpski",
     description:
       locale === "sr"
-        ? "Prijavite se na newsletter i dobijajte novosti i savete jednom mesecno."
+        ? "Prijavite se na newsletter i dobijajte novosti i savete jednom mesečno."
         : "Subscribe to the newsletter to receive monthly updates and practical guidance.",
   };
 }

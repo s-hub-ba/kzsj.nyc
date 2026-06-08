@@ -36,6 +36,7 @@ import {
   TermCapacityPolicy,
   Term,
   WorkerProfile,
+  WorkerShiftOffer,
 } from "@/types/models";
 import { sampleBlogPosts, sampleClasses, sampleTerms } from "@/lib/sampleData";
 import { auth } from "@/lib/firebase";
@@ -49,6 +50,7 @@ type AdminDashboardData = {
   newsletterSubscribers: NewsletterSubscriber[];
   jobApplications: JobApplication[];
   workers: WorkerProfile[];
+  workerOffers: WorkerShiftOffer[];
   posts: BlogPost[];
   emailLogs: EmailLog[];
   invoices: Invoice[];
@@ -66,6 +68,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     newsletterSubscribers: await getNewsletterSubscribers(),
     jobApplications: await getJobApplications(),
     workers: await getWorkers(),
+    workerOffers: [],
     posts: await getAllBlogPosts(),
     emailLogs: [],
     invoices: [],
@@ -364,9 +367,6 @@ export async function saveWorkerProfile(
     experienceSummary?: string;
     active?: boolean;
     notes?: string;
-    weeklyAvailability?: WorkerProfile["weeklyAvailability"];
-    availabilitySource?: WorkerProfile["availabilitySource"];
-    availabilityConfirmedAt?: string;
   },
 ) {
   const result = await callAdminApi<{ worker: WorkerProfile }>("saveWorkerProfile", {
@@ -376,24 +376,17 @@ export async function saveWorkerProfile(
   return result.worker;
 }
 
-export async function assignWorkerToTerm(workerId: string, termId: string) {
-  return callAdminApi<{ ok: true; emailQueued: boolean; emailError?: string }>("assignWorkerToTerm", {
+export async function createWorkerOffer(
+  workerId: string,
+  input: {
+    scope: "term" | "class";
+    termId?: string;
+    classId?: string;
+  },
+) {
+  return callAdminApi<{ ok: true; offer: WorkerShiftOffer; emailQueued: boolean; emailError?: string }>("createWorkerOffer", {
     workerId,
-    termId,
-  });
-}
-
-export async function assignWorkerToClass(workerId: string, classId: string) {
-  return callAdminApi<{
-    ok: true;
-    assigned: number;
-    skipped: number;
-    emailFailed: number;
-    assignedTermIds: string[];
-    skippedTermIds: string[];
-  }>("assignWorkerToClass", {
-    workerId,
-    classId,
+    ...input,
   });
 }
 

@@ -1,22 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { JobApplication, SchoolClass, Term, Weekday, WorkerAvailabilitySlot, WorkerProfile } from "@/types/models";
-import {
-  assignWorkerToClass,
-  assignWorkerToTerm,
-  createWorkerFromApplication,
-  saveWorkerProfile,
-} from "@/lib/firestore";
+import { JobApplication, SchoolClass, Term, WorkerProfile, WorkerShiftOffer } from "@/types/models";
+import { createWorkerFromApplication, createWorkerOffer, saveWorkerProfile } from "@/lib/firestore";
 
 interface AdminJobApplicationsProps {
   applications: JobApplication[];
   workers: WorkerProfile[];
+  offers: WorkerShiftOffer[];
   classes: SchoolClass[];
   terms: Term[];
   currentAdminEmail: string;
   onWorkersUpdate: (workers: WorkerProfile[]) => void;
-  onTermsUpdate: (terms: Term[]) => void;
+  onOffersUpdate: (offers: WorkerShiftOffer[]) => void;
 }
 
 type WorkerDraft = {
@@ -27,20 +23,7 @@ type WorkerDraft = {
   experienceSummary: string;
   notes: string;
   active: boolean;
-  weeklyAvailability: WorkerAvailabilitySlot[];
-  availabilitySource: NonNullable<WorkerProfile["availabilitySource"]>;
-  availabilityConfirmedAt: string;
 };
-
-const WEEK_DAYS: Array<{ key: Weekday; label: string }> = [
-  { key: "monday", label: "Ponedeljak" },
-  { key: "tuesday", label: "Utorak" },
-  { key: "wednesday", label: "Sreda" },
-  { key: "thursday", label: "Cetvrtak" },
-  { key: "friday", label: "Petak" },
-  { key: "saturday", label: "Subota" },
-  { key: "sunday", label: "Nedelja" },
-];
 
 function formatEmploymentType(value: JobApplication["employmentType"]) {
   switch (value) {
@@ -55,66 +38,30 @@ function formatEmploymentType(value: JobApplication["employmentType"]) {
   }
 }
 
-function toMinutes(timeValue: string) {
-  const match = timeValue.match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return null;
-  const hh = Number(match[1]);
-  const mm = Number(match[2]);
-  if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
-  return hh * 60 + mm;
-}
-
-function getWeekday(dateValue: string) {
-  const [yearStr, monthStr, dayStr] = dateValue.split("-");
-  const year = Number(yearStr);
-  const month = Number(monthStr);
-  const day = Number(dayStr);
-  if (!year || !month || !day) return null;
-
-  const weekdayIndex = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-  const weekdays: Weekday[] = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-  return weekdays[weekdayIndex] ?? null;
-}
-
-function isWorkerCompatible(worker: WorkerProfile | WorkerDraft, term: Term) {
-  if (!("active" in worker ? worker.active : true)) {
-    return false;
-  }
-
-  const weekday = getWeekday(term.date);
-  const termStart = toMinutes(term.startTime);
-  const termEnd = toMinutes(term.endTime);
-  const slots = worker.weeklyAvailability ?? [];
-
-  if (!weekday || termStart === null || termEnd === null || slots.length === 0) {
-    return false;
-  }
-
-  return slots.some((slot) => {
-    if (slot.day !== weekday) return false;
-    const slotStart = toMinutes(slot.startTime);
-    const slotEnd = toMinutes(slot.endTime);
-    if (slotStart === null || slotEnd === null) return false;
-    return slotStart <= termStart && slotEnd >= termEnd;
-  });
+function formatOfferStatus(status: WorkerShiftOffer["status"]) {
+  if (status === "pending") return "Na cekanju";
+  if (status === "accepted") return "Prihvaceno";
+  if (status === "declined") return "Odbijeno";
+  return "Isteklo";
 }
 
 export function AdminJobApplications({
   applications,
   workers,
+  offers,
   classes,
   terms,
   currentAdminEmail,
   onWorkersUpdate,
-  onTermsUpdate,
+  onOffersUpdate,
 }: AdminJobApplicationsProps) {
   const [creatingFromApplicationId, setCreatingFromApplicationId] = useState<string | null>(null);
   const [savingWorkerId, setSavingWorkerId] = useState<string | null>(null);
-  const [assigningWorkerId, setAssigningWorkerId] = useState<string | null>(null);
-  const [bulkAssigningWorkerId, setBulkAssigningWorkerId] = useState<string | null>(null);
+  const [offeringWorkerId, setOfferingWorkerId] = useState<string | null>(null);
   const [workerDrafts, setWorkerDrafts] = useState<Record<string, WorkerDraft>>({});
   const [termByWorker, setTermByWorker] = useState<Record<string, string>>({});
   const [classByWorker, setClassByWorker] = useState<Record<string, string>>({});
+  const [offerStatusFilter, setOfferStatusFilter] = useState<"all" | "pending" | "accepted" | "declined">("all");
 
   const classById = useMemo(
     () => Object.fromEntries(classes.map((item) => [item.id, item])),
@@ -134,11 +81,6 @@ export function AdminJobApplications({
             experienceSummary: worker.experienceSummary,
             notes: worker.notes ?? "",
             active: worker.active,
-            weeklyAvailability: worker.weeklyAvailability ?? [],
-            availabilitySource: worker.availabilitySource ?? "other",
-            availabilityConfirmedAt: worker.availabilityConfirmedAt
-              ? worker.availabilityConfirmedAt.slice(0, 10)
-              : "",
           },
         ]),
       ),
@@ -146,6 +88,9 @@ export function AdminJobApplications({
   }, [workers]);
 
   const activeWorkersCount = workers.filter((worker) => worker.active).length;
+  const filteredOffers = offers.filter((offer) =>
+    offerStatusFilter === "all" ? true : offer.status === offerStatusFilter,
+  );
 
   const createWorker = async (applicationId: string) => {
     setCreatingFromApplicationId(applicationId);
@@ -162,40 +107,6 @@ export function AdminJobApplications({
     }
   };
 
-  const setWorkerDayAvailability = (
-    workerId: string,
-    day: Weekday,
-    enabled: boolean,
-    overrides?: Partial<Pick<WorkerAvailabilitySlot, "startTime" | "endTime">>,
-  ) => {
-    setWorkerDrafts((prev) => {
-      const draft = prev[workerId];
-      if (!draft) return prev;
-
-      const existing = draft.weeklyAvailability.find((slot) => slot.day === day);
-      let nextSlots = draft.weeklyAvailability.filter((slot) => slot.day !== day);
-
-      if (enabled) {
-        nextSlots = [
-          ...nextSlots,
-          {
-            day,
-            startTime: overrides?.startTime ?? existing?.startTime ?? "09:00",
-            endTime: overrides?.endTime ?? existing?.endTime ?? "17:00",
-          },
-        ];
-      }
-
-      return {
-        ...prev,
-        [workerId]: {
-          ...draft,
-          weeklyAvailability: nextSlots,
-        },
-      };
-    });
-  };
-
   const saveWorker = async (workerId: string) => {
     const draft = workerDrafts[workerId];
     if (!draft) return;
@@ -204,9 +115,6 @@ export function AdminJobApplications({
     try {
       const saved = await saveWorkerProfile(workerId, {
         ...draft,
-        availabilityConfirmedAt: draft.availabilityConfirmedAt
-          ? new Date(`${draft.availabilityConfirmedAt}T00:00:00`).toISOString()
-          : undefined,
       });
       onWorkersUpdate(workers.map((worker) => (worker.id === saved.id ? saved : worker)));
     } catch (error) {
@@ -216,87 +124,50 @@ export function AdminJobApplications({
     }
   };
 
-  const assignToTerm = async (worker: WorkerProfile) => {
+  const offerTerm = async (worker: WorkerProfile) => {
     const termId = termByWorker[worker.id];
     if (!termId) return;
 
-    setAssigningWorkerId(worker.id);
+    setOfferingWorkerId(worker.id);
     try {
-      const response = await assignWorkerToTerm(worker.id, termId);
-      const now = new Date().toISOString();
-
-      onTermsUpdate(
-        terms.map((term) =>
-          term.id === termId
-            ? {
-                ...term,
-                assignedWorkerId: worker.id,
-                assignedWorkerName: worker.fullName,
-                assignedWorkerEmail: worker.email,
-                assignedWorkerEmploymentType: worker.employmentType,
-                updatedBy: currentAdminEmail,
-                updatedAt: now,
-              }
-            : term,
-        ),
-      );
-
+      const response = await createWorkerOffer(worker.id, { scope: "term", termId });
+      onOffersUpdate([response.offer, ...offers]);
       if (!response.emailQueued && response.emailError) {
-        alert(`Termin je dodeljen, ali email nije poslat: ${response.emailError}`);
+        alert(`Ponuda je snimljena, ali email nije poslat: ${response.emailError}`);
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Dodela predavaca nije uspela.");
+      alert(error instanceof Error ? error.message : "Slanje ponude nije uspelo.");
     } finally {
-      setAssigningWorkerId(null);
+      setOfferingWorkerId(null);
     }
   };
 
-  const bulkAssignToClass = async (worker: WorkerProfile) => {
+  const offerClass = async (worker: WorkerProfile) => {
     const classId = classByWorker[worker.id];
     if (!classId) return;
 
-    setBulkAssigningWorkerId(worker.id);
+    setOfferingWorkerId(worker.id);
     try {
-      const response = await assignWorkerToClass(worker.id, classId);
-      const now = new Date().toISOString();
-
-      onTermsUpdate(
-        terms.map((term) =>
-          response.assignedTermIds.includes(term.id)
-            ? {
-                ...term,
-                assignedWorkerId: worker.id,
-                assignedWorkerName: worker.fullName,
-                assignedWorkerEmail: worker.email,
-                assignedWorkerEmploymentType: worker.employmentType,
-                updatedBy: currentAdminEmail,
-                updatedAt: now,
-              }
-            : term,
-        ),
-      );
-
-      if (response.assigned === 0) {
-        alert("Nijedan termin nije dodeljen. Proverite dostupnost predavaca.");
-      } else if (response.skipped > 0 || response.emailFailed > 0) {
-        alert(
-          `Dodeljeno: ${response.assigned}. Preskoceno zbog dostupnosti: ${response.skipped}. Email greske: ${response.emailFailed}.`,
-        );
+      const response = await createWorkerOffer(worker.id, { scope: "class", classId });
+      onOffersUpdate([response.offer, ...offers]);
+      if (!response.emailQueued && response.emailError) {
+        alert(`Ponuda je snimljena, ali email nije poslat: ${response.emailError}`);
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : "Bulk dodela nije uspela.");
+      alert(error instanceof Error ? error.message : "Slanje ponude nije uspelo.");
     } finally {
-      setBulkAssigningWorkerId(null);
+      setOfferingWorkerId(null);
     }
   };
 
   return (
     <div className="space-y-6">
       <section className="rounded-3xl border border-line bg-surface p-6">
-        <h2 className="text-2xl font-semibold">Prikupljanje dostupnosti bez naloga</h2>
+        <h2 className="text-2xl font-semibold">Ponude smena i grupa</h2>
         <p className="mt-2 text-sm text-muted">
-          Predavac ne mora da ima nalog: admin unosi nedeljnu dostupnost nakon poziva, email-a ili poruke, i belezi datum poslednje potvrde.
+          Admin salje ponudu odabranom predavacu email-om. Predavac klikom prihvata ili odbija ponudu, a status se belezi automatski.
         </p>
+        <p className="mt-2 text-xs text-muted">Trenutni admin: {currentAdminEmail}</p>
       </section>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
@@ -304,7 +175,7 @@ export function AdminJobApplications({
           <div>
             <h2 className="text-2xl font-semibold">Prijave za posao</h2>
             <p className="mt-1 text-sm text-muted">
-              Iz prijava direktno kreirajte aktivne predavace koje kasnije dodeljujete terminima.
+              Iz prijava direktno kreirajte aktivne predavace koje kasnije dobijaju ponude za smene ili grupe.
             </p>
           </div>
           <div className="rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">
@@ -370,7 +241,7 @@ export function AdminJobApplications({
           <div>
             <h2 className="text-2xl font-semibold">Aktivni predavaci i dosije</h2>
             <p className="mt-1 text-sm text-muted">
-              Uredite dosije, unesite dostupnost, pa dodelite predavaca samo kompatibilnim terminima.
+              Uredite dosije pa posaljite ponudu za pojedinacnu smenu ili celu grupu.
             </p>
           </div>
           <div className="rounded-2xl bg-surface-2 px-4 py-3 text-sm text-muted">
@@ -383,13 +254,7 @@ export function AdminJobApplications({
             const draft = workerDrafts[worker.id];
             if (!draft) return null;
 
-            const assignedTerms = terms.filter((term) => term.assignedWorkerId === worker.id);
-            const compatibleTerms = terms
-              .filter((term) => isWorkerCompatible(draft, term))
-              .sort((a, b) => Date.parse(`${a.date}T${a.startTime}:00`) - Date.parse(`${b.date}T${b.startTime}:00`));
-            const compatibleClasses = classes.filter((cls) =>
-              terms.some((term) => term.classId === cls.id && isWorkerCompatible(draft, term)),
-            );
+            const workerOffers = offers.filter((offer) => offer.workerId === worker.id).slice(0, 6);
 
             return (
               <article key={worker.id} className="rounded-2xl border border-line bg-surface-2 p-4">
@@ -448,39 +313,6 @@ export function AdminJobApplications({
                     <option value="both">Oba</option>
                   </select>
 
-                  <select
-                    value={draft.availabilitySource}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: {
-                          ...prev[worker.id],
-                          availabilitySource: e.target.value as NonNullable<WorkerProfile["availabilitySource"]>,
-                        },
-                      }))
-                    }
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                  >
-                    <option value="phone">Potvrdjeno telefonom</option>
-                    <option value="email">Potvrdjeno email-om</option>
-                    <option value="chat">Potvrdjeno porukom</option>
-                    <option value="in-person">Potvrdjeno uzivo</option>
-                    <option value="other">Drugo</option>
-                  </select>
-
-                  <input
-                    type="date"
-                    value={draft.availabilityConfirmedAt}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: { ...prev[worker.id], availabilityConfirmedAt: e.target.value },
-                      }))
-                    }
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                    title="Poslednja potvrda dostupnosti"
-                  />
-
                   <label className="flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm">
                     <input
                       type="checkbox"
@@ -525,64 +357,18 @@ export function AdminJobApplications({
                   />
                 </div>
 
-                <div className="mt-4 rounded-xl border border-line bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Nedeljna dostupnost</p>
-                  <div className="space-y-2">
-                    {WEEK_DAYS.map((day) => {
-                      const slot = draft.weeklyAvailability.find((item) => item.day === day.key);
-                      const enabled = Boolean(slot);
-
-                      return (
-                        <div key={day.key} className="grid items-center gap-2 sm:grid-cols-[170px,1fr,1fr]">
-                          <label className="flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={enabled}
-                              onChange={(e) =>
-                                setWorkerDayAvailability(worker.id, day.key, e.target.checked)
-                              }
-                              className="h-4 w-4"
-                            />
-                            {day.label}
-                          </label>
-                          <input
-                            type="time"
-                            value={slot?.startTime ?? "09:00"}
-                            disabled={!enabled}
-                            onChange={(e) =>
-                              setWorkerDayAvailability(worker.id, day.key, true, { startTime: e.target.value })
-                            }
-                            className="rounded-lg border border-line bg-white px-2 py-1 text-xs disabled:opacity-50"
-                          />
-                          <input
-                            type="time"
-                            value={slot?.endTime ?? "17:00"}
-                            disabled={!enabled}
-                            onChange={(e) =>
-                              setWorkerDayAvailability(worker.id, day.key, true, { endTime: e.target.value })
-                            }
-                            className="rounded-lg border border-line bg-white px-2 py-1 text-xs disabled:opacity-50"
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-3">
-                    <button
-                      onClick={() => void saveWorker(worker.id)}
-                      disabled={savingWorkerId === worker.id}
-                      className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium transition hover:bg-surface-2 disabled:opacity-50"
-                    >
-                      {savingWorkerId === worker.id ? "Cuvanje..." : "Snimi dosije"}
-                    </button>
-                  </div>
+                <div className="mt-3">
+                  <button
+                    onClick={() => void saveWorker(worker.id)}
+                    disabled={savingWorkerId === worker.id}
+                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-medium transition hover:bg-surface-2 disabled:opacity-50"
+                  >
+                    {savingWorkerId === worker.id ? "Cuvanje..." : "Snimi dosije"}
+                  </button>
                 </div>
 
                 <div className="mt-4 rounded-xl border border-line bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                    Dodela po terminu (samo kompatibilni termini)
-                  </p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Ponuda smene</p>
                   <div className="flex flex-wrap items-center gap-2">
                     <select
                       value={termByWorker[worker.id] ?? ""}
@@ -591,8 +377,8 @@ export function AdminJobApplications({
                       }
                       className="min-w-[300px] rounded-lg border border-line bg-white px-2 py-1.5 text-xs"
                     >
-                      <option value="">Dodeli na termin...</option>
-                      {compatibleTerms.map((term) => {
+                      <option value="">Izaberi termin...</option>
+                      {terms.map((term) => {
                         const cls = classById[term.classId];
                         return (
                           <option key={term.id} value={term.id}>
@@ -603,19 +389,17 @@ export function AdminJobApplications({
                     </select>
 
                     <button
-                      onClick={() => void assignToTerm(worker)}
-                      disabled={assigningWorkerId === worker.id || !(termByWorker[worker.id] ?? "")}
+                      onClick={() => void offerTerm(worker)}
+                      disabled={offeringWorkerId === worker.id || !(termByWorker[worker.id] ?? "")}
                       className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
                     >
-                      {assigningWorkerId === worker.id ? "Dodela..." : "Dodeli + posalji ICS"}
+                      {offeringWorkerId === worker.id ? "Slanje..." : "Posalji ponudu smene"}
                     </button>
                   </div>
                 </div>
 
                 <div className="mt-3 rounded-xl border border-line bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                    Bulk dodela na celu grupu
-                  </p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Ponuda grupe</p>
                   <div className="flex flex-wrap items-center gap-2">
                     <select
                       value={classByWorker[worker.id] ?? ""}
@@ -625,7 +409,7 @@ export function AdminJobApplications({
                       className="min-w-[280px] rounded-lg border border-line bg-white px-2 py-1.5 text-xs"
                     >
                       <option value="">Izaberi grupu...</option>
-                      {compatibleClasses.map((cls) => (
+                      {classes.map((cls) => (
                         <option key={cls.id} value={cls.id}>
                           {cls.title_sr}
                         </option>
@@ -633,21 +417,32 @@ export function AdminJobApplications({
                     </select>
 
                     <button
-                      onClick={() => void bulkAssignToClass(worker)}
-                      disabled={bulkAssigningWorkerId === worker.id || !(classByWorker[worker.id] ?? "")}
+                      onClick={() => void offerClass(worker)}
+                      disabled={offeringWorkerId === worker.id || !(classByWorker[worker.id] ?? "")}
                       className="rounded-lg border border-brand/40 bg-brand/10 px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/20 disabled:opacity-50"
                     >
-                      {bulkAssigningWorkerId === worker.id ? "Dodela..." : "Dodeli na sve kompatibilne termine"}
+                      {offeringWorkerId === worker.id ? "Slanje..." : "Posalji ponudu grupe"}
                     </button>
                   </div>
+                </div>
 
-                  <p className="mt-2 text-xs text-muted">
-                    Trenutne dodele: {assignedTerms.length > 0
-                      ? assignedTerms
-                          .map((term) => `${classById[term.classId]?.title_sr ?? "Grupa"} - ${term.title_sr}`)
-                          .join(", ")
-                      : "Nema dodeljenih termina."}
-                  </p>
+                <div className="mt-3 rounded-xl border border-line bg-white p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Poslednje ponude</p>
+                  {workerOffers.length ? (
+                    <ul className="space-y-1 text-xs text-muted">
+                      {workerOffers.map((offer) => (
+                        <li key={offer.id}>
+                          {offer.scope === "term"
+                            ? `Smena: ${offer.termTitleSr ?? offer.termId}`
+                            : `Grupa: ${offer.classTitleSr ?? offer.classId}`}
+                          {" · "}
+                          <span className="font-semibold text-foreground">{formatOfferStatus(offer.status)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-muted">Nema poslatih ponuda.</p>
+                  )}
                 </div>
               </article>
             );
@@ -657,6 +452,71 @@ export function AdminJobApplications({
             <div className="rounded-2xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
               Jos nema aktivnih predavaca. Dodajte ih iz prijava iznad.
             </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-line bg-surface p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold">Sve ponude</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: "all", label: "Sve" },
+              { id: "pending", label: "Na cekanju" },
+              { id: "accepted", label: "Prihvaceno" },
+              { id: "declined", label: "Odbijeno" },
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() =>
+                  setOfferStatusFilter(item.id as "all" | "pending" | "accepted" | "declined")
+                }
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                  offerStatusFilter === item.id
+                    ? "border-brand bg-brand/10 text-brand"
+                    : "border-line bg-white text-muted hover:bg-surface-2"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[760px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-muted">
+                <th className="px-2 py-3">Predavac</th>
+                <th className="px-2 py-3">Tip</th>
+                <th className="px-2 py-3">Ponuda</th>
+                <th className="px-2 py-3">Status</th>
+                <th className="px-2 py-3">Poslato</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOffers.slice(0, 30).map((offer) => (
+                <tr key={offer.id} className="border-b border-line/60 hover:bg-surface-2">
+                  <td className="px-2 py-3 font-medium">{offer.workerName}</td>
+                  <td className="px-2 py-3">{offer.scope === "term" ? "Smena" : "Grupa"}</td>
+                  <td className="px-2 py-3 text-muted">
+                    {offer.scope === "term"
+                      ? `${offer.classTitleSr ?? offer.classId} - ${offer.termTitleSr ?? offer.termId}`
+                      : offer.classTitleSr ?? offer.classId}
+                  </td>
+                  <td className="px-2 py-3">
+                    <span className="font-semibold text-foreground">{formatOfferStatus(offer.status)}</span>
+                  </td>
+                  <td className="px-2 py-3 text-muted">
+                    {offer.offeredAt ? new Date(offer.offeredAt).toLocaleString("sr-RS") : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {offers.length === 0 ? <p className="py-4 text-sm text-muted">Jos nema ponuda.</p> : null}
+          {offers.length > 0 && filteredOffers.length === 0 ? (
+            <p className="py-4 text-sm text-muted">Nema ponuda za izabrani filter.</p>
           ) : null}
         </div>
       </section>
