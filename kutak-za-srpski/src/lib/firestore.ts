@@ -5,19 +5,15 @@ import {
   doc,
   getDoc,
   getDocs,
-  increment,
   orderBy,
   query,
-  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
-  sendAdminBookingNotification,
   sendBlogNewsletter,
-  sendBookingConfirmation,
 } from "@/services/emailService";
 import {
   BlogPost,
@@ -162,64 +158,24 @@ export async function getActiveTerms(classId?: string): Promise<Term[]> {
 }
 
 export async function createBooking(input: BookingInput): Promise<Booking> {
-  const firestore = requireDb();
-
-  const termRef = doc(firestore, "terms", input.selectedTermId);
-
-  await runTransaction(firestore, async (transaction) => {
-    const termSnap = await transaction.get(termRef);
-    if (!termSnap.exists()) {
-      throw new Error("Izabrani termin ne postoji.");
-    }
-
-    const termData = termSnap.data() as Term;
-    const maxAllowed = termData.capacity + (termData.overbookLimit ?? 0);
-    if ((termData.bookedCount ?? 0) >= maxAllowed) {
-      throw new Error("Izabrani termin je popunjen.");
-    }
-
-    transaction.update(termRef, { bookedCount: increment(1) });
+  const response = await fetch("/api/bookings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
   });
 
-  const bookingPayload = {
-    ...input,
-    waiverSigned: false,
-    status: "pending" as BookingStatus,
-    paymentStatus: "pending" as PaymentStatus,
-    createdAt: serverTimestamp(),
-  };
+  const data = (await response.json().catch(() => ({}))) as { booking?: Booking; message?: string };
+  if (!response.ok) {
+    throw new Error(data.message ?? "Prijava trenutno nije uspela.");
+  }
 
-  const bookingRef = await addDoc(collection(firestore, "bookings"), bookingPayload);
-  const bookingSnapshot = await getDoc(bookingRef);
-  const booking = mapDoc<Booking>(bookingSnapshot.id, bookingSnapshot.data() ?? bookingPayload);
+  if (!data.booking) {
+    throw new Error("Server nije vratio kreiranu prijavu.");
+  }
 
-  const [classes, allTerms] = await Promise.all([
-    getActiveClasses(),
-    getActiveTerms(),
-  ]);
-
-  const selectedClass = classes.find((item) => item.id === input.selectedClassId);
-  const selectedTerm = allTerms.find((item) => item.id === input.selectedTermId);
-
-  // Filter all terms for this class for semester schedule
-  const classTerms = allTerms.filter(t => t.classId === input.selectedClassId);
-
-  await Promise.all([
-    sendBookingConfirmation({ 
-      booking, 
-      selectedClass, 
-      selectedTerm,
-      allTerms: classTerms
-    }),
-    sendAdminBookingNotification({ 
-      booking, 
-      selectedClass, 
-      selectedTerm,
-      allTerms: classTerms
-    }),
-  ]);
-
-  return booking;
+  return data.booking;
 }
 
 export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
