@@ -1,6 +1,6 @@
 "use client";
 
-export type AdminTab = "overview" | "bookings" | "applications" | "classes" | "payments" | "invoices" | "blog" | "emails";
+export type AdminTab = "overview" | "bookings" | "applications" | "classes" | "payments" | "invoices" | "blog" | "newsletter" | "emails";
 
 interface AdminNavProps {
   currentTab: AdminTab;
@@ -16,6 +16,7 @@ export function AdminNav({ currentTab, onTabChange }: AdminNavProps) {
     { id: "payments", label: "Plaćanja", icon: "💳" },
     { id: "invoices", label: "Fakture", icon: "🧾" },
     { id: "blog", label: "Blog", icon: "📰" },
+    { id: "newsletter", label: "Newsletter", icon: "📬" },
     { id: "emails", label: "Email log", icon: "✉️" },
   ];
 

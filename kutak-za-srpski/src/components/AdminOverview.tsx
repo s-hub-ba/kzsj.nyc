@@ -117,42 +117,6 @@ export function AdminOverview({
       </section>
 
       <section className="rounded-3xl border border-line bg-surface p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-2xl font-semibold">Newsletter emailovi</h2>
-          <span className="rounded-full bg-surface-2 px-3 py-1 text-xs text-muted">
-            Ukupno: {newsletterCount}
-          </span>
-        </div>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-line text-muted">
-                <th className="px-2 py-2">Email</th>
-                <th className="px-2 py-2">Izvor</th>
-                <th className="px-2 py-2">Prijavljen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {newsletterSubscribers.slice(0, 12).map((subscriber) => (
-                <tr key={subscriber.id} className="border-b border-line/60 hover:bg-surface-2">
-                  <td className="px-2 py-2 font-medium text-foreground">{subscriber.email}</td>
-                  <td className="px-2 py-2 text-muted">{subscriber.source ?? "newsletter-page"}</td>
-                  <td className="px-2 py-2 text-muted">
-                    {subscriber.createdAt
-                      ? new Date(subscriber.createdAt).toLocaleString("sr-RS")
-                      : "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {newsletterSubscribers.length === 0 ? (
-            <p className="py-4 text-sm text-muted">Još nema prijavljenih emailova na newsletter.</p>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-line bg-surface p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-2xl font-semibold">Dodeljeni poslovi i grupe</h2>
@@ -165,76 +129,81 @@ export function AdminOverview({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {assignmentGroups.length > 0 ? (
-            assignmentGroups.map((group) => (
-              <div key={group.classId} className="rounded-2xl border border-line bg-white p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-semibold text-foreground">{group.classTitle}</h3>
-                    <p className="mt-1 text-xs text-muted">
-                      {group.classType} · {group.assignedCount}/{group.totalCount} termina dodeljeno
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted">
-                    {group.workers.length} predavaca
-                  </span>
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {group.workers.map((workerName) => (
-                    <span key={`${group.classId}-${workerName}`} className="rounded-full bg-brand/10 px-2 py-1 text-xs font-medium text-brand">
-                      {workerName}
-                    </span>
-                  ))}
-                </div>
-
-                {group.nextTerm ? (
-                  <div className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-sm">
-                    <div className="text-xs uppercase tracking-wide text-muted">Sledeci termin</div>
-                    <div className="mt-1 font-medium text-foreground">
-                      {group.nextTerm.title_sr} · {group.nextTerm.date} {group.nextTerm.startTime}
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <div className="rounded-2xl border border-line bg-white p-4">
+            <h3 className="text-base font-semibold text-foreground">Po grupama</h3>
+            <div className="mt-3 grid max-h-[460px] gap-3 overflow-auto pr-1">
+              {assignmentGroups.length > 0 ? (
+                assignmentGroups.map((group) => (
+                  <div key={group.classId} className="rounded-xl border border-line bg-surface p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="font-semibold text-foreground">{group.classTitle}</h4>
+                        <p className="mt-1 text-xs text-muted">
+                          {group.classType} · {group.assignedCount}/{group.totalCount} termina dodeljeno
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted">
+                        {group.workers.length} predavaca
+                      </span>
                     </div>
+
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {group.workers.map((workerName) => (
+                        <span key={`${group.classId}-${workerName}`} className="rounded-full bg-brand/10 px-2 py-1 text-xs font-medium text-brand">
+                          {workerName}
+                        </span>
+                      ))}
+                    </div>
+
+                    {group.nextTerm ? (
+                      <div className="mt-2 rounded-xl bg-surface-2 px-3 py-2 text-xs text-foreground">
+                        {group.nextTerm.title_sr} · {group.nextTerm.date} {group.nextTerm.startTime}
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted md:col-span-2 xl:col-span-3">Još nema dodeljenih termina.</p>
-          )}
-        </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted">Još nema dodeljenih termina.</p>
+              )}
+            </div>
+          </div>
 
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-line text-muted">
-                <th className="px-2 py-2">Predavač</th>
-                <th className="px-2 py-2">Broj dodela</th>
-                <th className="px-2 py-2">Poslednja grupa</th>
-                <th className="px-2 py-2">Poslednji termin</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assignmentTeachers.map((teacher) => {
-                const teacherTerms = assignedTerms.filter((term) => term.assignedWorkerId === teacher.workerId);
-                const lastTerm = teacherTerms[0];
-
-                return (
-                  <tr key={teacher.workerId} className="border-b border-line/60 hover:bg-surface-2">
-                    <td className="px-2 py-2 font-medium text-foreground">{teacher.workerName}</td>
-                    <td className="px-2 py-2 text-muted">{teacher.assignedCount}</td>
-                    <td className="px-2 py-2 text-muted">{lastTerm ? classNameById.get(lastTerm.classId) ?? "Nepoznata grupa" : "-"}</td>
-                    <td className="px-2 py-2 text-muted">
-                      {lastTerm ? `${lastTerm.title_sr} · ${lastTerm.date} ${lastTerm.startTime}` : "-"}
-                    </td>
+          <div className="rounded-2xl border border-line bg-white p-4">
+            <h3 className="text-base font-semibold text-foreground">Po predavačima</h3>
+            <div className="mt-3 max-h-[460px] overflow-auto pr-1">
+              <table className="w-full min-w-[520px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line text-muted">
+                    <th className="px-2 py-2">Predavač</th>
+                    <th className="px-2 py-2">Broj dodela</th>
+                    <th className="px-2 py-2">Poslednja grupa</th>
+                    <th className="px-2 py-2">Poslednji termin</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {assignmentTeachers.length === 0 ? (
-            <p className="py-4 text-sm text-muted">Nema još nijedne aktivne dodele.</p>
-          ) : null}
+                </thead>
+                <tbody>
+                  {assignmentTeachers.map((teacher) => {
+                    const teacherTerms = assignedTerms.filter((term) => term.assignedWorkerId === teacher.workerId);
+                    const lastTerm = teacherTerms[0];
+
+                    return (
+                      <tr key={teacher.workerId} className="border-b border-line/60 hover:bg-surface-2">
+                        <td className="px-2 py-2 font-medium text-foreground">{teacher.workerName}</td>
+                        <td className="px-2 py-2 text-muted">{teacher.assignedCount}</td>
+                        <td className="px-2 py-2 text-muted">{lastTerm ? classNameById.get(lastTerm.classId) ?? "Nepoznata grupa" : "-"}</td>
+                        <td className="px-2 py-2 text-muted">
+                          {lastTerm ? `${lastTerm.title_sr} · ${lastTerm.date} ${lastTerm.startTime}` : "-"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {assignmentTeachers.length === 0 ? (
+                <p className="py-4 text-sm text-muted">Nema još nijedne aktivne dodele.</p>
+              ) : null}
+            </div>
+          </div>
         </div>
       </section>
 
