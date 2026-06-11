@@ -75,7 +75,7 @@ function formatBookingSummary(payload: BookingEmailPayload) {
 }
 
 function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "https://kutakza-srpski.com";
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "https://kutakzasrpski.org";
 }
 
 async function sendViaResend({
