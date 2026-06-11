@@ -587,8 +587,10 @@ export async function sendBlogNewsletter(payload: BlogNewsletterPayload): Promis
     const excerpt =
       subscriber.preferredLanguage === "sr" ? payload.post.excerpt_sr : payload.post.excerpt_en;
     const ctaLabel = subscriber.preferredLanguage === "sr" ? "Procitaj blog" : "Read the post";
+    const unsubscribeLabel = subscriber.preferredLanguage === "sr" ? "Odjavi me sa newslettera" : "Unsubscribe";
     const localeSegment = subscriber.preferredLanguage === "sr" ? "sr" : "en";
     const blogUrl = `${getSiteUrl()}/${localeSegment}/blog/${payload.post.slug}`;
+    const unsubscribeUrl = `${getSiteUrl()}/api/newsletter/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
 
     return resend.emails.send({
       from,
@@ -601,6 +603,9 @@ export async function sendBlogNewsletter(payload: BlogNewsletterPayload): Promis
           <p>${excerpt}</p>
           <p>
             <a href="${blogUrl}">${ctaLabel}</a>
+          </p>
+          <p style="margin-top:16px;font-size:12px;color:#6b7280;">
+            <a href="${unsubscribeUrl}">${unsubscribeLabel}</a>
           </p>
         </div>
       `,

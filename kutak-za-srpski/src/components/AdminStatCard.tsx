@@ -16,13 +16,13 @@ export function AdminStatCard({ title, value, hint, highlight }: AdminStatCardPr
 
   const borderClass = highlight ? highlightClasses[highlight] : "";
   const baseClass = highlight
-    ? `rounded-2xl border shadow-[var(--shadow)] p-5 ${borderClass}`
-    : "rounded-2xl border border-line bg-surface p-5 shadow-[var(--shadow)]";
+    ? `rounded-2xl border shadow-[var(--shadow)] p-4 ${borderClass}`
+    : "rounded-2xl border border-line bg-surface p-4 shadow-[var(--shadow)]";
 
   return (
     <article className={baseClass}>
       <p className="text-xs uppercase tracking-[0.15em] text-brand-2">{title}</p>
-      <p className={`mt-2 text-4xl ${highlight ? `text-${highlight}` : "text-text"}`}>
+      <p className={`mt-1 text-3xl ${highlight ? `text-${highlight}` : "text-text"}`}>
         {value}
       </p>
       {hint ? <p className="mt-2 text-sm text-muted">{hint}</p> : null}

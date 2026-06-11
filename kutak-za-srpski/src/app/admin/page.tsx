@@ -11,6 +11,7 @@ import { AdminClasses } from "@/components/AdminClasses";
 import { AdminPayments } from "@/components/AdminPayments";
 import { AdminInvoices } from "@/components/AdminInvoices";
 import { AdminBlog } from "@/components/AdminBlog";
+import { AdminNewsletter } from "@/components/AdminNewsletter";
 import { AdminEmailLog } from "@/components/AdminEmailLog";
 import { adminSignOut, onAdminAuthStateChanged } from "@/lib/auth";
 import { getAdminDashboardData } from "@/lib/firestore";
@@ -187,6 +188,10 @@ export default function AdminDashboardPage() {
 
                 {currentTab === "blog" && (
                   <AdminBlog posts={posts} onPostUpdate={handlePostsUpdate} />
+                )}
+
+                {currentTab === "newsletter" && (
+                  <AdminNewsletter subscribers={newsletterSubscribers} />
                 )}
 
                 {currentTab === "emails" && <AdminEmailLog logs={emailLogs} />}
