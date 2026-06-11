@@ -819,17 +819,17 @@ async function createWorkerFromApplication(applicationId: string) {
 async function saveWorkerProfile(
   workerId: string,
   input: {
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    employmentType?: EmploymentType;
-    experienceSummary?: string;
     active?: boolean;
     notes?: string;
   },
 ) {
   const db = getAdminDb();
   const now = new Date().toISOString();
+
+  const unexpectedFields = Object.keys(input).filter((key) => key !== "active" && key !== "notes");
+  if (unexpectedFields.length > 0) {
+    throw new Error("Dosije predavaca se moze menjati samo kroz aktivnost i interne napomene.");
+  }
 
   const normalizedInput = Object.fromEntries(
     Object.entries(input).filter(([, value]) => value !== undefined),
@@ -838,7 +838,6 @@ async function saveWorkerProfile(
   await db.collection("workers").doc(workerId).set(
     {
       ...normalizedInput,
-      ...(input.email ? { email: input.email.toLowerCase().trim() } : {}),
       updatedAt: now,
     },
     { merge: true },
@@ -1095,11 +1094,6 @@ export async function POST(request: NextRequest) {
       case "saveWorkerProfile":
         return NextResponse.json(
           await saveWorkerProfile(String(payload?.workerId ?? ""), {
-            fullName: payload?.fullName as string | undefined,
-            email: payload?.email as string | undefined,
-            phone: payload?.phone as string | undefined,
-            employmentType: payload?.employmentType as EmploymentType | undefined,
-            experienceSummary: payload?.experienceSummary as string | undefined,
             active: payload?.active as boolean | undefined,
             notes: payload?.notes as string | undefined,
           }),

@@ -16,11 +16,6 @@ interface AdminJobApplicationsProps {
 }
 
 type WorkerDraft = {
-  fullName: string;
-  email: string;
-  phone: string;
-  employmentType: WorkerProfile["employmentType"];
-  experienceSummary: string;
   notes: string;
   active: boolean;
 };
@@ -74,11 +69,6 @@ export function AdminJobApplications({
         workers.map((worker) => [
           worker.id,
           {
-            fullName: worker.fullName,
-            email: worker.email,
-            phone: worker.phone,
-            employmentType: worker.employmentType,
-            experienceSummary: worker.experienceSummary,
             notes: worker.notes ?? "",
             active: worker.active,
           },
@@ -258,103 +248,72 @@ export function AdminJobApplications({
 
             return (
               <article key={worker.id} className="rounded-2xl border border-line bg-surface-2 p-4">
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                  <input
-                    value={draft.fullName}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: { ...prev[worker.id], fullName: e.target.value },
-                      }))
-                    }
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                    placeholder="Ime i prezime"
-                  />
+                <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+                  <div className="rounded-2xl border border-line bg-white p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-lg font-semibold text-foreground">{worker.fullName}</h3>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${worker.active ? "bg-success/20 text-success" : "bg-muted/20 text-muted"}`}>
+                        {worker.active ? "Aktivan" : "Neaktivan"}
+                      </span>
+                      <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">
+                        {formatEmploymentType(worker.employmentType)}
+                      </span>
+                    </div>
 
-                  <input
-                    value={draft.email}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: { ...prev[worker.id], email: e.target.value },
-                      }))
-                    }
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                    placeholder="Email"
-                  />
+                    <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl bg-surface-2 px-3 py-2">
+                        <dt className="text-xs uppercase tracking-wide text-muted">Email</dt>
+                        <dd className="mt-1 text-sm font-medium text-foreground">{worker.email}</dd>
+                      </div>
+                      <div className="rounded-xl bg-surface-2 px-3 py-2">
+                        <dt className="text-xs uppercase tracking-wide text-muted">Telefon</dt>
+                        <dd className="mt-1 text-sm font-medium text-foreground">{worker.phone}</dd>
+                      </div>
+                      <div className="rounded-xl bg-surface-2 px-3 py-2 sm:col-span-2">
+                        <dt className="text-xs uppercase tracking-wide text-muted">Iskustvo</dt>
+                        <dd className="mt-1 whitespace-pre-line text-sm text-foreground">{worker.experienceSummary}</dd>
+                      </div>
+                    </dl>
+                  </div>
 
-                  <input
-                    value={draft.phone}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: { ...prev[worker.id], phone: e.target.value },
-                      }))
-                    }
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                    placeholder="Telefon"
-                  />
+                  <div className="space-y-3 rounded-2xl border border-line bg-white p-4">
+                    <label className="flex items-center gap-2 rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={draft.active}
+                        onChange={(e) =>
+                          setWorkerDrafts((prev) => ({
+                            ...prev,
+                            [worker.id]: { ...prev[worker.id], active: e.target.checked },
+                          }))
+                        }
+                        className="h-4 w-4"
+                      />
+                      Aktivan
+                    </label>
 
-                  <select
-                    value={draft.employmentType}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: {
-                          ...prev[worker.id],
-                          employmentType: e.target.value as WorkerProfile["employmentType"],
-                        },
-                      }))
-                    }
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                  >
-                    <option value="part-time">Part-time</option>
-                    <option value="full-time">Full-time</option>
-                    <option value="both">Oba</option>
-                  </select>
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted">
+                        Interne napomene
+                      </label>
+                      <textarea
+                        value={draft.notes}
+                        onChange={(e) =>
+                          setWorkerDrafts((prev) => ({
+                            ...prev,
+                            [worker.id]: { ...prev[worker.id], notes: e.target.value },
+                          }))
+                        }
+                        rows={7}
+                        className="w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm"
+                        placeholder="Samo za administraciju"
+                      />
+                    </div>
 
-                  <label className="flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={draft.active}
-                      onChange={(e) =>
-                        setWorkerDrafts((prev) => ({
-                          ...prev,
-                          [worker.id]: { ...prev[worker.id], active: e.target.checked },
-                        }))
-                      }
-                      className="h-4 w-4"
-                    />
-                    Aktivan
-                  </label>
-                </div>
-
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <textarea
-                    value={draft.experienceSummary}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: { ...prev[worker.id], experienceSummary: e.target.value },
-                      }))
-                    }
-                    rows={3}
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                    placeholder="Iskustvo"
-                  />
-
-                  <textarea
-                    value={draft.notes}
-                    onChange={(e) =>
-                      setWorkerDrafts((prev) => ({
-                        ...prev,
-                        [worker.id]: { ...prev[worker.id], notes: e.target.value },
-                      }))
-                    }
-                    rows={3}
-                    className="rounded-xl border border-line bg-white px-3 py-2 text-sm"
-                    placeholder="Interne napomene"
-                  />
+                    <p className="text-xs text-muted">
+                      Podaci iz prijave ostaju neizmenjeni. Ovde se cuvaju samo status i interne napomene.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="mt-3">

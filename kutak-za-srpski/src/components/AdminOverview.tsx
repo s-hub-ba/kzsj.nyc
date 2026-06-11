@@ -44,6 +44,58 @@ export function AdminOverview({
       : "0";
 
   const classNameById = new Map(classes.map((item) => [item.id, item.title_sr]));
+  const assignedTerms = terms
+    .filter((term) => term.assignedWorkerId)
+    .sort((left, right) => {
+      const leftKey = `${left.date} ${left.startTime}`;
+      const rightKey = `${right.date} ${right.startTime}`;
+      return leftKey.localeCompare(rightKey);
+    });
+
+  const assignmentGroups = classes
+    .map((cls) => {
+      const classTerms = terms
+        .filter((term) => term.classId === cls.id && term.assignedWorkerId)
+        .sort((left, right) => {
+          const leftKey = `${left.date} ${left.startTime}`;
+          const rightKey = `${right.date} ${right.startTime}`;
+          return leftKey.localeCompare(rightKey);
+        });
+
+      if (classTerms.length === 0) {
+        return null;
+      }
+
+      const workers = Array.from(
+        new Map(
+          classTerms
+            .filter((term) => term.assignedWorkerId)
+            .map((term) => [term.assignedWorkerId!, term.assignedWorkerName ?? "Nepoznat predavac"]),
+        ).values(),
+      );
+
+      return {
+        classId: cls.id,
+        classTitle: cls.title_sr,
+        classType: cls.type === "semester" ? "Semestar" : "Jedan čas",
+        assignedCount: classTerms.length,
+        totalCount: terms.filter((term) => term.classId === cls.id).length,
+        workers,
+        nextTerm: classTerms[0],
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+  const assignmentTeachers = Array.from(
+    new Map(
+      assignedTerms.map((term) => [term.assignedWorkerId!, term.assignedWorkerName ?? "Nepoznat predavac"]),
+    ).entries(),
+  ).map(([workerId, workerName]) => ({
+    workerId,
+    workerName,
+    assignedCount: assignedTerms.filter((term) => term.assignedWorkerId === workerId).length,
+  }));
+
   const newsletterCount = newsletterSubscribers.length;
 
   return (
@@ -96,6 +148,92 @@ export function AdminOverview({
           </table>
           {newsletterSubscribers.length === 0 ? (
             <p className="py-4 text-sm text-muted">Još nema prijavljenih emailova na newsletter.</p>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-line bg-surface p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-semibold">Dodeljeni poslovi i grupe</h2>
+            <p className="mt-1 text-sm text-muted">
+              Brz pregled svih termina koji su već dodeljeni predavačima, po grupama i po ljudima.
+            </p>
+          </div>
+          <div className="rounded-full bg-surface-2 px-3 py-1 text-xs text-muted">
+            {assignedTerms.length} termina · {assignmentGroups.length} grupa · {assignmentTeachers.length} predavaca
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {assignmentGroups.length > 0 ? (
+            assignmentGroups.map((group) => (
+              <div key={group.classId} className="rounded-2xl border border-line bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold text-foreground">{group.classTitle}</h3>
+                    <p className="mt-1 text-xs text-muted">
+                      {group.classType} · {group.assignedCount}/{group.totalCount} termina dodeljeno
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted">
+                    {group.workers.length} predavaca
+                  </span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {group.workers.map((workerName) => (
+                    <span key={`${group.classId}-${workerName}`} className="rounded-full bg-brand/10 px-2 py-1 text-xs font-medium text-brand">
+                      {workerName}
+                    </span>
+                  ))}
+                </div>
+
+                {group.nextTerm ? (
+                  <div className="mt-3 rounded-xl bg-surface-2 px-3 py-2 text-sm">
+                    <div className="text-xs uppercase tracking-wide text-muted">Sledeci termin</div>
+                    <div className="mt-1 font-medium text-foreground">
+                      {group.nextTerm.title_sr} · {group.nextTerm.date} {group.nextTerm.startTime}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted md:col-span-2 xl:col-span-3">Još nema dodeljenih termina.</p>
+          )}
+        </div>
+
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-line text-muted">
+                <th className="px-2 py-2">Predavač</th>
+                <th className="px-2 py-2">Broj dodela</th>
+                <th className="px-2 py-2">Poslednja grupa</th>
+                <th className="px-2 py-2">Poslednji termin</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignmentTeachers.map((teacher) => {
+                const teacherTerms = assignedTerms.filter((term) => term.assignedWorkerId === teacher.workerId);
+                const lastTerm = teacherTerms[0];
+
+                return (
+                  <tr key={teacher.workerId} className="border-b border-line/60 hover:bg-surface-2">
+                    <td className="px-2 py-2 font-medium text-foreground">{teacher.workerName}</td>
+                    <td className="px-2 py-2 text-muted">{teacher.assignedCount}</td>
+                    <td className="px-2 py-2 text-muted">{lastTerm ? classNameById.get(lastTerm.classId) ?? "Nepoznata grupa" : "-"}</td>
+                    <td className="px-2 py-2 text-muted">
+                      {lastTerm ? `${lastTerm.title_sr} · ${lastTerm.date} ${lastTerm.startTime}` : "-"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {assignmentTeachers.length === 0 ? (
+            <p className="py-4 text-sm text-muted">Nema još nijedne aktivne dodele.</p>
           ) : null}
         </div>
       </section>

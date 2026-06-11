@@ -316,11 +316,6 @@ export async function createWorkerFromApplication(applicationId: string) {
 export async function saveWorkerProfile(
   workerId: string,
   input: {
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    employmentType?: WorkerProfile["employmentType"];
-    experienceSummary?: string;
     active?: boolean;
     notes?: string;
   },
