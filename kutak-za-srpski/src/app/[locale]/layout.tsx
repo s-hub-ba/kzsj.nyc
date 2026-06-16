@@ -21,7 +21,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider locale={locale} messages={messages}>
       <div className="flex min-h-screen flex-col">
         <Navbar />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-8 max-[375px]:px-3 max-[375px]:py-6">

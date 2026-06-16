@@ -45,8 +45,8 @@ export function Footer() {
 
         <div>
           <h4 className="mb-3 text-lg text-[var(--brand-2)]">{t("contact")}</h4>
-          <p className="text-sm font-semibold text-[var(--muted)]">hello@kutakzasrpski.com</p>
-          <p className="text-sm font-semibold text-[var(--muted)]">+381 60 123 4567</p>
+          <p className="text-sm font-semibold text-[var(--muted)]">info@kutakzasrpski.org</p>
+          <p className="text-sm font-semibold text-[var(--muted)]">+1 917 394 9610</p>
         </div>
       </div>
     </footer>

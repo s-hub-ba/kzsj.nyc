@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { submitJobApplication } from "@/lib/firestore";
+import { FloatingInput } from "@/components/FloatingInput";
 import { EmploymentType, Locale } from "@/types/models";
 
 export function CareersForm() {
@@ -58,33 +59,25 @@ export function CareersForm() {
   return (
     <form onSubmit={onSubmit} className="rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7">
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="text-sm text-[var(--muted)] md:col-span-2">
-          {t("fullName")}
-          <input
-            value={form.fullName}
-            onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          label={t("fullName")}
+          value={form.fullName}
+          onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
+          containerClassName="md:col-span-2"
+        />
 
-        <label className="text-sm text-[var(--muted)]">
-          {t("email")}
-          <input
-            type="email"
-            value={form.email}
-            onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          type="email"
+          label={t("email")}
+          value={form.email}
+          onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+        />
 
-        <label className="text-sm text-[var(--muted)]">
-          {t("phone")}
-          <input
-            value={form.phone}
-            onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          label={t("phone")}
+          value={form.phone}
+          onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+        />
 
         <label className="text-sm text-[var(--muted)] md:col-span-2">
           {t("employmentType")}

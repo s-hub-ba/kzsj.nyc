@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { subscribeToNewsletter } from "@/lib/firestore";
+import { FloatingInput } from "@/components/FloatingInput";
 import { Locale } from "@/types/models";
 
 export function NewsletterForm() {
@@ -31,13 +32,14 @@ export function NewsletterForm() {
       <h3 className="text-2xl text-[var(--brand-2)] sm:text-3xl">{t("title")}</h3>
       <p className="mt-2 text-sm text-[var(--muted)]">{t("description")}</p>
       <div className="mt-4 flex flex-col gap-3 md:flex-row">
-        <input
+        <FloatingInput
           type="email"
           required
+          label="Email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="name@email.com"
-          className="w-full rounded-full border border-line bg-[var(--surface-2)] px-4 py-3 text-sm outline-none transition focus:border-[var(--brand)] focus:bg-white"
+          className="rounded-full px-4"
+          containerClassName="w-full"
         />
         <button type="submit" className="btn-primary w-full md:w-auto">
           {t("cta")}

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { createBooking, getActiveClasses, getActiveTerms, subscribeToNewsletter } from "@/lib/firestore";
+import { FloatingInput } from "@/components/FloatingInput";
 import { ClassType, Locale, SchoolClass, Term } from "@/types/models";
 
 const GROUP_TERM_PATTERN = /\b(grupa|group)\b/i;
@@ -288,49 +289,36 @@ export function BookingForm() {
   return (
     <form onSubmit={onSubmit} className="rounded-3xl border border-line bg-white p-4 shadow-[var(--shadow)] sm:p-6 md:p-8 max-[375px]:rounded-2xl">
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="text-sm text-[var(--muted)]">
-          {t("parentName")}
-          <input
-            value={form.parentName}
-            onChange={(e) => setForm((prev) => ({ ...prev, parentName: e.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          label={t("parentName")}
+          value={form.parentName}
+          onChange={(e) => setForm((prev) => ({ ...prev, parentName: e.target.value }))}
+        />
 
-        <label className="text-sm text-[var(--muted)]">
-          {t("parentEmail")}
-          <input
-            type="email"
-            value={form.parentEmail}
-            onChange={(e) => setForm((prev) => ({ ...prev, parentEmail: e.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          type="email"
+          label={t("parentEmail")}
+          value={form.parentEmail}
+          onChange={(e) => setForm((prev) => ({ ...prev, parentEmail: e.target.value }))}
+        />
 
-        <label className="text-sm text-[var(--muted)]">
-          {t("parentPhone")}
-          <input
-            value={form.parentPhone}
-            onChange={(e) => setForm((prev) => ({ ...prev, parentPhone: e.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          label={t("parentPhone")}
+          value={form.parentPhone}
+          onChange={(e) => setForm((prev) => ({ ...prev, parentPhone: e.target.value }))}
+        />
 
-        <label className="text-sm text-[var(--muted)]">
-          {t("childName")}
-          <input
-            value={form.childName}
-            onChange={(e) => setForm((prev) => ({ ...prev, childName: e.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
-          />
-        </label>
+        <FloatingInput
+          label={t("childName")}
+          value={form.childName}
+          onChange={(e) => setForm((prev) => ({ ...prev, childName: e.target.value }))}
+        />
 
-        <label className="text-sm text-[var(--muted)]">
-          {t("childAge")}
-          <input
+        <div>
+          <FloatingInput
+            label={t("childAge")}
             value={form.childAge}
             onChange={(e) => setForm((prev) => ({ ...prev, childAge: e.target.value }))}
-            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
           />
           {recommendationMessage ? (
             <div className="mt-2 rounded-xl border border-line bg-white px-3 py-2 text-xs text-[var(--muted)]">
@@ -340,7 +328,7 @@ export function BookingForm() {
               </p>
             </div>
           ) : null}
-        </label>
+        </div>
 
         <label className="text-sm text-[var(--muted)]">
           {t("class")}
