@@ -11,11 +11,11 @@ export async function generateMetadata({ params }: ContactPageProps) {
   return {
     title:
       locale === "sr"
-        ? "Kontakt | Skola srpskog jezika Kutak za srpski"
+        ? "Kontakt | Škola srpskog jezika Kutak za srpski"
         : "Contact | Kutak Serbian language school",
     description:
       locale === "sr"
-        ? "Kontaktirajte nas za upis, termine i preporuku programa srpskog jezika za vase dete."
+        ? "Kontaktirajte nas za upis, termine i preporuku programa srpskog jezika za vaše dete."
         : "Contact us for enrollment help, scheduling, and personalized Serbian program recommendations.",
     keywords:
       locale === "sr"

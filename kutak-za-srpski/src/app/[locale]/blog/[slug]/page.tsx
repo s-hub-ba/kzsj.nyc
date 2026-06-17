@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: BlogDetailPageProps) {
     return {
       title:
         locale === "sr"
-          ? "Blog | Saveti za dvojezicno odrastanje"
+          ? "Blog | Saveti za dvojezično odrastanje"
           : "Blog | Bilingual parenting and Serbian language tips",
     };
   }

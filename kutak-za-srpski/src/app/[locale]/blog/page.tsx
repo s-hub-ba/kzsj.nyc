@@ -13,15 +13,15 @@ export async function generateMetadata({ params }: BlogPageProps) {
   return {
     title:
       locale === "sr"
-        ? "Blog | Saveti za dvojezicno odrastanje"
+        ? "Blog | Saveti za dvojezično odrastanje"
         : "Blog | Bilingual parenting and Serbian language tips",
     description:
       locale === "sr"
-        ? "Blog sa savetima za roditelje, dvojezicno odrastanje i razvoj srpskog jezika kod dece u dijaspori."
+        ? "Blog sa savetima za roditelje, dvojezično odrastanje i razvoj srpskog jezika kod dece u dijaspori."
         : "Read practical posts on bilingual parenting, diaspora family life, and Serbian language development for children.",
     keywords:
       locale === "sr"
-        ? ["blog", "dvojezicno odrastanje", "saveti za roditelje", "srpski jezik"]
+        ? ["blog", "dvojezično odrastanje", "saveti za roditelje", "srpski jezik"]
         : ["blog", "bilingual parenting", "parent tips", "Serbian language development"],
   };
 }

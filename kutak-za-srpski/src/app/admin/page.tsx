@@ -11,7 +11,7 @@ import { AdminClasses } from "@/components/AdminClasses";
 import { AdminPayments } from "@/components/AdminPayments";
 import { AdminInvoices } from "@/components/AdminInvoices";
 import { AdminBlog } from "@/components/AdminBlog";
-import { AdminNewsletter } from "@/components/AdminNewsletter";
+import { AdminNewsletter } from "../../components/AdminNewsletter";
 import { AdminEmailLog } from "@/components/AdminEmailLog";
 import { adminSignOut, onAdminAuthStateChanged } from "@/lib/auth";
 import { getAdminDashboardData } from "@/lib/firestore";
