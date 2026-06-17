@@ -12,12 +12,15 @@ export async function generateMetadata({ params }: BlogDetailPageProps) {
 
   if (!post) {
     return {
-      title: locale === "sr" ? "Blog" : "Blog",
+      title:
+        locale === "sr"
+          ? "Blog | Saveti za dvojezicno odrastanje"
+          : "Blog | Bilingual parenting and Serbian language tips",
     };
   }
 
   return {
-    title: locale === "sr" ? post.title_sr : post.title_en,
+    title: `${locale === "sr" ? post.title_sr : post.title_en} | Kutak blog`,
     description: locale === "sr" ? post.excerpt_sr : post.excerpt_en,
   };
 }

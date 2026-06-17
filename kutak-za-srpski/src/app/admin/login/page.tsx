@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminSignIn } from "@/lib/auth";
+import { FloatingInput } from "@/components/FloatingInput";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -32,27 +33,25 @@ export default function AdminLoginPage() {
         <h1 className="text-3xl">Admin prijava</h1>
         <p className="mt-2 text-sm text-muted">Pristup je dozvoljen samo administratoru.</p>
 
-        <label className="mt-6 block text-sm text-muted">
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2 outline-none focus:border-brand"
-            required
-          />
-        </label>
+        <FloatingInput
+          type="email"
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          containerClassName="mt-6"
+          className="bg-white"
+        />
 
-        <label className="mt-4 block text-sm text-muted">
-          Lozinka
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2 outline-none focus:border-brand"
-            required
-          />
-        </label>
+        <FloatingInput
+          type="password"
+          label="Lozinka"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          containerClassName="mt-4"
+          className="bg-white"
+        />
 
         {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 

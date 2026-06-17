@@ -10,11 +10,18 @@ interface BookingPageProps {
 export async function generateMetadata({ params }: BookingPageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Prijava | Kutak za srpski" : "Sign up | Kutak za srpski",
+    title:
+      locale === "sr"
+        ? "Prijava | Upis na casove srpskog jezika"
+        : "Sign up | Enroll in Serbian language classes",
     description:
       locale === "sr"
-        ? "Prijavite dete na pojedinacni cas ili semestar online."
-        : "Sign up for a single class or semester online.",
+        ? "Online prijava za pojedinacni cas ili semestar srpskog jezika za decu. Brz upis i jasni naredni koraci."
+        : "Online sign-up for single classes or full-semester Serbian language programs for children with a clear enrollment process.",
+    keywords:
+      locale === "sr"
+        ? ["prijava", "upis", "srpski jezik za decu", "online prijava"]
+        : ["sign up", "enrollment", "Serbian language for kids", "online registration"],
   };
 }
 

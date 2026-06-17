@@ -14,13 +14,20 @@ export async function generateMetadata({ params }: ProgramAgeGroupPageProps) {
 
   if (!group) {
     return {
-      title: locale === "sr" ? "Programi | Kutak za srpski" : "Programs | Kutak za srpski",
+      title:
+        locale === "sr"
+          ? "Programi | Casovi srpskog jezika za decu"
+          : "Programs | Serbian language classes for children",
     };
   }
 
   return {
-    title: `${group.title} | Kutak za srpski`,
+    title: `${group.title} | ${locale === "sr" ? "Program srpskog jezika" : "Serbian language program"}`,
     description: group.summary,
+    keywords:
+      locale === "sr"
+        ? ["program", "srpski jezik", group.ageLabel, "upis"]
+        : ["program", "Serbian language", group.ageLabel, "enrollment"],
   };
 }
 

@@ -11,11 +11,18 @@ export async function generateMetadata({ params }: CareersPageProps) {
   const { locale } = await params;
 
   return {
-    title: locale === "sr" ? "Posao | Kutak za srpski" : "Careers | Kutak za srpski",
+    title:
+      locale === "sr"
+        ? "Posao | Konkurs za nastavnike srpskog jezika"
+        : "Careers | Serbian language teacher positions",
     description:
       locale === "sr"
-        ? "Trazimo nastavnice i nastavnike za stalnu i povremenu saradnju."
-        : "We are hiring teachers for full-time and part-time collaboration.",
+        ? "Otvorene prijave za nastavnike srpskog jezika: stalni i povremeni angazman u radu sa decom i porodicama."
+        : "Apply for Serbian language teaching roles with full-time and part-time options for educators working with children.",
+    keywords:
+      locale === "sr"
+        ? ["posao", "nastavnik srpskog jezika", "konkurs", "rad sa decom"]
+        : ["careers", "Serbian teacher", "job opening", "work with children"],
   };
 }
 

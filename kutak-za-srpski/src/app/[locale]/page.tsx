@@ -1,11 +1,14 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Hero } from "@/components/Hero";
 import { SectionTitle } from "@/components/SectionTitle";
-import { ProgramCard } from "@/components/ProgramCard";
+import { ProgramFlipCard } from "@/components/ProgramFlipCard";
 import { BlogPostsGrid } from "@/components/BlogPostsGrid";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { Link } from "@/i18n/navigation";
 import { getActiveClasses, getActiveTerms, getPublishedBlogPosts } from "@/lib/firestoreServer";
+import { sampleClasses, sampleTerms } from "@/lib/sampleData";
 import { Locale } from "@/types/models";
 
 interface HomePageProps {
@@ -15,11 +18,18 @@ interface HomePageProps {
 export async function generateMetadata({ params }: HomePageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Kutak za srpski | Pocetna" : "Kutak za srpski | Home",
+    title:
+      locale === "sr"
+        ? "Pocetna | Skola srpskog jezika za decu u Njujorku"
+        : "Home | Serbian language school for children in New York",
     description:
       locale === "sr"
-        ? "Skola srpskog jezika za decu i roditelje."
-        : "Serbian language school for children and families.",
+        ? "Kutak za srpski je skola srpskog jezika za decu i dvojezicne porodice u Njujorku. Upis u programe po uzrastu 1-7 godina."
+        : "Kutak za srpski is a Serbian language school in New York for children and bilingual families, with age-based programs from 1 to 7.",
+    keywords:
+      locale === "sr"
+        ? ["pocetna", "skola srpskog jezika", "srpski za decu", "njujork", "upis programa"]
+        : ["home", "Serbian language school", "Serbian for kids", "New York", "enrollment"],
   };
 }
 
@@ -56,6 +66,9 @@ export default async function HomePage({ params }: HomePageProps) {
     getPublishedBlogPosts(),
   ]);
 
+  const classesForSection = classes.length > 0 ? classes : sampleClasses.filter((item) => item.active);
+  const termsForSection = terms.length > 0 ? terms : sampleTerms;
+
   return (
     <div className="space-y-12 max-[375px]:space-y-8 md:space-y-18">
       <Hero />
@@ -68,23 +81,7 @@ export default async function HomePage({ params }: HomePageProps) {
           locale={locale}
         />
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {learningPhotos.map((photo, index) => (
-            <article
-              key={photo.src}
-              className={`overflow-hidden rounded-2xl border border-line bg-[var(--surface-2)] ${
-                index === 0 ? "sm:col-span-2 lg:col-span-2" : ""
-              }`}
-            >
-              <img
-                src={photo.src}
-                alt={photo.alt}
-                className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02] sm:h-64"
-                loading="lazy"
-              />
-            </article>
-          ))}
-        </div>
+        <PhotoCarousel photos={learningPhotos} />
       </section>
 
       <section className="reveal space-y-8">
@@ -94,24 +91,38 @@ export default async function HomePage({ params }: HomePageProps) {
           description={t("programsDescription")}
           locale={locale}
         />
-        <div className="grid gap-6 md:grid-cols-2">
-          {classes.slice(0, 2).map((item) => (
-            <ProgramCard key={item.id} item={item} terms={terms} locale={locale} />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {classesForSection.slice(0, 3).map((item) => (
+            <ProgramFlipCard key={item.id} item={item} terms={termsForSection} locale={locale} />
           ))}
         </div>
       </section>
 
       <section className="reveal rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
-        <SectionTitle
-          eyebrow={t("bookingEyebrow")}
-          title={t("bookingTitle")}
-          description={t("bookingDescription")}
-          locale={locale}
-        />
-        <div className="mt-6">
-          <Link href="/booking" className="btn-primary w-full sm:w-auto">
-            {t("bookingCta")}
-          </Link>
+        <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_280px]">
+          <div>
+            <SectionTitle
+              eyebrow={t("bookingEyebrow")}
+              title={t("bookingTitle")}
+              description={t("bookingDescription")}
+              locale={locale}
+            />
+            <div className="mt-6">
+              <Link href="/booking" className="btn-primary w-full sm:w-auto">
+                {t("bookingCta")}
+              </Link>
+            </div>
+          </div>
+          <div className="mx-auto w-full max-w-[240px] sm:max-w-[280px] md:mx-0 md:justify-self-end">
+            <Image
+              src="/Family Values - Online Classes.png"
+              alt={locale === "sr" ? "Majka i dete u razgovoru" : "Parent and child talking"}
+              width={360}
+              height={300}
+              className="h-auto w-full"
+              priority={false}
+            />
+          </div>
         </div>
       </section>
 
