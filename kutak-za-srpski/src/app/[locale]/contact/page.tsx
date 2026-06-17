@@ -9,11 +9,18 @@ interface ContactPageProps {
 export async function generateMetadata({ params }: ContactPageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Kontakt | Kutak za srpski" : "Contact | Kutak za srpski",
+    title:
+      locale === "sr"
+        ? "Kontakt | Skola srpskog jezika Kutak za srpski"
+        : "Contact | Kutak Serbian language school",
     description:
       locale === "sr"
-        ? "Kontaktirajte nas za pitanja i personalizovane preporuke."
-        : "Get in touch for questions and personalized recommendations.",
+        ? "Kontaktirajte nas za upis, termine i preporuku programa srpskog jezika za vase dete."
+        : "Contact us for enrollment help, scheduling, and personalized Serbian program recommendations.",
+    keywords:
+      locale === "sr"
+        ? ["kontakt", "upis", "program srpskog jezika", "termini"]
+        : ["contact", "enrollment help", "Serbian language program", "schedule"],
   };
 }
 

@@ -15,7 +15,7 @@
     "contact": "Kontakt"
   },
   "footer": {
-    "tagline": "Toplo, moderno mesto za kvalitetno ucenje srpskog jezika.",
+    "tagline": "Skola srpskog jezika za decu i porodice u Njujorku.",
     "quickLinks": "Brzi linkovi",
     "about": "O nama",
     "programs": "Programi",
@@ -32,28 +32,28 @@
   "home": {
     "hero": {
       "eyebrow": "Kutak za srpski",
-      "title": "Jezik, kultura i sigurnost u govoru.",
-      "subtitle": "Strucno vodjeni programi sa toplom podrskom za siguran razvoj srpskog jezika.",
+      "title": "Skola srpskog jezika za decu u Njujorku.",
+      "subtitle": "Strucno vodjeni casovi srpskog jezika za dvojezicne porodice, sa toplom podrskom i jasnim napretkom u govoru.",
       "primaryCta": "Prijavi dete",
       "secondaryCta": "Pogledaj programe"
     },
     "programsEyebrow": "Programi",
-    "programsTitle": "Programi prilagodjeni uzrastu i tempu svakog deteta",
-    "programsDescription": "Radimo autoritativno i pazljivo: jasna metodologija, kontinuitet i nezan pedagoski pristup.",
+    "programsTitle": "Programi srpskog jezika prilagodjeni uzrastu i tempu svakog deteta",
+    "programsDescription": "Uzrasno planirani casovi srpskog jezika sa jasnom metodologijom, kontinuitetom i neznim pedagoskim pristupom.",
     "learningEyebrow": "Atmosfera na casu",
     "learningTitle": "Deca uce kroz igru, ritam i stvaran razgovor",
     "learningDescription": "Kratak pogled na toplu i aktivnu atmosferu u kojoj sigurnost u jeziku raste iz nedelje u nedelju.",
     "bookingEyebrow": "Prijava",
-    "bookingTitle": "Prijavite dete na pojedinacni cas ili semestar",
-    "bookingDescription": "Jednostavan proces prijave bez kreiranja naloga za roditelje.",
+    "bookingTitle": "Prijavite dete na cas srpskog jezika ili semestar",
+    "bookingDescription": "Jednostavan online upis bez kreiranja naloga za roditelje.",
     "bookingCta": "Idi na prijavu",
     "blogEyebrow": "Blog",
-    "blogTitle": "Saveti za roditelje i inspiracija",
-    "blogDescription": "Balansirano: edukativni tekstovi i price iz svakodnevnog rada u Kutku."
+    "blogTitle": "Saveti za roditelje i dvojezicno odrastanje",
+    "blogDescription": "Edukativni tekstovi o razvoju srpskog jezika kod dece i price iz svakodnevnog rada u Kutku."
   },
   "about": {
     "title": "O nama",
-    "intro": "Kutak je osnovan iz zelje da deci koja odrastaju u Njujorku i okolini pruzi mesto da uce jezik, druze se sa vrsnjacima i neguju pripadnost kulturi svojih predaka sa Balkana.",
+    "intro": "Kutak je osnovan da deci koja odrastaju u Njujorku i okolini pruzi kvalitetnu skolu srpskog jezika, druzenje sa vrsnjacima i vezu sa kulturom Balkana.",
     "cards": {
       "1": {
         "title": "Jezik u zajednici",
@@ -71,7 +71,7 @@
   },
   "programs": {
     "title": "Programi",
-    "intro": "Programi i casovi za jesen 2026. osmisljeni su po uzrastu, uz jasan raspored i podrsku porodicama.",
+    "intro": "Programi i casovi srpskog jezika za jesen 2026. osmisljeni su po uzrastu, uz jasan raspored i podrsku porodicama.",
     "availability": "Slobodna mesta",
     "spacesAvailable": "Ima mesta - prijavi se",
     "spacesUnavailable": "Nema mesta - posalji upit",
@@ -89,7 +89,7 @@
   },
   "booking": {
     "title": "Prijava na cas ili semestar",
-    "intro": "Popunite formu, a zatim vam saljemo naredne korake za waiver dokumentaciju i potvrdu mesta.",
+    "intro": "Popunite online prijavu za cas ili semestar, a zatim vam saljemo naredne korake za waiver dokumentaciju i potvrdu mesta.",
     "validityNotice": "Prijava vredi tek nakon potpisivanja dokumenta o odricanju odgovornosti i evidentirane uplate. Online placanje preko sajta jos nije ukljuceno.",
     "form": {
       "parentName": "Ime i prezime roditelja",
@@ -135,25 +135,25 @@
   },
   "blog": {
     "title": "Blog",
-    "intro": "Strucni saveti za roditelje i price iz Kutka. Svaki novi blog automatski saljemo newsletter pretplatnicima."
+    "intro": "Strucni saveti za roditelje, dvojezicno odrastanje i price iz Kutka. Svaki novi blog automatski saljemo newsletter pretplatnicima."
   },
   "contact": {
     "title": "Kontakt",
-    "intro": "Rado cemo pomoci oko izbora programa i rasporeda.",
+    "intro": "Rado cemo pomoci oko upisa, izbora programa i rasporeda casova srpskog jezika.",
     "visit": "Posetite nas",
     "write": "Pisite nam",
     "visitText": "Nastava je dostupna online i uzivo po dogovoru."
   },
   "newsletter": {
     "title": "Newsletter",
-    "description": "Primajte korisne savete i novosti o upisu jednom mesecno.",
+    "description": "Primajte mesecne savete za razvoj srpskog jezika i novosti o upisu.",
     "cta": "Prijavi se",
     "success": "Uspesno ste prijavljeni na newsletter.",
     "error": "Prijava nije uspela. Pokusajte kasnije."
   },
   "newsletterPage": {
     "title": "Newsletter",
-    "intro": "Mesecni email sa prakticnim savetima za roditelje i najavama upisa.",
+    "intro": "Mesecni email sa prakticnim savetima za roditelje, razvoj jezika kod kuce i najavama upisa.",
     "whatYouGet": "Sta dobijate",
     "items": {
       "1": "Kratke i primenljive ideje za podrsku jezika kod kuce.",
@@ -164,7 +164,7 @@
   },
   "careers": {
     "title": "Trazimo nastavnice i nastavnike",
-    "intro": "Otvoreni smo za stalnu i povremenu saradnju sa nastavnim kadrom koji voli rad sa decom.",
+    "intro": "Otvoreni smo za stalnu i povremenu saradnju sa nastavnim kadrom srpskog jezika koji voli rad sa decom.",
     "whyTitle": "Zasto rad u Kutku",
     "benefits": {
       "1": "Jasan pedagoski okvir i podrska u pripremi aktivnosti.",

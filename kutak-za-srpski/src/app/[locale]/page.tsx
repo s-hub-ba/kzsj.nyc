@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { Hero } from "@/components/Hero";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ProgramFlipCard } from "@/components/ProgramFlipCard";
@@ -17,11 +18,18 @@ interface HomePageProps {
 export async function generateMetadata({ params }: HomePageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Kutak za srpski | Pocetna" : "Kutak za srpski | Home",
+    title:
+      locale === "sr"
+        ? "Pocetna | Skola srpskog jezika za decu u Njujorku"
+        : "Home | Serbian language school for children in New York",
     description:
       locale === "sr"
-        ? "Skola srpskog jezika za decu i roditelje."
-        : "Serbian language school for children and families.",
+        ? "Kutak za srpski je skola srpskog jezika za decu i dvojezicne porodice u Njujorku. Upis u programe po uzrastu 1-7 godina."
+        : "Kutak za srpski is a Serbian language school in New York for children and bilingual families, with age-based programs from 1 to 7.",
+    keywords:
+      locale === "sr"
+        ? ["pocetna", "skola srpskog jezika", "srpski za decu", "njujork", "upis programa"]
+        : ["home", "Serbian language school", "Serbian for kids", "New York", "enrollment"],
   };
 }
 
@@ -91,16 +99,30 @@ export default async function HomePage({ params }: HomePageProps) {
       </section>
 
       <section className="reveal rounded-3xl border border-line bg-white p-8 shadow-[var(--shadow)] md:p-10">
-        <SectionTitle
-          eyebrow={t("bookingEyebrow")}
-          title={t("bookingTitle")}
-          description={t("bookingDescription")}
-          locale={locale}
-        />
-        <div className="mt-6">
-          <Link href="/booking" className="btn-primary w-full sm:w-auto">
-            {t("bookingCta")}
-          </Link>
+        <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_280px]">
+          <div>
+            <SectionTitle
+              eyebrow={t("bookingEyebrow")}
+              title={t("bookingTitle")}
+              description={t("bookingDescription")}
+              locale={locale}
+            />
+            <div className="mt-6">
+              <Link href="/booking" className="btn-primary w-full sm:w-auto">
+                {t("bookingCta")}
+              </Link>
+            </div>
+          </div>
+          <div className="mx-auto w-full max-w-[240px] sm:max-w-[280px] md:mx-0 md:justify-self-end">
+            <Image
+              src="/Family Values - Online Classes.png"
+              alt={locale === "sr" ? "Majka i dete u razgovoru" : "Parent and child talking"}
+              width={360}
+              height={300}
+              className="h-auto w-full"
+              priority={false}
+            />
+          </div>
         </div>
       </section>
 

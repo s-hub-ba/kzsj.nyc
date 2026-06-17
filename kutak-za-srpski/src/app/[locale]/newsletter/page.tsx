@@ -11,11 +11,18 @@ export async function generateMetadata({ params }: NewsletterPageProps) {
   const { locale } = await params;
 
   return {
-    title: locale === "sr" ? "Newsletter | Kutak za srpski" : "Newsletter | Kutak za srpski",
+    title:
+      locale === "sr"
+        ? "Newsletter | Saveti za roditelje i upis"
+        : "Newsletter | Parent tips and enrollment updates",
     description:
       locale === "sr"
-        ? "Prijavite se na newsletter i dobijajte novosti i savete jednom mesečno."
-        : "Subscribe to the newsletter to receive monthly updates and practical guidance.",
+        ? "Prijavite se na newsletter i dobijajte mesecne savete za razvoj srpskog jezika i novosti o upisu."
+        : "Subscribe for monthly Serbian language learning tips, family resources, and program enrollment updates.",
+    keywords:
+      locale === "sr"
+        ? ["newsletter", "saveti za roditelje", "upis", "srpski jezik"]
+        : ["newsletter", "parent tips", "enrollment updates", "Serbian language learning"],
   };
 }
 

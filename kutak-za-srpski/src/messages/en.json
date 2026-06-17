@@ -15,7 +15,7 @@
     "contact": "Contact"
   },
   "footer": {
-    "tagline": "A warm and modern place for meaningful Serbian language learning.",
+    "tagline": "Serbian language school for children and families in New York.",
     "quickLinks": "Quick links",
     "about": "About",
     "programs": "Programs",
@@ -32,28 +32,28 @@
   "home": {
     "hero": {
       "eyebrow": "Kutak za srpski",
-      "title": "Language, culture and speaking confidence.",
-      "subtitle": "Expert-led programs with warm guidance for confident Serbian language growth.",
+      "title": "Serbian language school for children in New York.",
+      "subtitle": "Expert-led Serbian classes for bilingual families, with warm guidance and clear speaking progress.",
       "primaryCta": "Sign up for a class",
       "secondaryCta": "Explore programs"
     },
     "programsEyebrow": "Programs",
-    "programsTitle": "Programs tailored to each child and pace",
-    "programsDescription": "Authoritative pedagogy with a warm touch: clear structure, consistency and caring guidance.",
+    "programsTitle": "Serbian language programs tailored to each child and pace",
+    "programsDescription": "Age-based Serbian classes with clear structure, consistency, and caring guidance.",
     "learningEyebrow": "In the classroom",
     "learningTitle": "Children learn through play, rhythm and real conversation",
     "learningDescription": "A glimpse of the warm and active atmosphere where language confidence grows every week.",
     "bookingEyebrow": "Sign up",
-    "bookingTitle": "Sign up for a single class or full semester",
-    "bookingDescription": "Simple signup flow with no parent account required.",
+    "bookingTitle": "Enroll in a Serbian class or full semester",
+    "bookingDescription": "Simple online enrollment with no parent account required.",
     "bookingCta": "Go to sign up",
     "blogEyebrow": "Blog",
-    "blogTitle": "Parent insights and inspiration",
-    "blogDescription": "Balanced content: educational guidance plus stories from everyday life at Kutak."
+    "blogTitle": "Parent tips and bilingual inspiration",
+    "blogDescription": "Educational content on Serbian language growth for kids, plus stories from everyday life at Kutak."
   },
   "about": {
     "title": "About",
-    "intro": "Kutak was founded to give children growing up in New York and the surrounding area a place to learn the language, build friendships and stay connected to the culture of their Balkan roots.",
+    "intro": "Kutak was founded to give children in New York and nearby areas a high-quality Serbian language school where they can build friendships and stay connected to Balkan culture.",
     "cards": {
       "1": {
         "title": "Language in community",
@@ -71,7 +71,7 @@
   },
   "programs": {
     "title": "Programs",
-    "intro": "Autumn 2026 programs are organized by age, with a clear Saturday schedule and steady family support.",
+    "intro": "Autumn 2026 Serbian language programs are organized by age, with a clear Saturday schedule and steady family support.",
     "availability": "Available spaces",
     "spacesAvailable": "Spaces available - apply now",
     "spacesUnavailable": "No spaces - send inquiry",
@@ -89,7 +89,7 @@
   },
   "booking": {
     "title": "Sign up for a class or semester",
-    "intro": "Complete the form and we will send the next steps for waiver paperwork and seat confirmation.",
+    "intro": "Complete the online enrollment form and we will send the next steps for waiver paperwork and seat confirmation.",
     "validityNotice": "A sign-up becomes valid only after a signed waiver and recorded payment. Online payment through the website is not enabled yet.",
     "form": {
       "parentName": "Parent full name",
@@ -135,25 +135,25 @@
   },
   "blog": {
     "title": "Blog",
-    "intro": "Expert parent guidance and stories from Kutak. Every new post is automatically sent to newsletter subscribers."
+    "intro": "Expert guidance for parents on bilingual growth and Serbian language development, plus stories from Kutak. Every new post is sent to newsletter subscribers."
   },
   "contact": {
     "title": "Contact",
-    "intro": "We are happy to help with program recommendations and scheduling.",
+    "intro": "We are happy to help with enrollment, program recommendations, and class scheduling.",
     "visit": "Visit us",
     "write": "Write to us",
     "visitText": "Classes are available online and in person by arrangement."
   },
   "newsletter": {
     "title": "Newsletter",
-    "description": "Get practical tips and enrollment updates once a month.",
+    "description": "Get monthly parent tips for Serbian language growth and enrollment updates.",
     "cta": "Subscribe",
     "success": "You are subscribed to the newsletter.",
     "error": "Subscription failed. Please try again later."
   },
   "newsletterPage": {
     "title": "Newsletter",
-    "intro": "A monthly email with practical parent tips and enrollment updates.",
+    "intro": "A monthly email with practical parent tips, at-home language ideas, and enrollment updates.",
     "whatYouGet": "What you get",
     "items": {
       "1": "Short, actionable ideas for supporting language at home.",
@@ -164,7 +164,7 @@
   },
   "careers": {
     "title": "We are hiring teachers",
-    "intro": "We are open to full-time and part-time collaboration with educators who enjoy working with children.",
+    "intro": "We are open to full-time and part-time collaboration with Serbian language educators who enjoy working with children.",
     "whyTitle": "Why work with Kutak",
     "benefits": {
       "1": "Clear pedagogy framework and support in planning activities.",

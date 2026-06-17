@@ -13,11 +13,18 @@ interface ProgramsPageProps {
 export async function generateMetadata({ params }: ProgramsPageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Programi | Kutak za srpski" : "Programs | Kutak za srpski",
+    title:
+      locale === "sr"
+        ? "Programi | Casovi srpskog jezika za uzrast 1-7"
+        : "Programs | Serbian language classes for ages 1-7",
     description:
       locale === "sr"
-        ? "Programi za pojedinacne casove i semestralno ucenje."
-        : "Programs for single classes and semester learning.",
+        ? "Pregled programa srpskog jezika po uzrastu: pojedinacni casovi i semestralni programi za decu od 1 do 7 godina."
+        : "Explore age-based Serbian language programs with single classes and semester enrollment for children ages 1 to 7.",
+    keywords:
+      locale === "sr"
+        ? ["programi", "casovi srpskog jezika", "uzrast 1-7", "semestar", "pojedinacni cas"]
+        : ["programs", "Serbian classes", "ages 1-7", "semester", "single class"],
   };
 }
 

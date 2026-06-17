@@ -11,11 +11,18 @@ interface BlogPageProps {
 export async function generateMetadata({ params }: BlogPageProps) {
   const { locale } = await params;
   return {
-    title: locale === "sr" ? "Blog | Kutak za srpski" : "Blog | Kutak za srpski",
+    title:
+      locale === "sr"
+        ? "Blog | Saveti za dvojezicno odrastanje"
+        : "Blog | Bilingual parenting and Serbian language tips",
     description:
       locale === "sr"
-        ? "Saveti, price i teme o dvojezicnom odrastanju."
-        : "Tips, stories and topics about bilingual growth.",
+        ? "Blog sa savetima za roditelje, dvojezicno odrastanje i razvoj srpskog jezika kod dece u dijaspori."
+        : "Read practical posts on bilingual parenting, diaspora family life, and Serbian language development for children.",
+    keywords:
+      locale === "sr"
+        ? ["blog", "dvojezicno odrastanje", "saveti za roditelje", "srpski jezik"]
+        : ["blog", "bilingual parenting", "parent tips", "Serbian language development"],
   };
 }
 
