@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: CareersPageProps) {
         : "Careers | Serbian language teacher positions",
     description:
       locale === "sr"
-        ? "Otvorene prijave za nastavnike srpskog jezika: stalni i povremeni angazman u radu sa decom i porodicama."
+        ? "Otvorene prijave za nastavnike srpskog jezika: stalni i povremeni angažman u radu sa decom i porodicama."
         : "Apply for Serbian language teaching roles with full-time and part-time options for educators working with children.",
     keywords:
       locale === "sr"

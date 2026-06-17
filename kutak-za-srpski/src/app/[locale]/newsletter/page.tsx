@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: NewsletterPageProps) {
         : "Newsletter | Parent tips and enrollment updates",
     description:
       locale === "sr"
-        ? "Prijavite se na newsletter i dobijajte mesecne savete za razvoj srpskog jezika i novosti o upisu."
+        ? "Prijavite se na newsletter i dobijajte mesečne savete za razvoj srpskog jezika i novosti o upisu."
         : "Subscribe for monthly Serbian language learning tips, family resources, and program enrollment updates.",
     keywords:
       locale === "sr"

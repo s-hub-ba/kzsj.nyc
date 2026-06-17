@@ -11,15 +11,15 @@ export async function generateMetadata({ params }: AboutPageProps) {
   return {
     title:
       locale === "sr"
-        ? "O nama | Skola srpskog jezika i zajednica porodica"
+        ? "O nama | Škola srpskog jezika i zajednica porodica"
         : "About | Serbian language school and family community",
     description:
       locale === "sr"
-        ? "Upoznajte tim Kutka, pedagoski pristup i vrednosti skole srpskog jezika za decu i porodice u Njujorku."
+        ? "Upoznajte tim Kutka, pedagoški pristup i vrednosti škole srpskog jezika za decu i porodice u Njujorku."
         : "Meet the Kutak team, teaching approach, and values behind our Serbian language programs for children in New York.",
     keywords:
       locale === "sr"
-        ? ["o nama", "tim skole", "srpski jezik za decu", "pedagoski pristup"]
+        ? ["o nama", "tim škole", "srpski jezik za decu", "pedagoški pristup"]
         : ["about", "school team", "Serbian language for children", "teaching approach"],
   };
 }

@@ -20,15 +20,15 @@ export async function generateMetadata({ params }: HomePageProps) {
   return {
     title:
       locale === "sr"
-        ? "Pocetna | Skola srpskog jezika za decu u Njujorku"
+        ? "Početna | Škola srpskog jezika za decu u Njujorku"
         : "Home | Serbian language school for children in New York",
     description:
       locale === "sr"
-        ? "Kutak za srpski je skola srpskog jezika za decu i dvojezicne porodice u Njujorku. Upis u programe po uzrastu 1-7 godina."
+        ? "Kutak za srpski je škola srpskog jezika za decu i dvojezične porodice u Njujorku. Upis u programe po uzrastu 1-7 godina."
         : "Kutak za srpski is a Serbian language school in New York for children and bilingual families, with age-based programs from 1 to 7.",
     keywords:
       locale === "sr"
-        ? ["pocetna", "skola srpskog jezika", "srpski za decu", "njujork", "upis programa"]
+        ? ["početna", "škola srpskog jezika", "srpski za decu", "njujork", "upis programa"]
         : ["home", "Serbian language school", "Serbian for kids", "New York", "enrollment"],
   };
 }
@@ -41,7 +41,7 @@ export default async function HomePage({ params }: HomePageProps) {
       src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
       alt:
         locale === "sr"
-          ? "Deca rade zajedno za stolom u ucionici"
+          ? "Deca rade zajedno za stolom u učionici"
           : "Children learning together at a classroom table",
     },
     {
@@ -55,7 +55,7 @@ export default async function HomePage({ params }: HomePageProps) {
       src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
       alt:
         locale === "sr"
-          ? "Dete pise i vezba jezik"
+          ? "Dete piše i vežba jezik"
           : "Child writing and practicing language skills",
     },
   ];
