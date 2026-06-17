@@ -1,11 +1,13 @@
 import { getTranslations } from "next-intl/server";
 import { Hero } from "@/components/Hero";
 import { SectionTitle } from "@/components/SectionTitle";
-import { ProgramCard } from "@/components/ProgramCard";
+import { ProgramFlipCard } from "@/components/ProgramFlipCard";
 import { BlogPostsGrid } from "@/components/BlogPostsGrid";
 import { NewsletterForm } from "@/components/NewsletterForm";
+import { PhotoCarousel } from "@/components/PhotoCarousel";
 import { Link } from "@/i18n/navigation";
 import { getActiveClasses, getActiveTerms, getPublishedBlogPosts } from "@/lib/firestoreServer";
+import { sampleClasses, sampleTerms } from "@/lib/sampleData";
 import { Locale } from "@/types/models";
 
 interface HomePageProps {
@@ -56,6 +58,9 @@ export default async function HomePage({ params }: HomePageProps) {
     getPublishedBlogPosts(),
   ]);
 
+  const classesForSection = classes.length > 0 ? classes : sampleClasses.filter((item) => item.active);
+  const termsForSection = terms.length > 0 ? terms : sampleTerms;
+
   return (
     <div className="space-y-12 max-[375px]:space-y-8 md:space-y-18">
       <Hero />
@@ -68,23 +73,7 @@ export default async function HomePage({ params }: HomePageProps) {
           locale={locale}
         />
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {learningPhotos.map((photo, index) => (
-            <article
-              key={photo.src}
-              className={`overflow-hidden rounded-2xl border border-line bg-[var(--surface-2)] ${
-                index === 0 ? "sm:col-span-2 lg:col-span-2" : ""
-              }`}
-            >
-              <img
-                src={photo.src}
-                alt={photo.alt}
-                className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02] sm:h-64"
-                loading="lazy"
-              />
-            </article>
-          ))}
-        </div>
+        <PhotoCarousel photos={learningPhotos} />
       </section>
 
       <section className="reveal space-y-8">
@@ -94,9 +83,9 @@ export default async function HomePage({ params }: HomePageProps) {
           description={t("programsDescription")}
           locale={locale}
         />
-        <div className="grid gap-6 md:grid-cols-2">
-          {classes.slice(0, 2).map((item) => (
-            <ProgramCard key={item.id} item={item} terms={terms} locale={locale} />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {classesForSection.slice(0, 3).map((item) => (
+            <ProgramFlipCard key={item.id} item={item} terms={termsForSection} locale={locale} />
           ))}
         </div>
       </section>
