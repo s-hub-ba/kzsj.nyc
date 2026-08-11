@@ -38,7 +38,7 @@
       "secondaryCta": "Pogledaj programe"
     },
     "programsEyebrow": "Programi",
-    "programsTitle": "Programi srpskog jezika prilagodjeni uzrastu i tempu svakog deteta",
+    "programsTitle": "Programi srpskog jezika prilagođeni uzrastu i tempu svakog deteta",
     "programsDescription": "Uzrasno planirani časovi srpskog jezika sa jasnom metodologijom, kontinuitetom i nežnim pedagoškim pristupom.",
     "learningEyebrow": "Atmosfera na času",
     "learningTitle": "Deca uče kroz igru, ritam i stvaran razgovor",
@@ -48,12 +48,12 @@
     "bookingDescription": "Jednostavan online upis bez kreiranja naloga za roditelje.",
     "bookingCta": "Idi na prijavu",
     "blogEyebrow": "Blog",
-    "blogTitle": "Saveti za roditelje i dvojezicno odrastanje",
+    "blogTitle": "Saveti za roditelje i dvojezično odrastanje",
     "blogDescription": "Edukativni tekstovi o razvoju srpskog jezika kod dece i priče iz svakodnevnog rada u Kutku."
   },
   "about": {
     "title": "O nama",
-    "intro": "Kutak je osnovan da deci koja odrastaju u Njujorku i okolini pruži kvalitetnu školu srpskog jezika, druženje sa vršnjacima i vezu sa kulturom Balkana.",
+    "intro": "Jezik je mnogo više od reči. To je način na koji dete upoznaje svet, gradi odnose i shvata gde pripada. Kroz jezik se prenose porodične priče, uspomene, vrednosti i kultura. Zato očuvanje zavičajnog jezika u višejezičnom okruženju nije samo pitanje učenja još jednog jezika – ono je ulaganje u vezu deteta sa porodicom, poreklom i zajednicom. Iz tog uverenja nastao je Kutak za srpski.",
     "cards": {
       "1": {
         "title": "Jezik u zajednici",
