@@ -5,6 +5,12 @@ import { useLocale, useTranslations } from "next-intl";
 import { createBooking, getActiveClasses, getActiveTerms, subscribeToNewsletter } from "@/lib/firestore";
 import { FloatingInput } from "@/components/FloatingInput";
 import { ClassType, Locale, SchoolClass, Term } from "@/types/models";
+import { buildShortDescription } from "@/lib/classDescriptions";
+import {
+  parseAgeRange,
+  toCanonicalAgeGroup,
+  formatAgeGroupLabel,
+} from "@/lib/programAgeGroups";
 
 const GROUP_TERM_PATTERN = /\b(grupa|group)\b/i;
 
@@ -22,25 +28,12 @@ function sortTermsBySchedule(items: Term[]) {
 
 function selectTermsForType(classTerms: Term[], bookingType: ClassType) {
   const sorted = sortTermsBySchedule(classTerms);
-
   if (bookingType === "semester") {
     const groupTerms = sorted.filter(isGroupTerm);
     return groupTerms.length > 0 ? groupTerms : sorted;
   }
-
   const singleTerms = sorted.filter((term) => !isGroupTerm(term));
   return singleTerms.length > 0 ? singleTerms : sorted;
-}
-
-function parseAgeRange(value: string) {
-  const matches = value.match(/\d+/g);
-  if (!matches || matches.length === 0) return null;
-
-  const min = Number(matches[0]);
-  const max = Number(matches[matches.length > 1 ? 1 : 0]);
-
-  if (Number.isNaN(min) || Number.isNaN(max)) return null;
-  return { min: Math.min(min, max), max: Math.max(min, max) };
 }
 
 function parseChildAge(value: string) {
@@ -49,22 +42,6 @@ function parseChildAge(value: string) {
   const normalized = match[0].replace(",", ".");
   const parsed = Number(normalized);
   return Number.isNaN(parsed) ? null : parsed;
-}
-
-function normalizeAgeGroup(value: string) {
-  return value.replace(/\s+/g, "").replace(/[–—]/g, "-").toLowerCase();
-}
-
-function toCanonicalAgeGroup(value: string) {
-  const parsed = parseAgeRange(value);
-  if (!parsed) return normalizeAgeGroup(value);
-  return `${parsed.min}-${parsed.max}`;
-}
-
-function formatAgeGroupLabel(value: string, locale: Locale) {
-  const parsed = parseAgeRange(value);
-  if (!parsed) return value.trim();
-  return locale === "sr" ? `${parsed.min}-${parsed.max} godina` : `${parsed.min}-${parsed.max} years`;
 }
 
 function getDistanceToAgeRange(age: number, range: { min: number; max: number }) {
@@ -93,6 +70,8 @@ export function BookingForm() {
     selectedClassId: "",
     selectedTermId: "",
     bookingType: "single" as ClassType,
+    homeLanguages: "",
+    serbianProficiency: "",
     message: "",
     newsletterOptIn: false,
   });
@@ -275,6 +254,8 @@ export function BookingForm() {
         parentPhone: "",
         childName: "",
         childAge: "",
+        homeLanguages: "",
+        serbianProficiency: "",
         message: "",
         newsletterOptIn: false,
       }));
@@ -372,10 +353,11 @@ export function BookingForm() {
                   <p className="text-sm font-medium text-foreground">
                     {locale === "sr" ? item.title_sr : item.title_en}
                   </p>
-                  <span className="text-xs text-[var(--muted)]">{item.level}</span>
                 </div>
                 <p className="mt-1 line-clamp-2 text-xs text-[var(--muted)]">
-                  {locale === "sr" ? item.description_sr : item.description_en}
+                  {locale === "sr"
+                    ? item.shortDescription_sr || buildShortDescription(item.description_sr)
+                    : item.shortDescription_en || buildShortDescription(item.description_en)}
                 </p>
               </button>
             ))}
@@ -433,6 +415,31 @@ export function BookingForm() {
                   : `${locale === "sr" ? term.title_sr : term.title_en} | ${term.date} | ${term.startTime}`}
               </option>
             ))}
+          </select>
+        </label>
+
+        <label className="text-sm text-[var(--muted)] md:col-span-2">
+          {t("homeLanguages")}
+          <input
+            type="text"
+            value={form.homeLanguages}
+            onChange={(e) => setForm((prev) => ({ ...prev, homeLanguages: e.target.value }))}
+            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
+          />
+        </label>
+
+        <label className="text-sm text-[var(--muted)] md:col-span-2">
+          {t("serbianProficiency")}
+          <select
+            value={form.serbianProficiency}
+            onChange={(e) => setForm((prev) => ({ ...prev, serbianProficiency: e.target.value }))}
+            className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
+          >
+            <option value="">—</option>
+            <option value="fluent">{t("serbianProficiencyOptions.fluent")}</option>
+            <option value="understandsOnly">{t("serbianProficiencyOptions.understandsOnly")}</option>
+            <option value="basicUnderstanding">{t("serbianProficiencyOptions.basicUnderstanding")}</option>
+            <option value="noUnderstanding">{t("serbianProficiencyOptions.noUnderstanding")}</option>
           </select>
         </label>
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SchoolClass, Term, ClassType } from "@/types/models";
 import { saveClass, deleteClass, saveTerm, deleteTerm } from "@/lib/firestore";
+import { buildShortDescription } from "@/lib/classDescriptions";
 
 interface AdminClassesProps {
   classes: SchoolClass[];
@@ -15,6 +16,8 @@ interface AdminClassesProps {
 type ClassForm = {
   title_sr: string;
   title_en: string;
+  shortDescription_sr: string;
+  shortDescription_en: string;
   description_sr: string;
   description_en: string;
   ageGroup: string;
@@ -39,6 +42,8 @@ type TermForm = {
 const emptyClassForm = (): ClassForm => ({
   title_sr: "",
   title_en: "",
+  shortDescription_sr: "",
+  shortDescription_en: "",
   description_sr: "",
   description_en: "",
   ageGroup: "",
@@ -77,11 +82,60 @@ export function AdminClasses({
   const [editingTerm, setEditingTerm] = useState<Term | null>(null);
   const [termForm, setTermForm] = useState<TermForm>(emptyTermForm());
   const [savingTerm, setSavingTerm] = useState(false);
+  const syncedShortTextIds = useRef<Set<string>>(new Set());
 
   const [expandedClass, setExpandedClass] = useState<string | null>(null);
 
   const AGE_GROUPS = ["1–3 godine", "3–5 godina", "5–7 godina"];
   const LEVELS = ["Početni", "Srednji", "Napredni", "Svi nivoi"];
+
+  useEffect(() => {
+    const classesNeedingShortText = classes.filter(
+      (cls) =>
+        !syncedShortTextIds.current.has(cls.id) &&
+        (!cls.shortDescription_sr?.trim() || !cls.shortDescription_en?.trim()),
+    );
+
+    if (classesNeedingShortText.length === 0) {
+      return;
+    }
+
+    classesNeedingShortText.forEach((cls) => syncedShortTextIds.current.add(cls.id));
+
+    const run = async () => {
+      try {
+        await Promise.all(
+          classesNeedingShortText.map((cls) =>
+            saveClass({
+              id: cls.id,
+              shortDescription_sr: cls.shortDescription_sr?.trim() || buildShortDescription(cls.description_sr),
+              shortDescription_en: cls.shortDescription_en?.trim() || buildShortDescription(cls.description_en),
+            }),
+          ),
+        );
+
+        onClassesUpdate(
+          classes.map((cls) => {
+            const missing = classesNeedingShortText.find((entry) => entry.id === cls.id);
+            if (!missing) {
+              return cls;
+            }
+
+            return {
+              ...cls,
+              shortDescription_sr: cls.shortDescription_sr?.trim() || buildShortDescription(cls.description_sr),
+              shortDescription_en: cls.shortDescription_en?.trim() || buildShortDescription(cls.description_en),
+            };
+          }),
+        );
+      } catch (error) {
+        classesNeedingShortText.forEach((cls) => syncedShortTextIds.current.delete(cls.id));
+        console.error("[AdminClasses] Failed to auto-fill short descriptions.", error);
+      }
+    };
+
+    void run();
+  }, [classes, onClassesUpdate]);
 
   // ── Class CRUD ─────────────────────────────────────────────────────────────
 
@@ -97,6 +151,8 @@ export function AdminClasses({
     setClassForm({
       title_sr: cls.title_sr,
       title_en: cls.title_en,
+      shortDescription_sr: cls.shortDescription_sr ?? buildShortDescription(cls.description_sr),
+      shortDescription_en: cls.shortDescription_en ?? buildShortDescription(cls.description_en),
       description_sr: cls.description_sr,
       description_en: cls.description_en,
       ageGroup: cls.ageGroup,
@@ -110,7 +166,14 @@ export function AdminClasses({
   };
 
   const handleSaveClass = async () => {
-    if (!classForm.title_sr.trim() || !classForm.title_en.trim()) return;
+    if (
+      !classForm.title_sr.trim() ||
+      !classForm.title_en.trim() ||
+      !classForm.shortDescription_sr.trim() ||
+      !classForm.shortDescription_en.trim()
+    ) {
+      return;
+    }
     setSavingClass(true);
     try {
       const payload = editingClass ? { id: editingClass.id, ...classForm } : { ...classForm };
@@ -410,22 +473,42 @@ export function AdminClasses({
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-muted">Opis (srpski)</label>
+              <label className="mb-1 block text-xs font-medium text-muted">Kratki tekst (srpski)</label>
               <textarea
-                value={classForm.description_sr}
-                onChange={(e) => setClassForm((f) => ({ ...f, description_sr: e.target.value }))}
+                value={classForm.shortDescription_sr}
+                onChange={(e) => setClassForm((f) => ({ ...f, shortDescription_sr: e.target.value }))}
                 rows={2}
-                placeholder="Kratki opis grupe na srpskom..."
+                placeholder="Kratak preview teksta za karticu programa..."
                 className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-muted">Opis (engleski)</label>
+              <label className="mb-1 block text-xs font-medium text-muted">Kratki tekst (engleski)</label>
+              <textarea
+                value={classForm.shortDescription_en}
+                onChange={(e) => setClassForm((f) => ({ ...f, shortDescription_en: e.target.value }))}
+                rows={2}
+                placeholder="Short preview text for the program card..."
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs font-medium text-muted">Dugi tekst (srpski)</label>
+              <textarea
+                value={classForm.description_sr}
+                onChange={(e) => setClassForm((f) => ({ ...f, description_sr: e.target.value }))}
+                rows={8}
+                placeholder="Pun opis programa na srpskom..."
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs font-medium text-muted">Dugi tekst (engleski)</label>
               <textarea
                 value={classForm.description_en}
                 onChange={(e) => setClassForm((f) => ({ ...f, description_en: e.target.value }))}
-                rows={2}
-                placeholder="Short description in English..."
+                rows={8}
+                placeholder="Full program description in English..."
                 className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
               />
             </div>
@@ -492,7 +575,13 @@ export function AdminClasses({
           <div className="mt-6 flex gap-3">
             <button
               onClick={() => void handleSaveClass()}
-              disabled={savingClass || !classForm.title_sr.trim() || !classForm.title_en.trim()}
+              disabled={
+                savingClass ||
+                !classForm.title_sr.trim() ||
+                !classForm.title_en.trim() ||
+                !classForm.shortDescription_sr.trim() ||
+                !classForm.shortDescription_en.trim()
+              }
               className="rounded-xl bg-brand px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
             >
               {savingClass ? "Čuva se..." : editingClass ? "Sačuvaj izmene" : "Kreiraj grupu"}
@@ -555,7 +644,7 @@ export function AdminClasses({
                         ${cls.price}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-muted">{cls.description_sr}</p>
+                    <p className="mt-1 text-sm text-muted">{cls.shortDescription_sr || cls.description_sr}</p>
                     <p className="mt-0.5 text-xs text-muted">
                       {classTerms.length}{" "}
                       {classTerms.length === 1

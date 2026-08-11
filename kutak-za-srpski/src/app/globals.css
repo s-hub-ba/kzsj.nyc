@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  --font-body: "Bodoni 72 Oldstyle", "Bodoni 72", Didot, "Times New Roman", serif;
   --bg: #f6f8fb;
   --surface: #ffffff;
   --surface-2: #f2f8ff;

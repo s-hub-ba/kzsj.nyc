@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/PageHero";
 import { Link } from "@/i18n/navigation";
-import { getProgramAgeGroup } from "@/lib/programAgeGroups";
+import { buildShortDescription, formatLongDescription } from "@/lib/classDescriptions";
+import { getActiveClasses } from "@/lib/firestoreServer";
+import { toCanonicalAgeGroup } from "@/lib/programAgeGroups";
 import { Locale } from "@/types/models";
 
 interface ProgramAgeGroupPageProps {
@@ -10,9 +12,10 @@ interface ProgramAgeGroupPageProps {
 
 export async function generateMetadata({ params }: ProgramAgeGroupPageProps) {
   const { locale, ageGroup } = await params;
-  const group = getProgramAgeGroup(locale, ageGroup);
+  const classes = await getActiveClasses();
+  const cls = classes.find((c) => toCanonicalAgeGroup(c.ageGroup) === ageGroup);
 
-  if (!group) {
+  if (!cls) {
     return {
       title:
         locale === "sr"
@@ -21,52 +24,55 @@ export async function generateMetadata({ params }: ProgramAgeGroupPageProps) {
     };
   }
 
+  const title = locale === "sr" ? cls.title_sr : cls.title_en;
+  const shortDescription = locale === "sr"
+    ? cls.shortDescription_sr || buildShortDescription(cls.description_sr)
+    : cls.shortDescription_en || buildShortDescription(cls.description_en);
+  const description = locale === "sr" ? cls.description_sr : cls.description_en;
+
   return {
-    title: `${group.title} | ${locale === "sr" ? "Program srpskog jezika" : "Serbian language program"}`,
-    description: group.summary,
+    title: `${title} | ${locale === "sr" ? "Program srpskog jezika" : "Serbian language program"}`,
+    description: shortDescription,
     keywords:
       locale === "sr"
-        ? ["program", "srpski jezik", group.ageLabel, "upis"]
-        : ["program", "Serbian language", group.ageLabel, "enrollment"],
+        ? ["program", "srpski jezik", cls.ageGroup, "upis"]
+        : ["program", "Serbian language", cls.ageGroup, "enrollment"],
   };
 }
 
 export default async function ProgramAgeGroupPage({ params }: ProgramAgeGroupPageProps) {
   const { locale, ageGroup } = await params;
-  const group = getProgramAgeGroup(locale, ageGroup);
+  const classes = await getActiveClasses();
+  const cls = classes.find((c) => toCanonicalAgeGroup(c.ageGroup) === ageGroup);
 
-  if (!group) {
+  if (!cls) {
     notFound();
   }
 
+  const title = locale === "sr" ? cls.title_sr : cls.title_en;
+  const description = locale === "sr" ? cls.description_sr : cls.description_en;
+  const shortDescription = locale === "sr"
+    ? cls.shortDescription_sr || buildShortDescription(cls.description_sr)
+    : cls.shortDescription_en || buildShortDescription(cls.description_en);
+  const paragraphs = formatLongDescription(description);
+
   return (
     <div className="space-y-8 max-[375px]:space-y-6">
-      <PageHero locale={locale} title={group.title} description={group.summary} variant="programs" />
+      <PageHero
+        locale={locale}
+        title={title}
+        description={shortDescription}
+        variant="programs"
+      />
 
       <section className="rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">{group.ageLabel}</p>
-        <div className="mt-5 grid gap-5 md:grid-cols-2">
-          <article className="rounded-2xl border border-line bg-[var(--surface-2)] p-4">
-            <h2 className="text-xl text-[var(--brand-2)]">
-              {locale === "sr" ? "Ciljevi programa" : "Program goals"}
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--muted)]">
-              {group.goals.map((item) => (
-                <li key={item}>- {item}</li>
-              ))}
-            </ul>
-          </article>
-
-          <article className="rounded-2xl border border-line bg-[var(--surface-2)] p-4">
-            <h2 className="text-xl text-[var(--brand-2)]">
-              {locale === "sr" ? "Kako izgleda cas" : "How classes are structured"}
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--muted)]">
-              {group.structure.map((item) => (
-                <li key={item}>- {item}</li>
-              ))}
-            </ul>
-          </article>
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--brand)]">
+          {cls.ageGroup}
+        </p>
+        <div className="mt-5 space-y-4 text-sm leading-7 text-[var(--muted)] sm:text-base sm:leading-8">
+          {paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </section>
 
@@ -81,3 +87,4 @@ export default async function ProgramAgeGroupPage({ params }: ProgramAgeGroupPag
     </div>
   );
 }
+

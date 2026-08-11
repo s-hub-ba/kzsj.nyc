@@ -53,20 +53,20 @@
   },
   "about": {
     "title": "About",
-    "intro": "Kutak was founded to give children in New York and nearby areas a high-quality Serbian language school where they can build friendships and stay connected to Balkan culture.",
-    "cards": {
-      "1": {
-        "title": "Language in community",
-        "text": "We believe language and culture are best practiced in a group, through conversation, play and shared experience."
-      },
-      "2": {
-        "title": "Belonging and identity",
-        "text": "Kutak helps children build a natural relationship with the language, culture and family roots they inherit."
-      },
-      "3": {
-        "title": "Families that connect",
-        "text": "We want Kutak to bring families together so children can grow together and stay motivated to speak our language while growing up in New York."
-      }
+    "intro": "Language is much more than words.",
+    "paragraphs": {
+      "1": "It is how a child discovers the world, builds relationships, and understands where they belong. Through language, family stories, memories, values, and culture are passed on. That is why preserving a heritage language in a multilingual environment is not simply about learning one more language - it is an investment in a child's connection to family, roots, and community.",
+      "2": "Kutak za srpski was born from that belief.",
+      "3": "We are a Serbian language school for children growing up in New York and for their families. Our programs are designed specifically for children who learn Serbian as a heritage language, and they are grounded in contemporary research in linguistics, psycholinguistics, developmental psychology, and language teaching methodology. Each program follows a child's natural development and respects the realities of growing up in a multilingual environment.",
+      "4": "We believe language grows best when it becomes part of everyday life. That is why children learn through conversation, play, literature, music, movement, and shared exploration. Our goal is not for children to memorize words or grammar rules, but to use Serbian naturally, with understanding and confidence.",
+      "5": "Parents are an equally important part of our work. A wide range of studies shows that family plays a crucial role in preserving a heritage language. That is why we build our programs as a partnership with parents - offering support, practical guidance, and a clear understanding of the challenges of growing up between two or more languages.",
+      "6": "At Kutak za srpski, children develop far more than language skills. They build confidence, curiosity, and a sense of belonging. They learn to speak with grandma and grandpa without translating, to understand the stories that shaped their families, to read, sing, ask questions, imagine, and express themselves in the language that is part of their identity.",
+      "7": "We believe success is not measured by the number of words learned, but by how naturally Serbian becomes part of a child's life.",
+      "8": "That is why Kutak za srpski is much more than a language school. It is a place where expertise and warmth come together, where curiosity is nurtured, bilingualism is encouraged, and where families can protect what they most hope to pass on to their children - the ability to understand one another, to connect, and to belong, in their own language."
+    },
+    "founder": {
+      "title": "About the Founder",
+      "bio": "Kutak za srpski was founded by Ivana Djurovic. She was born and raised in Belgrade. She completed her undergraduate and master's studies at the Department of English Language and Literature at the University of Belgrade, followed by a master's degree in linguistics at the University of Iowa. She also spent some time in Brazil, where she taught English to students of different ages. Later, during her doctoral studies in linguistics in New York (Graduate Center, CUNY), she gave birth to her daughter Klara and wished to create an environment where she could pass on and nurture the linguistic and cultural heritage of her home country. Ivana and Klara are wholeheartedly supported in all of this by dad Michael."
     }
   },
   "programs": {
@@ -88,8 +88,8 @@
     "semesterSchedule": "Full semester"
   },
   "booking": {
-    "title": "Sign up for a class or semester",
-    "intro": "Complete the online enrollment form and we will send the next steps for waiver paperwork and seat confirmation.",
+    "title": "Sign up – Fall 2026",
+    "intro": "Download the program brochure and apply for fall Serbian language classes for children.",
     "validityNotice": "A sign-up becomes valid only after a signed waiver and recorded payment. Online payment through the website is not enabled yet.",
     "form": {
       "parentName": "Parent full name",
@@ -124,6 +124,14 @@
       "semester": "Semester",
       "typeHelpSingle": "Single class sign-up applies only to the selected class date.",
       "typeHelpSemester": "Semester sign-up follows the recurring Saturday schedule. After payment is confirmed, we send the full semester calendar.",
+      "homeLanguages": "What language(s) do you use at home?",
+      "serbianProficiency": "How would you describe your child's Serbian?",
+      "serbianProficiencyOptions": {
+        "fluent": "Speaks Serbian fluently",
+        "understandsOnly": "Understands Serbian but responds in English",
+        "basicUnderstanding": "Understands basic Serbian",
+        "noUnderstanding": "Does not understand Serbian"
+      },
       "message": "Additional message",
       "newsletterOptIn": "I also want to subscribe to the newsletter (booking emails remain separate from the newsletter list).",
       "required": "Please complete all required fields.",

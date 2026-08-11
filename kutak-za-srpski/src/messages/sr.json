@@ -38,7 +38,7 @@
       "secondaryCta": "Pogledaj programe"
     },
     "programsEyebrow": "Programi",
-    "programsTitle": "Programi srpskog jezika prilagodjeni uzrastu i tempu svakog deteta",
+    "programsTitle": "Programi srpskog jezika prilagođeni uzrastu i tempu svakog deteta",
     "programsDescription": "Uzrasno planirani časovi srpskog jezika sa jasnom metodologijom, kontinuitetom i nežnim pedagoškim pristupom.",
     "learningEyebrow": "Atmosfera na času",
     "learningTitle": "Deca uče kroz igru, ritam i stvaran razgovor",
@@ -48,25 +48,25 @@
     "bookingDescription": "Jednostavan online upis bez kreiranja naloga za roditelje.",
     "bookingCta": "Idi na prijavu",
     "blogEyebrow": "Blog",
-    "blogTitle": "Saveti za roditelje i dvojezicno odrastanje",
+    "blogTitle": "Saveti za roditelje i dvojezično odrastanje",
     "blogDescription": "Edukativni tekstovi o razvoju srpskog jezika kod dece i priče iz svakodnevnog rada u Kutku."
   },
   "about": {
     "title": "O nama",
-    "intro": "Kutak je osnovan da deci koja odrastaju u Njujorku i okolini pruži kvalitetnu školu srpskog jezika, druženje sa vršnjacima i vezu sa kulturom Balkana.",
-    "cards": {
-      "1": {
-        "title": "Jezik u zajednici",
-        "text": "Verujemo da se jezik i kultura najbolje žive i vežbaju u grupi, kroz govor, igru i zajednička iskustva."
-      },
-      "2": {
-        "title": "Pripadnost i identitet",
-        "text": "Kutak želi da deci pomogne da razviju prirodan odnos prema jeziku, kulturi i korenima svojih porodica."
-      },
-      "3": {
-        "title": "Porodice koje se povezuju",
-        "text": "Želimo da Kutak bude povod da se porodice upoznaju, povežu i da deca rastu zajedno, motivisana da govore naš jezik i dok odrastaju u Njujorku."
-      }
+    "intro": "Jezik je mnogo više od reči.",
+    "paragraphs": {
+      "1": "To je način na koji dete upoznaje svet, gradi odnose i shvata gde pripada. Kroz jezik se prenose porodične priče, uspomene, vrednosti i kultura. Zato očuvanje zavičajnog jezika u višejezičnom okruženju nije samo pitanje učenja još jednog jezika – ono je ulaganje u vezu deteta sa porodicom, poreklom i zajednicom.",
+      "2": "Iz tog uverenja nastao je Kutak za srpski.",
+      "3": "Mi smo škola srpskog jezika namenjena deci koja odrastaju u Njujorku i njihovim porodicama. Naši programi osmišljeni su posebno za decu koja srpski usvajaju kao nasleđeni jezik i zasnovani su na savremenim saznanjima iz lingvistike, psiholingvistike, razvojne psihologije i metodike nastave jezika. Svaki program prati prirodan razvoj deteta i uvažava specifičnosti odrastanja u višejezičnom okruženju.",
+      "4": "Verujemo da se jezik najbolje razvija kada je deo svakodnevnog života. Zato deca uče kroz razgovor, igru, književnost, muziku, pokret i zajedničko istraživanje. Naš cilj nije da deca napamet usvajaju reči ili gramatička pravila, već da srpski koriste spontano, sa razumevanjem i sigurnošću.",
+      "5": "Podjednako važan deo našeg rada jesu roditelji. Brojna istraživanja pokazuju da upravo porodica ima presudnu ulogu u očuvanju nasleđenog jezika. Zato naše programe gradimo kao partnerstvo sa roditeljima, pružajući im podršku, praktične smernice i razumevanje izazova koje donosi odrastanje između dva ili više jezika.",
+      "6": "U Kutku za srpski deca ne razvijaju samo jezičke veštine. Ona grade samopouzdanje, radoznalost i osećaj pripadnosti. Uče da razgovaraju sa bakom i dekom bez prevođenja, da razumeju priče koje su oblikovale njihove porodice, da čitaju, pevaju, pitaju, maštaju i izražavaju se na jeziku koji je deo njihovog identiteta.",
+      "7": "Verujemo da uspeh ne merimo brojem naučenih reči, već time koliko je srpski jezik postao prirodan deo života jednog deteta.",
+      "8": "Zato je Kutak za srpski mnogo više od škole jezika. To je mesto na kome se sreću stručnost i toplina, gde se neguje radoznalost, podstiče dvojezičnost i čuva ono što porodice najviše žele da prenesu svojoj deci – mogućnost da se razumeju, povežu i pripadaju, na svom jeziku."
+    },
+    "founder": {
+      "title": "Osnivač",
+      "bio": "Kutak za srpski je osnovala Ivana Đurović. Rođena je i odrasla u Beogradu. Završila je osnovne i master studije na katedri za Engleski jezik i književnost Univerziteta u Beogradu, zatim master studije iz lingvistike na Univerzitetu u Ajovi. Provela je i neko vreme u Brazilu, gde je držala časove engleskog đacima različitih uzrasta. A kada je za vreme doktorskih studija iz lingvistike u Njujorku (Graduate Center, CUNY) rodila ćerku Klaru, poželela je da stvori sredinu u kojoj će prenositi i negovati jezičko i kulturno nasleđe svoje zemlje. Ivanu i Klaru u svemu tome svesrdno podržava tata Majkl."
     }
   },
   "programs": {
@@ -88,8 +88,8 @@
     "semesterSchedule": "Ceo semestar"
   },
   "booking": {
-    "title": "Prijava na čas ili semestar",
-    "intro": "Popunite online prijavu za čas ili semestar, a zatim vam šaljemo naredne korake za waiver dokumentaciju i potvrdu mesta.",
+    "title": "Prijava – jesen 2026.",
+    "intro": "Preuzmite brošuru i prijavite se za jesenje programe srpskog jezika za decu.",
     "validityNotice": "Prijava vredi tek nakon potpisivanja dokumenta o odricanju odgovornosti i evidentirane uplate. Online plaćanje preko sajta još nije uključeno.",
     "form": {
       "parentName": "Ime i prezime roditelja",
@@ -124,6 +124,14 @@
       "semester": "Semestar",
       "typeHelpSingle": "Pojedinačni čas se prijavljuje odvojeno za izabrani termin.",
       "typeHelpSemester": "Semestar podrazumeva redovan raspored svake subote. Nakon evidentirane uplate šaljemo ceo kalendar semestra.",
+      "homeLanguages": "Kojim jezikom/jezicima se služite u kući?",
+      "serbianProficiency": "Kako biste opisali poznavanje srpskog kod vašeg deteta?",
+      "serbianProficiencyOptions": {
+        "fluent": "Priča tečno srpski",
+        "understandsOnly": "Razume srpski, ali odgovara na engleskom",
+        "basicUnderstanding": "Razume osnove srpskog",
+        "noUnderstanding": "Ne razume srpski"
+      },
       "message": "Dodatna poruka",
       "newsletterOptIn": "Želim i prijavu na newsletter (emailovi za rezervaciju ostaju odvojeni od newsletter liste).",
       "required": "Molimo popunite sva obavezna polja.",
