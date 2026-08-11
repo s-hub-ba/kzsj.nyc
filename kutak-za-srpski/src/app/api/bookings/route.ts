@@ -33,6 +33,9 @@ export async function POST(request: Request) {
     const selectedClassId = normalizeString(body.selectedClassId);
     const selectedTermId = normalizeString(body.selectedTermId);
     const message = normalizeString(body.message);
+    const homeLanguages = normalizeString(body.homeLanguages);
+    const serbianProficiency = normalizeString(body.serbianProficiency);
+    const paymentPlan = body.paymentPlan === "installments" ? "installments" : "full";
     const bookingType = body.bookingType;
     const preferredLanguage = body.preferredLanguage === "en" ? "en" : "sr";
 
@@ -74,6 +77,8 @@ export async function POST(request: Request) {
       bookingType,
       preferredLanguage,
       ...(message ? { message } : {}),
+      ...(homeLanguages ? { homeLanguages } : {}),
+      ...(serbianProficiency ? { serbianProficiency } : {}),
       waiverSigned: false,
       status: "pending" as BookingStatus,
       paymentStatus: "pending" as PaymentStatus,

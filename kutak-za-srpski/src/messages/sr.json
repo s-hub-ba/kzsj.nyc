@@ -88,8 +88,8 @@
     "semesterSchedule": "Ceo semestar"
   },
   "booking": {
-    "title": "Prijava na čas ili semestar",
-    "intro": "Popunite online prijavu za čas ili semestar, a zatim vam šaljemo naredne korake za waiver dokumentaciju i potvrdu mesta.",
+    "title": "Prijava – jesen 2026.",
+    "intro": "Preuzmite brošuru i prijavite se za jesenje programe srpskog jezika za decu.",
     "validityNotice": "Prijava vredi tek nakon potpisivanja dokumenta o odricanju odgovornosti i evidentirane uplate. Online plaćanje preko sajta još nije uključeno.",
     "form": {
       "parentName": "Ime i prezime roditelja",
@@ -124,6 +124,14 @@
       "semester": "Semestar",
       "typeHelpSingle": "Pojedinačni čas se prijavljuje odvojeno za izabrani termin.",
       "typeHelpSemester": "Semestar podrazumeva redovan raspored svake subote. Nakon evidentirane uplate šaljemo ceo kalendar semestra.",
+      "homeLanguages": "Kojim jezikom/jezicima se služite u kući?",
+      "serbianProficiency": "Kako biste opisali poznavanje srpskog kod vašeg deteta?",
+      "serbianProficiencyOptions": {
+        "fluent": "Priča tečno srpski",
+        "understandsOnly": "Razume srpski, ali odgovara na engleskom",
+        "basicUnderstanding": "Razume osnove srpskog",
+        "noUnderstanding": "Ne razume srpski"
+      },
       "message": "Dodatna poruka",
       "newsletterOptIn": "Želim i prijavu na newsletter (emailovi za rezervaciju ostaju odvojeni od newsletter liste).",
       "required": "Molimo popunite sva obavezna polja.",

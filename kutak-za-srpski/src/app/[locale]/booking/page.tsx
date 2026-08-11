@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { BookingForm } from "@/components/BookingForm";
 import { PageHero } from "@/components/PageHero";
 import { Locale } from "@/types/models";
 
@@ -12,55 +11,83 @@ export async function generateMetadata({ params }: BookingPageProps) {
   return {
     title:
       locale === "sr"
-        ? "Prijava | Upis na časove srpskog jezika"
-        : "Sign up | Enroll in Serbian language classes",
+        ? "Prijava | Kutak za srpski jesen 2026."
+        : "Sign up | Kutak za srpski Fall 2026",
     description:
       locale === "sr"
-        ? "Online prijava za pojedinačni čas ili semestar srpskog jezika za decu. Brz upis i jasni naredni koraci."
-        : "Online sign-up for single classes or full-semester Serbian language programs for children with a clear enrollment process.",
-    keywords:
-      locale === "sr"
-        ? ["prijava", "upis", "srpski jezik za decu", "online prijava"]
-        : ["sign up", "enrollment", "Serbian language for kids", "online registration"],
+        ? "Preuzmite brošuru i popunite prijavu za jesenje programe srpskog jezika za decu."
+        : "Download the program brochure and submit your application for fall Serbian language classes.",
   };
 }
 
 export default async function BookingPage({ params }: BookingPageProps) {
   const { locale } = await params;
   const t = await getTranslations("booking");
-  const processNotes =
-    locale === "sr"
-      ? [
-          "1. Popunjavate prijavu za željeni program i termin.",
-          "2. Tim Kutka vam šalje waiver dokumentaciju i instrukcije za uplatu.",
-          "3. Mesto je potvrđeno tek kada su waiver i uplata evidentirani.",
-        ]
-      : [
-          "1. Submit the form for the program and term you want.",
-          "2. The Kutak team sends you the waiver documents and payment instructions.",
-          "3. Your place is confirmed only after both the waiver and payment are recorded.",
-        ];
+
+  const isSr = locale === "sr";
 
   return (
     <div className="space-y-8 max-[375px]:space-y-6">
       <PageHero locale={locale} title={t("title")} description={t("intro")} variant="booking" />
 
-      <p className="rounded-2xl border border-line bg-white px-4 py-3 text-sm leading-relaxed text-[var(--muted)] shadow-[var(--shadow)] sm:px-5 sm:py-4">
-        {t("validityNotice")}
-      </p>
+      <section className="rounded-3xl border border-line bg-white p-6 shadow-[var(--shadow)] sm:p-8">
+        <p className="text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+          {isSr
+            ? "Pre nego što popunite prijavu, pozivamo vas da preuzmete brošuru sa detaljnim opisima sva tri programa – Prve reči, Prve priče i Školarci. Brošura sadrži raspored, cene, informacije o pristupu nastavi i sve što trebate znati pre upisa."
+            : "Before filling out the application, we invite you to download the program brochure with detailed descriptions of all three programs – First Words, First Stories, and Young Schoolers. It includes the schedule, prices, attendance policies, and everything you need to know before enrolling."}
+        </p>
 
-      <section className="grid gap-3 md:grid-cols-3">
-        {processNotes.map((note) => (
-          <p
-            key={note}
-            className="rounded-2xl border border-line bg-white px-4 py-4 text-sm leading-relaxed text-[var(--muted)] shadow-[var(--shadow)]"
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {/* Brochure */}
+          <a
+            href={
+              isSr
+                ? "https://canva.link/kutakzasrpski2026jesen"
+                : "https://canva.link/kutakzasrpski2026fall"
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col gap-2 rounded-2xl border border-line bg-[var(--surface-2)] p-5 transition hover:border-[var(--brand)] hover:bg-white"
           >
-            {note}
-          </p>
-        ))}
-      </section>
+            <span className="text-lg font-semibold text-[var(--brand-2)]">
+              📄 {isSr ? "Preuzmite brošuru" : "Download brochure"}
+            </span>
+            <span className="text-sm text-[var(--muted)]">
+              {isSr
+                ? "Detaljni opisi programa, raspored i cene za jesen 2026."
+                : "Program details, schedule and prices for fall 2026."}
+            </span>
+          </a>
 
-      <BookingForm />
+          {/* Application form */}
+          <a
+            href={
+              isSr
+                ? "https://forms.gle/fCQth6AL1rNDVwXn6"
+                : "https://forms.gle/GXXRGPasom1N2jXH6"
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col gap-2 rounded-2xl border border-[var(--brand)]/40 bg-[color-mix(in_oklab,var(--brand)_6%,white)] p-5 transition hover:border-[var(--brand)] hover:bg-[color-mix(in_oklab,var(--brand)_10%,white)]"
+          >
+            <span className="text-lg font-semibold text-[var(--brand-2)]">
+              ✍️ {isSr ? "Popunite prijavu" : "Submit application"}
+            </span>
+            <span className="text-sm text-[var(--muted)]">
+              {isSr
+                ? "Kratka online prijava – popunjavanje traje oko 3 minuta."
+                : "A short online form – takes about 3 minutes to complete."}
+            </span>
+          </a>
+        </div>
+
+        <p className="mt-6 rounded-2xl border border-line bg-[var(--surface-2)] px-4 py-3 text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
+          {isSr
+            ? "Napomena: Prijavom ne garantujete sebi mesto. Mesto se potvrđuje tek nakon potpisanog dokumenta o odricanju odgovornosti i evidentirane uplate. Detalje šaljemo po prijemu vaše prijave."
+            : "Note: Submitting the form does not guarantee your spot. Enrollment is confirmed only after a signed liability waiver and recorded payment. We will send you details after receiving your application."}
+        </p>
+      </section>
     </div>
   );
 }
+

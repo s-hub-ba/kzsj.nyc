@@ -1,6 +1,7 @@
 export type Locale = "sr" | "en";
 
 export type ClassType = "single" | "semester";
+export type PaymentPlan = "full" | "installments";
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
 export type BookingPlacementStatus = "queue" | "assigned";
 export type PaymentStatus = "pending" | "paid" | "cancelled";
@@ -68,6 +69,9 @@ export interface Booking {
   selectedTermId: string;
   bookingType: ClassType;
   preferredLanguage: Locale;
+  homeLanguages?: string;
+  serbianProficiency?: string;
+  paymentPlan?: PaymentPlan;
   message?: string;
   waiverSigned: boolean;
   waiverSignedAt?: string;
@@ -213,6 +217,9 @@ export interface BookingInput {
   selectedTermId: string;
   bookingType: ClassType;
   preferredLanguage: Locale;
+  homeLanguages?: string;
+  serbianProficiency?: string;
+  paymentPlan?: PaymentPlan;
   message?: string;
 }
 
