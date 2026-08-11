@@ -88,8 +88,8 @@
     "semesterSchedule": "Full semester"
   },
   "booking": {
-    "title": "Sign up for a class or semester",
-    "intro": "Complete the online enrollment form and we will send the next steps for waiver paperwork and seat confirmation.",
+    "title": "Sign up – Fall 2026",
+    "intro": "Download the program brochure and apply for fall Serbian language classes for children.",
     "validityNotice": "A sign-up becomes valid only after a signed waiver and recorded payment. Online payment through the website is not enabled yet.",
     "form": {
       "parentName": "Parent full name",
@@ -124,6 +124,14 @@
       "semester": "Semester",
       "typeHelpSingle": "Single class sign-up applies only to the selected class date.",
       "typeHelpSemester": "Semester sign-up follows the recurring Saturday schedule. After payment is confirmed, we send the full semester calendar.",
+      "homeLanguages": "What language(s) do you use at home?",
+      "serbianProficiency": "How would you describe your child's Serbian?",
+      "serbianProficiencyOptions": {
+        "fluent": "Speaks Serbian fluently",
+        "understandsOnly": "Understands Serbian but responds in English",
+        "basicUnderstanding": "Understands basic Serbian",
+        "noUnderstanding": "Does not understand Serbian"
+      },
       "message": "Additional message",
       "newsletterOptIn": "I also want to subscribe to the newsletter (booking emails remain separate from the newsletter list).",
       "required": "Please complete all required fields.",
