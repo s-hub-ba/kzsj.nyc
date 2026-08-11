@@ -27,24 +27,36 @@ export async function generateMetadata({ params }: AboutPageProps) {
 export default async function AboutPage({ params }: AboutPageProps) {
   const { locale } = await params;
   const t = await getTranslations("about");
+  const paragraphs = [
+    t("paragraphs.1"),
+    t("paragraphs.2"),
+    t("paragraphs.3"),
+    t("paragraphs.4"),
+    t("paragraphs.5"),
+    t("paragraphs.6"),
+    t("paragraphs.7"),
+    t("paragraphs.8"),
+  ];
 
   return (
     <div className="space-y-8 max-[375px]:space-y-6">
       <PageHero locale={locale} title={t("title")} description={t("intro")} variant="about" />
 
-      <section className="grid gap-6 md:grid-cols-3">
-        <article className="reveal rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7 max-[375px]:rounded-2xl">
-          <h3 className="text-2xl text-[var(--brand-2)] sm:text-3xl">{t("cards.1.title")}</h3>
-          <p className="mt-3 text-[15px] leading-relaxed text-[var(--muted)] sm:text-base">{t("cards.1.text")}</p>
-        </article>
-        <article className="reveal rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7 max-[375px]:rounded-2xl">
-          <h3 className="text-2xl text-[var(--brand-2)] sm:text-3xl">{t("cards.2.title")}</h3>
-          <p className="mt-3 text-[15px] leading-relaxed text-[var(--muted)] sm:text-base">{t("cards.2.text")}</p>
-        </article>
-        <article className="reveal rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7 max-[375px]:rounded-2xl">
-          <h3 className="text-2xl text-[var(--brand-2)] sm:text-3xl">{t("cards.3.title")}</h3>
-          <p className="mt-3 text-[15px] leading-relaxed text-[var(--muted)] sm:text-base">{t("cards.3.text")}</p>
-        </article>
+      <section className="reveal rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7 max-[375px]:rounded-2xl">
+        <div className="mx-auto max-w-4xl space-y-5 text-base leading-8 text-[var(--muted)] sm:space-y-6 sm:text-lg sm:leading-8">
+          {paragraphs.map((paragraph, index) => (
+            <p key={index} className="text-pretty">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="reveal rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7 max-[375px]:rounded-2xl">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-2xl leading-tight text-[var(--brand-2)] sm:text-3xl">{t("founder.title")}</h2>
+          <p className="mt-4 text-base leading-8 text-[var(--muted)] sm:text-lg sm:leading-8">{t("founder.bio")}</p>
+        </div>
       </section>
     </div>
   );

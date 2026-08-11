@@ -25,6 +25,8 @@ export interface SchoolClass {
   id: string;
   title_sr: string;
   title_en: string;
+  shortDescription_sr?: string;
+  shortDescription_en?: string;
   description_sr: string;
   description_en: string;
   ageGroup: string;

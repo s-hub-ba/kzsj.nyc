@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { createBooking, getActiveClasses, getActiveTerms, subscribeToNewsletter } from "@/lib/firestore";
 import { FloatingInput } from "@/components/FloatingInput";
 import { ClassType, Locale, SchoolClass, Term } from "@/types/models";
+import { buildShortDescription } from "@/lib/classDescriptions";
 import {
   parseAgeRange,
   toCanonicalAgeGroup,
@@ -352,10 +353,11 @@ export function BookingForm() {
                   <p className="text-sm font-medium text-foreground">
                     {locale === "sr" ? item.title_sr : item.title_en}
                   </p>
-                  <span className="text-xs text-[var(--muted)]">{item.level}</span>
                 </div>
                 <p className="mt-1 line-clamp-2 text-xs text-[var(--muted)]">
-                  {locale === "sr" ? item.description_sr : item.description_en}
+                  {locale === "sr"
+                    ? item.shortDescription_sr || buildShortDescription(item.description_sr)
+                    : item.shortDescription_en || buildShortDescription(item.description_en)}
                 </p>
               </button>
             ))}

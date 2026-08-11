@@ -114,12 +114,17 @@ function mapDoc<T extends { id: string }>(
   return { id, ...(data as Omit<T, "id">) } as T;
 }
 
+function isVisibleRecord(value: { active?: boolean }) {
+  return value.active !== false;
+}
+
 export async function getActiveClasses(): Promise<SchoolClass[]> {
   if (!db || isServerRuntime) return sampleClasses.filter((c) => c.active);
 
-  const q = query(collection(db, "classes"), where("active", "==", true));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => mapDoc<SchoolClass>(d.id, d.data()));
+  const snapshot = await getDocs(collection(db, "classes"));
+  return snapshot.docs
+    .map((d) => mapDoc<SchoolClass>(d.id, d.data()))
+    .filter(isVisibleRecord);
 }
 
 export async function getAllClasses(): Promise<SchoolClass[]> {
@@ -149,12 +154,14 @@ export async function getActiveTerms(classId?: string): Promise<Term[]> {
     return sampleTerms.filter((term) => term.active && (!classId || term.classId === classId));
   }
 
-  const constraints = [where("active", "==", true)] as Parameters<typeof query>[1][];
+  const constraints = [] as Parameters<typeof query>[1][];
   if (classId) constraints.push(where("classId", "==", classId));
 
   const q = query(collection(db, "terms"), ...constraints);
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => mapDoc<Term>(d.id, d.data()));
+  return snapshot.docs
+    .map((d) => mapDoc<Term>(d.id, d.data()))
+    .filter(isVisibleRecord);
 }
 
 export async function createBooking(input: BookingInput): Promise<Booking> {
@@ -365,7 +372,11 @@ export async function updateBookingStatuses(
   });
 }
 
-export async function saveClass(payload: Partial<SchoolClass> & Pick<SchoolClass, "title_sr" | "title_en">) {
+type SaveClassPayload =
+  | ({ id: string } & Partial<SchoolClass>)
+  | (Partial<SchoolClass> & Pick<SchoolClass, "title_sr" | "title_en">);
+
+export async function saveClass(payload: SaveClassPayload) {
   if (!isServerRuntime) {
     const result = await callAdminApi<{ id: string }>("saveClass", payload as Record<string, unknown>);
     return result.id;

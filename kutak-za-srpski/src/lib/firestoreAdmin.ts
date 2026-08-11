@@ -28,24 +28,28 @@ function mapAdminDoc<T extends { id: string }>(
   } as T;
 }
 
+function isVisibleRecord(value: { active?: boolean }) {
+  return value.active !== false;
+}
+
 export async function getActiveClassesServer(): Promise<SchoolClass[]> {
   const db = getAdminDb();
-  const snapshot = await db.collection("classes").where("active", "==", true).get();
+  const snapshot = await db.collection("classes").get();
 
-  return snapshot.docs.map((docRef) => mapAdminDoc<SchoolClass>(docRef.id, docRef.data()));
+  return snapshot.docs
+    .map((docRef) => mapAdminDoc<SchoolClass>(docRef.id, docRef.data()))
+    .filter(isVisibleRecord);
 }
 
 export async function getActiveTermsServer(classId?: string): Promise<Term[]> {
   const db = getAdminDb();
-  let ref = db.collection("terms").where("active", "==", true);
+  const snapshot = classId
+    ? await db.collection("terms").where("classId", "==", classId).get()
+    : await db.collection("terms").get();
 
-  if (classId) {
-    ref = ref.where("classId", "==", classId);
-  }
-
-  const snapshot = await ref.get();
-
-  return snapshot.docs.map((docRef) => mapAdminDoc<Term>(docRef.id, docRef.data()));
+  return snapshot.docs
+    .map((docRef) => mapAdminDoc<Term>(docRef.id, docRef.data()))
+    .filter(isVisibleRecord);
 }
 
 export async function getPublishedBlogPostsServer(): Promise<BlogPost[]> {

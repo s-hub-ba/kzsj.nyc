@@ -19,11 +19,6 @@ import {
 import { sampleBlogPosts, sampleClasses, sampleTerms } from "@/lib/sampleData";
 import { BlogPost, SchoolClass, Term } from "@/types/models";
 
-const hasAdminCredentials =
-  Boolean(process.env.FIREBASE_ADMIN_PROJECT_ID) &&
-  Boolean(process.env.FIREBASE_ADMIN_CLIENT_EMAIL) &&
-  Boolean(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
-
 const publicFirebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -64,6 +59,10 @@ function mapPublicDoc<T extends { id: string }>(
   } as T;
 }
 
+function isVisibleRecord(value: { active?: boolean }) {
+  return value.active !== false;
+}
+
 function getPublicDb() {
   if (!hasPublicFirebaseConfig) {
     return null;
@@ -84,8 +83,10 @@ async function getActiveClassesPublic(): Promise<SchoolClass[]> {
     throw new Error("Missing NEXT_PUBLIC_FIREBASE_* configuration for public Firestore reads.");
   }
 
-  const snapshot = await getDocs(query(collection(db, "classes"), where("active", "==", true)));
-  return snapshot.docs.map((docRef) => mapPublicDoc<SchoolClass>(docRef.id, docRef.data()));
+  const snapshot = await getDocs(collection(db, "classes"));
+  return snapshot.docs
+    .map((docRef) => mapPublicDoc<SchoolClass>(docRef.id, docRef.data()))
+    .filter(isVisibleRecord);
 }
 
 async function getActiveTermsPublic(classId?: string): Promise<Term[]> {
@@ -94,13 +95,15 @@ async function getActiveTermsPublic(classId?: string): Promise<Term[]> {
     throw new Error("Missing NEXT_PUBLIC_FIREBASE_* configuration for public Firestore reads.");
   }
 
-  const constraints = [where("active", "==", true)] as ReturnType<typeof where>[];
+  const constraints = [] as ReturnType<typeof where>[];
   if (classId) {
     constraints.push(where("classId", "==", classId));
   }
 
   const snapshot = await getDocs(query(collection(db, "terms"), ...constraints));
-  return snapshot.docs.map((docRef) => mapPublicDoc<Term>(docRef.id, docRef.data()));
+  return snapshot.docs
+    .map((docRef) => mapPublicDoc<Term>(docRef.id, docRef.data()))
+    .filter(isVisibleRecord);
 }
 
 async function getPublishedBlogPostsPublic(): Promise<BlogPost[]> {
@@ -142,12 +145,10 @@ function logFallbackNoticeOnce() {
 }
 
 export async function getActiveClasses(): Promise<SchoolClass[]> {
-  if (hasAdminCredentials) {
-    try {
-      return await getActiveClassesServer();
-    } catch (error) {
-      console.error("[firestore-server] admin fallback getActiveClasses", error);
-    }
+  try {
+    return await getActiveClassesServer();
+  } catch (error) {
+    console.error("[firestore-server] admin fallback getActiveClasses", error);
   }
 
   if (hasPublicFirebaseConfig) {
@@ -163,12 +164,10 @@ export async function getActiveClasses(): Promise<SchoolClass[]> {
 }
 
 export async function getActiveTerms(classId?: string): Promise<Term[]> {
-  if (hasAdminCredentials) {
-    try {
-      return await getActiveTermsServer(classId);
-    } catch (error) {
-      console.error("[firestore-server] admin fallback getActiveTerms", error);
-    }
+  try {
+    return await getActiveTermsServer(classId);
+  } catch (error) {
+    console.error("[firestore-server] admin fallback getActiveTerms", error);
   }
 
   if (hasPublicFirebaseConfig) {
@@ -184,12 +183,10 @@ export async function getActiveTerms(classId?: string): Promise<Term[]> {
 }
 
 export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
-  if (hasAdminCredentials) {
-    try {
-      return await getPublishedBlogPostsServer();
-    } catch (error) {
-      console.error("[firestore-server] admin fallback getPublishedBlogPosts", error);
-    }
+  try {
+    return await getPublishedBlogPostsServer();
+  } catch (error) {
+    console.error("[firestore-server] admin fallback getPublishedBlogPosts", error);
   }
 
   if (hasPublicFirebaseConfig) {
@@ -205,12 +202,10 @@ export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost | null> {
-  if (hasAdminCredentials) {
-    try {
-      return await getPublishedBlogPostBySlugServer(slug);
-    } catch (error) {
-      console.error("[firestore-server] admin fallback getPublishedBlogPostBySlug", error);
-    }
+  try {
+    return await getPublishedBlogPostBySlugServer(slug);
+  } catch (error) {
+    console.error("[firestore-server] admin fallback getPublishedBlogPostBySlug", error);
   }
 
   if (hasPublicFirebaseConfig) {

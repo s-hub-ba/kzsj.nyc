@@ -477,7 +477,11 @@ async function updateInvoiceStatus(
   };
 }
 
-async function saveClass(payload: Partial<SchoolClass> & Pick<SchoolClass, "title_sr" | "title_en">) {
+type SaveClassPayload =
+  | ({ id: string } & Partial<SchoolClass>)
+  | (Partial<SchoolClass> & Pick<SchoolClass, "title_sr" | "title_en">);
+
+async function saveClass(payload: SaveClassPayload) {
   const db = getAdminDb();
   const now = new Date().toISOString();
 
@@ -1055,7 +1059,7 @@ export async function POST(request: NextRequest) {
           ),
         );
       case "saveClass":
-        return NextResponse.json({ id: await saveClass(payload as Partial<SchoolClass> & Pick<SchoolClass, "title_sr" | "title_en">) });
+        return NextResponse.json({ id: await saveClass(payload as SaveClassPayload) });
       case "deleteClass":
         await getAdminDb().collection("classes").doc(String(payload?.id ?? "")).delete();
         return NextResponse.json({ ok: true });

@@ -5,6 +5,8 @@ export const sampleClasses: SchoolClass[] = [
     id: "class-1",
     title_sr: "Prve reči",
     title_en: "First Words",
+    shortDescription_sr: "Uzrast od 1 do 3 godine uz obavezno prisustvo roditelja i pažljivo vođeno rano jezičko okruženje.",
+    shortDescription_en: "Ages 1 to 3 with parent participation and a carefully guided early language environment.",
     description_sr:
       "Uzrast od 1 do 3 godine. Obavezno prisustvo najmanje jednog roditelja ili drugog odraslog člana porodice. Subotom od 10:00 do 11:20, svake subote od 12. septembra do 19. decembra 2026. Ukupno 15 časova. Cena semestra: $450.",
     description_en:
@@ -19,6 +21,8 @@ export const sampleClasses: SchoolClass[] = [
     id: "class-2",
     title_sr: "Prve priče",
     title_en: "First Stories",
+    shortDescription_sr: "Uzrast od 3 do 5 godina sa razvojem govora kroz priču, igru i pažljivo strukturisane aktivnosti.",
+    shortDescription_en: "Ages 3 to 5 with language growth through stories, play, and carefully structured activities.",
     description_sr:
       "Uzrast od 3 do 5 godina. Prisustvo roditelja po dogovoru. Subotom od 11:30 do 12:50, svake subote od 12. septembra do 19. decembra 2026. Ukupno 15 časova. Cena semestra: $450.",
     description_en:
@@ -33,6 +37,8 @@ export const sampleClasses: SchoolClass[] = [
     id: "class-3",
     title_sr: "Školarci",
     title_en: "Young Schoolers",
+    shortDescription_sr: "Uzrast od 5 do 7 godina sa fokusom na govor, razumevanje, pismenost i sigurnost u jeziku.",
+    shortDescription_en: "Ages 5 to 7 with a focus on speaking, comprehension, literacy, and confidence in the language.",
     description_sr:
       "Uzrast od 5 do 7 godina. Prisustvo roditelja po dogovoru. Subotom od 13:00 do 14:20, svake subote od 12. septembra do 19. decembra 2026. Ukupno 15 časova. Cena semestra: $450.",
     description_en:

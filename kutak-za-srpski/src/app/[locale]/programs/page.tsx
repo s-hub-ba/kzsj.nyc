@@ -3,7 +3,7 @@ import { ProgramCard } from "@/components/ProgramCard";
 import { PageHero } from "@/components/PageHero";
 import { Link } from "@/i18n/navigation";
 import { getActiveClasses, getActiveTerms } from "@/lib/firestoreServer";
-import { toCanonicalAgeGroup, formatAgeGroupLabel } from "@/lib/programAgeGroups";
+import { toCanonicalAgeGroup, formatAgeGroupLabel, parseAgeRange } from "@/lib/programAgeGroups";
 import { Locale } from "@/types/models";
 
 interface ProgramsPageProps {
@@ -32,32 +32,27 @@ export default async function ProgramsPage({ params }: ProgramsPageProps) {
   const { locale } = await params;
   const t = await getTranslations("programs");
   const [classes, terms] = await Promise.all([getActiveClasses(), getActiveTerms()]);
+  const sortedClasses = [...classes].sort((left, right) => {
+    const leftRange = parseAgeRange(left.ageGroup);
+    const rightRange = parseAgeRange(right.ageGroup);
+
+    if (!leftRange && !rightRange) return left.title_sr.localeCompare(right.title_sr);
+    if (!leftRange) return 1;
+    if (!rightRange) return -1;
+    if (leftRange.min !== rightRange.min) return leftRange.min - rightRange.min;
+    return leftRange.max - rightRange.max;
+  });
 
   // Derive unique age group nav links from Firestore classes
   const ageGroupSlugs = new Map<string, string>();
-  classes.forEach((cls) => {
+  sortedClasses.forEach((cls) => {
     if (!cls.ageGroup) return;
     const slug = toCanonicalAgeGroup(cls.ageGroup);
     if (!ageGroupSlugs.has(slug)) {
       ageGroupSlugs.set(slug, formatAgeGroupLabel(cls.ageGroup, locale));
     }
   });
-  const ageGroupLinks = Array.from(ageGroupSlugs.entries()).sort(([a], [b]) =>
-    a.localeCompare(b),
-  );
-
-  const systemNotes =
-    locale === "sr"
-      ? [
-          "Prijava postaje vazeca tek nakon potpisanog waiver dokumenta i evidentirane uplate.",
-          "Online placanje preko sajta jos nije aktivno; uplata se vodi van sajta dok se poslovna infrastruktura ne zavrsi.",
-          "Svaki novi blog automatski se salje newsletter pretplatnicima.",
-        ]
-      : [
-          "A sign-up becomes valid only after the waiver is signed and the payment is recorded.",
-          "Online payment through the website is not active yet; payments are tracked offline until the business setup is complete.",
-          "Every new blog post is automatically sent to newsletter subscribers.",
-        ];
+  const ageGroupLinks = Array.from(ageGroupSlugs.entries());
 
   return (
     <div className="space-y-8 max-[375px]:space-y-6">
@@ -94,26 +89,10 @@ export default async function ProgramsPage({ params }: ProgramsPageProps) {
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        {classes.map((item) => (
+        {sortedClasses.map((item) => (
           <ProgramCard key={item.id} item={item} terms={terms} locale={locale} />
         ))}
       </div>
-
-      <section className="rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7">
-        <h2 className="text-2xl text-[var(--brand-2)] sm:text-3xl">
-          {locale === "sr" ? "Kako funkcionise upis" : "How enrollment works"}
-        </h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {systemNotes.map((note) => (
-            <p
-              key={note}
-              className="rounded-2xl border border-line bg-[var(--surface-2)] px-4 py-4 text-sm leading-relaxed text-[var(--muted)]"
-            >
-              {note}
-            </p>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
