@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import { Nunito } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+
+const bodyFont = Nunito({
+  variable: "--font-body",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kutakzasrpski.org"),
@@ -56,8 +64,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="sr">
-      <body>{children}</body>
+    <html lang="sr" className={bodyFont.variable}>
+      <body>
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
