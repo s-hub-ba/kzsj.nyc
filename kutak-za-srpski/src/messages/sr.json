@@ -11,7 +11,7 @@
     "booking": "Prijava",
     "careers": "Posao",
     "blog": "Blog",
-    "newsletter": "Newsletter",
+    "faq": "FAQ",
     "contact": "Kontakt"
   },
   "footer": {
@@ -21,7 +21,7 @@
     "programs": "Programi",
     "booking": "Prijava",
     "careers": "Posao",
-    "newsletter": "Newsletter",
+    "faq": "FAQ",
     "contact": "Kontakt"
   },
   "common": {
@@ -170,15 +170,49 @@
     },
     "separationNote": "Napomena: email unet pri rezervaciji nije automatski dodat na newsletter listu, osim ako roditelj to izričito označi u formi."
   },
+  "faqPage": {
+    "title": "Česta pitanja",
+    "intro": "Najčešća pitanja o programu, upisu i organizaciji časova.",
+    "items": {
+      "1": {
+        "q": "Da li možemo da dođemo na probni čas?",
+        "a": "Ako do 8. septembra ostane slobodnih mesta, možete doći na jedan besplatan probni čas. Obavestićemo na mrežama (IG, Fb), i putem imejla, a vi nam se javite imejlom."
+      },
+      "2": {
+        "q": "Za koji nivo su predviđeni vaši programi?",
+        "a": "Naši programi su (za sada) podeljeni po uzrastu, a ne po nivou poznavanja jezika. Program za najmlađe od 1 do 3 godine je predviđen za sve nivoe poznavanja jezika. Za starije uzraste (3-5, 5-7) potrebno je bar minimalno poznavanje jezika na nivou razumevanja i u tom slučaju postoje dve opcije:\n\n- ako dete izgovara rečenice na srpskom (makar i uz napor), može samo da pohađa časove\n- ako dete razume srpski, ali govori tek po koju reč, potrebno je prisustvo i aktivno učestvovanje roditelja na času"
+      },
+      "3": {
+        "q": "Moje dete uopšte ne zna srpski. Da li ćete imati časove za potpune početnike?",
+        "a": "Ako bude dovoljno interesovanja, možemo u buduće organizovati i takve časove. A do tada svim preporučujemo da ipak uvedete detetu srpski jezik u svakodnevni život kod kuće. Uskoro ćemo objaviti i savete kako da najbolje pristupite tom veoma izazovnom zadatku."
+      },
+      "4": {
+        "q": "Moje dete savršeno tečno govori srpski. Šta će nama Kutak?",
+        "a": "Svaka čast! To je velika sreća i najbolja polazna tačka. Nažalost, zavičajni jezik se izuzetno lako gubi čim dete krene u vrtić, školu, ili bilo kakvu ustanovu svakodnevnog boravka. Kutak služi kao protivteža tome. Kutak je istovremeno i mesto gde vaše dete vežba jezik, ali i dodatni razlog zbog koga bi želelo da priča srpski jezik (ne samo zbog mame ili tate). Društvo, dečja književnost, igranje i zajednica koju stvara Kutak pružaju podsticaj svim naporima koje vi svakodnevno ulažete da vaše dete ostane povezano sa jezikom i kulturom svog porekla."
+      },
+      "5": {
+        "q": "Moje dete je starije od 7 godina. Da li ćete imati časove za stariju decu?",
+        "a": "Ako bude dovoljno interesovanja, rado ćemo organizovati i stariju grupu. Javite nam se, i kažite prijateljima da nam se jave."
+      },
+      "6": {
+        "q": "Imam dvoje dece koja po uzrastu spadaju u različite grupe, ali mi je neizvodljivo da ih dovodim na odvojene časove. Da li mogu da ih upišem u istu grupu?",
+        "a": "Da, ali nam se prvo javite imejlom da vas posavetujemo u koju grupu je bolje da ih upišete."
+      }
+    }
+  },
   "careers": {
     "title": "Tražimo nastavnice i nastavnike",
-    "intro": "Otvoreni smo za stalnu i povremenu saradnju sa nastavnim kadrom srpskog jezika koji voli rad sa decom.",
+    "intro": "Prijava za držanje časova srpskog jezika trenutno je otvorena preko Google forme. Časovi se održavaju subotom, a nedeljni termini su mogući u budućnosti, u zavisnosti od potražnje.",
     "whyTitle": "Zašto rad u Kutku",
     "benefits": {
       "1": "Jasan pedagoški okvir i podrška u pripremi aktivnosti.",
-      "2": "Mogućnost rada puno radno vreme ili povremeno, po dogovoru.",
+      "2": "Časovi se trenutno održavaju subotom; nedeljni termini biće otvoreni ako potražnja poraste.",
       "3": "Topla zajednica porodica i fokus na kvalitetan razvoj jezika."
     },
+    "applicationTitle": "Prijava za posao",
+    "applicationNote": "Prijavu za držanje časova šaljete preko Google formulara.",
+    "applyCta": "Otvori prijavu",
+    "internalFormNote": "Interna prijava na sajtu je privremeno isključena i ostaje sačuvana za kasniji povratak.",
     "form": {
       "fullName": "Ime i prezime",
       "email": "Email",

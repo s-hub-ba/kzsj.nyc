@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 type CarouselPhoto = {
   src: string;
   alt: string;
+  fallbackSrc?: string;
 };
 
 interface PhotoCarouselProps {
@@ -44,8 +45,14 @@ export function PhotoCarousel({ photos }: PhotoCarouselProps) {
               <img
                 src={photo.src}
                 alt={photo.alt}
-                className="h-64 w-full object-cover sm:h-80"
+                className="max-h-[78vh] w-full object-contain"
                 loading="lazy"
+                onError={(event) => {
+                  if (!photo.fallbackSrc) return;
+                  const image = event.currentTarget;
+                  if (image.src.includes(photo.fallbackSrc)) return;
+                  image.src = photo.fallbackSrc;
+                }}
               />
             </div>
           ))}
