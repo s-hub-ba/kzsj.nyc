@@ -32,8 +32,8 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/newsletter" className="font-semibold transition hover:text-[var(--brand-2)]">
-                {t("newsletter")}
+              <Link href="/faq" className="font-semibold transition hover:text-[var(--brand-2)]">
+                {t("faq")}
               </Link>
             </li>
           </ul>
@@ -46,8 +46,8 @@ export function Footer() {
         </div>
 
         <div className="md:-mt-10 md:justify-self-end md:text-right">
-          <Image
-            src="/kzjs_logo.png"
+            <Image
+              src="/images/logo/kzjs_logo_notext.png"
             alt="Kutak za srpski logo"
             width={520}
             height={140}

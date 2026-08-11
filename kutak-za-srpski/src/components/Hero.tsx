@@ -43,8 +43,8 @@ export function Hero() {
         <div className="relative hidden justify-self-end lg:block">
           <div className="animate-float-slow relative mx-auto h-[280px] w-[280px] overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 p-3 shadow-[0_24px_52px_-30px_rgba(21,50,80,0.35)] backdrop-blur-sm xl:h-[320px] xl:w-[320px]">
             <div className="relative h-full w-full overflow-hidden rounded-[1.6rem] bg-[var(--surface-2)]/80">
-              <Image
-                src="/kzjs_logo.png"
+                <Image
+                  src="/images/logo/kzjs_logo_notext.png"
                 alt="Kutak za srpski logo"
                 fill
                 sizes="320px"

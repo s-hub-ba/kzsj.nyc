@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: "/kzjs_logo_notext.png",
-    shortcut: "/kzjs_logo_notext.png",
-    apple: "/kzjs_logo_notext.png",
+    icon: "/images/logo/kzjs_logo_notext.png",
+    shortcut: "/images/logo/kzjs_logo_notext.png",
+    apple: "/images/logo/kzjs_logo_notext.png",
   },
 };
 

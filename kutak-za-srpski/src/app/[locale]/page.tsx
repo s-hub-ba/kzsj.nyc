@@ -38,25 +38,39 @@ export default async function HomePage({ params }: HomePageProps) {
   const t = await getTranslations("home");
   const learningPhotos = [
     {
-      src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
+      src: "/images/programs/IMG_0193.jpg",
       alt:
         locale === "sr"
-          ? "Deca rade zajedno za stolom u učionici"
-          : "Children learning together at a classroom table",
+          ? "Atmosfera na času - fotografija 1"
+          : "Classroom atmosphere - photo 1",
     },
     {
-      src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
+      src: "/images/programs/IMG_0288.jpg",
       alt:
         locale === "sr"
-          ? "Nastavnica i deca kroz kreativnu aktivnost"
-          : "Teacher and children during a creative lesson",
+          ? "Atmosfera na času - fotografija 2"
+          : "Classroom atmosphere - photo 2",
     },
     {
-      src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80",
+      src: "/images/programs/IMG_0574.jpg",
       alt:
         locale === "sr"
-          ? "Dete piše i vežba jezik"
-          : "Child writing and practicing language skills",
+          ? "Atmosfera na času - fotografija 3"
+          : "Classroom atmosphere - photo 3",
+    },
+    {
+      src: "/images/programs/IMG_1046.jpg",
+      alt:
+        locale === "sr"
+          ? "Atmosfera na času - fotografija 4"
+          : "Classroom atmosphere - photo 4",
+    },
+    {
+      src: "/images/programs/IMG_6872.jpg",
+      alt:
+        locale === "sr"
+          ? "Atmosfera na času - fotografija 5"
+          : "Classroom atmosphere - photo 5",
     },
   ];
 
@@ -114,8 +128,8 @@ export default async function HomePage({ params }: HomePageProps) {
             </div>
           </div>
           <div className="mx-auto w-full max-w-[240px] sm:max-w-[280px] md:mx-0 md:justify-self-end">
-            <Image
-              src="/Family Values - Online Classes.png"
+              <Image
+                src="/images/hero/Family Values - Online Classes.png"
               alt={locale === "sr" ? "Majka i dete u razgovoru" : "Parent and child talking"}
               width={360}
               height={300}

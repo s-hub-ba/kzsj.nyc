@@ -11,7 +11,7 @@
     "booking": "Sign up",
     "careers": "Careers",
     "blog": "Blog",
-    "newsletter": "Newsletter",
+    "faq": "FAQ",
     "contact": "Contact"
   },
   "footer": {
@@ -21,7 +21,7 @@
     "programs": "Programs",
     "booking": "Sign up",
     "careers": "Careers",
-    "newsletter": "Newsletter",
+    "faq": "FAQ",
     "contact": "Contact"
   },
   "common": {
@@ -170,15 +170,49 @@
     },
     "separationNote": "Note: an email used in booking is not automatically added to the newsletter list unless the parent explicitly opts in."
   },
+  "faqPage": {
+    "title": "FAQ",
+    "intro": "Frequently asked questions about our classes, enrollment, and language support.",
+    "items": {
+      "1": {
+        "q": "Can we attend a trial class?",
+        "a": "If spaces are still available after September 8, you will be welcome to attend one free trial class. We will announce available spots through our social media channels (Instagram and Facebook) and by email. If you are interested, please contact us by email."
+      },
+      "2": {
+        "q": "What language levels are your programs designed for?",
+        "a": "For now, our programs are organized by age group rather than language proficiency level.\n\nOur youngest program, Prve reci (First Words), for ages 1-3, is designed for children at all levels of Serbian language exposure and development.\n\nFor the older age groups (ages 3-5 and 5-7), children should have at least a basic understanding of Serbian. Depending on the child's speaking ability, there are two options:\n\n- If a child can speak in Serbian sentences (even with some effort), they can attend classes independently.\n- If a child understands Serbian but only uses a few words in Serbian, a parent or another adult family member should attend and actively participate in class."
+      },
+      "3": {
+        "q": "My child does not know any Serbian at all. Will you offer classes for complete beginners?",
+        "a": "If there is enough interest, we may organize beginner classes in the future. Until then, we encourage families to begin introducing Serbian into their child's everyday life at home. We will soon share practical tips on how to approach this challenging but important journey."
+      },
+      "4": {
+        "q": "My child speaks Serbian fluently. What can Kutak offer our family?",
+        "a": "Congratulations! This is a wonderful achievement and the best possible foundation.\n\nUnfortunately, a heritage language can be lost very quickly once children begin spending most of their day in preschool, school, or other environments where another language dominates. Kutak exists as a support against this natural shift.\n\nKutak is a place where children not only continue developing their Serbian skills, but also gain another reason to use Serbian: friendships, children's literature, play, and the community we are building together that strengthen all the efforts families already make to help their children stay connected to their language and cultural heritage."
+      },
+      "5": {
+        "q": "My child is older than 7. Will you offer classes for older children?",
+        "a": "If there is enough interest, we would be happy to organize a group for older children in the future. Reach out and tell your friends to reach out too."
+      },
+      "6": {
+        "q": "I have two children in different age groups, but it is not practical to bring them to separate classes. Can I enroll them in the same group?",
+        "a": "Yes, but please email us first so we can advise which group would be a better fit for both children."
+      }
+    }
+  },
   "careers": {
     "title": "We are hiring teachers",
-    "intro": "We are open to full-time and part-time collaboration with Serbian language educators who enjoy working with children.",
+    "intro": "Applications for teaching Serbian classes are currently open through a Google form. Classes are held on Saturdays, and Sunday sessions may be added in the future depending on demand.",
     "whyTitle": "Why work with Kutak",
     "benefits": {
       "1": "Clear pedagogy framework and support in planning activities.",
-      "2": "Flexible options: full-time or occasional engagement.",
+      "2": "Classes are currently held on Saturdays; Sunday sessions may open if demand grows.",
       "3": "A warm family community and focus on quality language growth."
     },
+    "applicationTitle": "Job application",
+    "applicationNote": "Apply to teach classes through our Google form.",
+    "applyCta": "Open application",
+    "internalFormNote": "The internal website form is temporarily disabled and preserved for a later return.",
     "form": {
       "fullName": "Full name",
       "email": "Email",

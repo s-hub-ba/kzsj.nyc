@@ -19,12 +19,13 @@ export function buildShortDescription(text: string, maxSentences = 2, maxLength 
 }
 
 export function formatLongDescription(text: string) {
+  const hasExplicitParagraphBreaks = /\n\s*\n/.test(text);
   const explicitParagraphs = text
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
 
-  if (explicitParagraphs.length > 0) {
+  if (hasExplicitParagraphBreaks && explicitParagraphs.length > 0) {
     return explicitParagraphs;
   }
 
@@ -33,11 +34,51 @@ export function formatLongDescription(text: string) {
     return [] as string[];
   }
 
-  const sentences = normalized.match(/[^.!?]+[.!?]?/g)?.map((sentence) => sentence.trim()) ?? [normalized];
-  const paragraphs: string[] = [];
+  const sentences =
+    normalized.match(/[^.!?;]+[.!?;]?/g)?.map((sentence) => sentence.trim()).filter(Boolean) ?? [normalized];
 
-  for (let index = 0; index < sentences.length; index += 2) {
-    paragraphs.push(sentences.slice(index, index + 2).join(" ").trim());
+  const paragraphs: string[] = [];
+  const maxParagraphLength = 320;
+  let buffer = "";
+
+  for (const sentence of sentences) {
+    if (!buffer) {
+      buffer = sentence;
+      continue;
+    }
+
+    const candidate = `${buffer} ${sentence}`.trim();
+    if (candidate.length <= maxParagraphLength) {
+      buffer = candidate;
+      continue;
+    }
+
+    paragraphs.push(buffer);
+    buffer = sentence;
+  }
+
+  if (buffer) {
+    paragraphs.push(buffer);
+  }
+
+  // If content still ends up as one large paragraph, split by words as a hard fallback.
+  if (paragraphs.length <= 1 && normalized.length > maxParagraphLength) {
+    const words = normalized.split(" ");
+    const chunks: string[] = [];
+    let chunk = "";
+
+    for (const word of words) {
+      const candidate = chunk ? `${chunk} ${word}` : word;
+      if (candidate.length <= maxParagraphLength) {
+        chunk = candidate;
+      } else {
+        if (chunk) chunks.push(chunk);
+        chunk = word;
+      }
+    }
+
+    if (chunk) chunks.push(chunk);
+    return chunks.filter(Boolean);
   }
 
   return paragraphs.filter(Boolean);

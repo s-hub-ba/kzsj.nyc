@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 import { PageHero } from "@/components/PageHero";
 import { Locale } from "@/types/models";
 
@@ -49,6 +50,19 @@ export default async function AboutPage({ params }: AboutPageProps) {
               {paragraph}
             </p>
           ))}
+        </div>
+      </section>
+
+      <section className="reveal rounded-3xl border border-line bg-white p-3 shadow-[var(--shadow)] sm:p-4 max-[375px]:rounded-2xl">
+        <div className="relative mx-auto aspect-[4/3] w-full max-w-4xl overflow-hidden rounded-2xl border border-line bg-[var(--surface-2)]">
+          <Image
+            src="/images/077da658-1efb-467e-bbfc-0ee9a71ed25a.jpg"
+            alt={locale === "sr" ? "Fotografija iz Kutka za srpski" : "Photo from Kutak za srpski"}
+            fill
+            sizes="(max-width: 1024px) 100vw, 896px"
+            className="object-cover"
+            priority={false}
+          />
         </div>
       </section>
 

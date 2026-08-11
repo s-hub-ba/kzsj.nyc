@@ -25,7 +25,7 @@ export function Navbar() {
     { href: "/booking", label: t("booking") },
     { href: "/careers", label: t("careers") },
     { href: "/blog", label: t("blog") },
-    { href: "/newsletter", label: t("newsletter") },
+    { href: "/faq", label: t("faq") },
     { href: "/contact", label: t("contact") },
   ];
 
@@ -35,8 +35,8 @@ export function Navbar() {
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="group inline-flex items-center gap-3">
             <div className="relative h-9 w-9 overflow-hidden rounded-full border border-line bg-white shadow-sm md:h-12 md:w-12">
-              <Image
-                src="/kzjs_logo_notext.png"
+                <Image
+                  src="/images/logo/kzjs_logo_notext.png"
                 alt="Kutak za srpski logo"
                 fill
                 sizes="48px"
