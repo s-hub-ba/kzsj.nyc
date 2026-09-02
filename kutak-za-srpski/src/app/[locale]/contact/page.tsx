@@ -11,16 +11,16 @@ export async function generateMetadata({ params }: ContactPageProps) {
   return {
     title:
       locale === "sr"
-        ? "Kontakt | Škola srpskog jezika Kutak za srpski"
-        : "Contact | Kutak Serbian language school",
+        ? "Kontakt | Kutak za srpski"
+        : "Contact | Kutak za srpski",
     description:
       locale === "sr"
-        ? "Kontaktirajte nas za upis, termine i preporuku programa srpskog jezika za vaše dete."
-        : "Contact us for enrollment help, scheduling, and personalized Serbian program recommendations.",
+        ? "Kontaktirajte nas za upis, termine i preporuku programa srpskog zavičajnog jezika za vaše dete."
+        : "Contact us for enrollment help, scheduling, and personalized Serbian heritage language program recommendations.",
     keywords:
       locale === "sr"
-        ? ["kontakt", "upis", "program srpskog jezika", "termini"]
-        : ["contact", "enrollment help", "Serbian language program", "schedule"],
+        ? ["kontakt", "upis", "program srpskog zavičajnog jezika", "termini"]
+        : ["contact", "enrollment help", "Serbian heritage language program", "schedule"],
   };
 }
 
@@ -39,8 +39,8 @@ export default async function ContactPage({ params }: ContactPageProps) {
         </article>
         <article className="rounded-3xl border border-line bg-white p-5 shadow-[var(--shadow)] sm:p-7 max-[375px]:rounded-2xl">
           <h3 className="text-2xl text-[var(--brand-2)] sm:text-3xl">{t("write")}</h3>
-          <p className="mt-3 text-base font-semibold text-[var(--brand)] sm:text-lg">hello@kutakzasrpski.com</p>
-          <p className="text-base font-semibold text-[var(--brand)] sm:text-lg">+381 60 123 4567</p>
+          <p className="mt-3 text-base font-semibold text-[var(--brand)] sm:text-lg">ivana@kutakzasrpski.org</p>
+          <p className="text-base font-semibold text-[var(--brand)] sm:text-lg">+1 917 349 9610</p>
         </article>
       </section>
     </div>

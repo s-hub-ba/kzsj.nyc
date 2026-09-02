@@ -69,7 +69,7 @@ export function BookingForm() {
     childAge: "",
     selectedClassId: "",
     selectedTermId: "",
-    bookingType: "single" as ClassType,
+    bookingType: "semester" as ClassType,
     homeLanguages: "",
     serbianProficiency: "",
     message: "",
@@ -391,12 +391,9 @@ export function BookingForm() {
             }
             className="mt-1 w-full rounded-xl border border-line bg-[var(--surface-2)] px-3 py-2 outline-none transition focus:border-[var(--brand)] focus:bg-white"
           >
-            <option value="single">{t("single")}</option>
             <option value="semester">{t("semester")}</option>
           </select>
-          <p className="mt-2 text-xs text-[var(--muted)]">
-            {form.bookingType === "semester" ? t("typeHelpSemester") : t("typeHelpSingle")}
-          </p>
+          <p className="mt-2 text-xs text-[var(--muted)]">{t("typeHelpSemester")}</p>
         </label>
 
         <label className="text-sm text-[var(--muted)] md:col-span-2">

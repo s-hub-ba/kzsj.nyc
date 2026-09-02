@@ -49,7 +49,7 @@ export function Navbar() {
                 Kutak za srpski
               </span>
               <span className="hidden text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)] md:block">
-                Bilingual learning studio
+                Heritage language school
               </span>
             </div>
           </Link>
