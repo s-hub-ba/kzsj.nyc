@@ -20,12 +20,12 @@ export async function generateMetadata({ params }: HomePageProps) {
   return {
     title:
       locale === "sr"
-        ? "Početna | Škola srpskog jezika za decu u Njujorku"
-        : "Home | Serbian language school for children in New York",
+        ? "Početna | Škola srpskog zavičajnog jezika"
+        : "Home | Serbian Heritage Language School",
     description:
       locale === "sr"
-        ? "Kutak za srpski je škola srpskog jezika za decu i dvojezične porodice u Njujorku. Upis u programe po uzrastu 1-7 godina."
-        : "Kutak za srpski is a Serbian language school in New York for children and bilingual families, with age-based programs from 1 to 7.",
+        ? "Kutak za srpski je škola srpskog zavičajnog jezika za decu i porodice u Njujorku. Upis u programe po uzrastu 1-7 godina."
+        : "Kutak za srpski is a Serbian Heritage Language School in New York for children and families with age-based programs from 1 to 7.",
     keywords:
       locale === "sr"
         ? ["početna", "škola srpskog jezika", "srpski za decu", "njujork", "upis programa"]

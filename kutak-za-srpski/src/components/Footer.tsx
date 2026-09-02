@@ -41,8 +41,8 @@ export function Footer() {
 
         <div>
           <h4 className="mb-3 text-lg text-[var(--brand-2)]">{t("contact")}</h4>
-          <p className="text-sm font-semibold text-[var(--muted)]">info@kutakzasrpski.org</p>
-          <p className="text-sm font-semibold text-[var(--muted)]">+1 917 394 9610</p>
+          <p className="text-sm font-semibold text-[var(--muted)]">ivana@kutakzasrpski.org</p>
+          <p className="text-sm font-semibold text-[var(--muted)]">+1 917 349 9610</p>
         </div>
 
         <div className="md:-mt-10 md:justify-self-end md:text-right">

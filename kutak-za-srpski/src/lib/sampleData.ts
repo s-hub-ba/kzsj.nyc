@@ -4,7 +4,7 @@ export const sampleClasses: SchoolClass[] = [
   {
     id: "class-1",
     title_sr: "Prve reči",
-    title_en: "First Words",
+    title_en: "Prve reči",
     shortDescription_sr: "Uzrast od 1 do 3 godine uz obavezno prisustvo roditelja i pažljivo vođeno rano jezičko okruženje.",
     shortDescription_en: "Ages 1 to 3 with parent participation and a carefully guided early language environment.",
     description_sr:
@@ -20,7 +20,7 @@ export const sampleClasses: SchoolClass[] = [
   {
     id: "class-2",
     title_sr: "Prve priče",
-    title_en: "First Stories",
+    title_en: "Prve priče",
     shortDescription_sr: "Uzrast od 3 do 5 godina sa razvojem govora kroz priču, igru i pažljivo strukturisane aktivnosti.",
     shortDescription_en: "Ages 3 to 5 with language growth through stories, play, and carefully structured activities.",
     description_sr:
@@ -36,7 +36,7 @@ export const sampleClasses: SchoolClass[] = [
   {
     id: "class-3",
     title_sr: "Školarci",
-    title_en: "Young Schoolers",
+    title_en: "Školarci",
     shortDescription_sr: "Uzrast od 5 do 7 godina sa fokusom na govor, razumevanje, pismenost i sigurnost u jeziku.",
     shortDescription_en: "Ages 5 to 7 with a focus on speaking, comprehension, literacy, and confidence in the language.",
     description_sr:

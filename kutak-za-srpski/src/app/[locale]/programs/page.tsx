@@ -19,12 +19,12 @@ export async function generateMetadata({ params }: ProgramsPageProps) {
         : "Programs | Serbian language classes for ages 1-7",
     description:
       locale === "sr"
-        ? "Pregled programa srpskog jezika po uzrastu: pojedinacni casovi i semestralni programi za decu od 1 do 7 godina."
-        : "Explore age-based Serbian language programs with single classes and semester enrollment for children ages 1 to 7.",
+        ? "Pregled programa srpskog zavičajnog jezika po uzrastu za decu od 1 do 7 godina."
+        : "Explore age-based Serbian heritage language programs for children ages 1 to 7.",
     keywords:
       locale === "sr"
-        ? ["programi", "casovi srpskog jezika", "uzrast 1-7", "semestar", "pojedinacni cas"]
-        : ["programs", "Serbian classes", "ages 1-7", "semester", "single class"],
+        ? ["programi", "casovi srpskog jezika", "uzrast 1-7", "semestar"]
+        : ["programs", "Serbian heritage language classes", "ages 1-7", "semester"],
   };
 }
 

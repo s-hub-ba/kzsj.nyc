@@ -93,7 +93,7 @@ export function PageHero({ locale, title, description, variant, eyebrowOverride,
       : locale === "sr"
         ? "max-w-[15ch]"
         : "max-w-[17ch]";
-  const descWidthClass = isCareers ? (locale === "sr" ? "max-w-[44ch]" : "max-w-[50ch]") : locale === "sr" ? "max-w-[50ch]" : "max-w-[58ch]";
+  const descWidthClass = isCareers ? (locale === "sr" ? "max-w-[44ch]" : "max-w-[50ch]") : locale === "sr" ? "max-w-[75ch]" : "max-w-[85ch]";
   const contentOffsetClass = variant === "about" ? "pt-2 sm:pt-3" : "";
   const descriptionSpacingClass = variant === "about" ? "mt-1 sm:mt-2" : "";
   const heroPaddingClass = isCareers

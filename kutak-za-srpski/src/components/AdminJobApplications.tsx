@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { JobApplication, SchoolClass, Term, WorkerProfile, WorkerShiftOffer } from "@/types/models";
 import { createWorkerFromApplication, createWorkerOffer, saveWorkerProfile } from "@/lib/firestore";
+import { AddJobApplicationForm } from "@/components/admin/AddJobApplicationForm";
 
 interface AdminJobApplicationsProps {
   applications: JobApplication[];
@@ -152,6 +153,19 @@ export function AdminJobApplications({
 
   return (
     <div className="space-y-6">
+      <section className="rounded-3xl border border-line bg-surface p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold">Dodaj novu prijavu za posao</h2>
+          <AddJobApplicationForm
+            onApplicationAdded={(application) => {
+              const newApplications = [application, ...applications];
+              // Force a re-render by updating state through props callback
+              // This will be handled by the parent component
+            }}
+          />
+        </div>
+      </section>
+
       <section className="rounded-3xl border border-line bg-surface p-6">
         <h2 className="text-2xl font-semibold">Ponude smena i grupa</h2>
         <p className="mt-2 text-sm text-muted">

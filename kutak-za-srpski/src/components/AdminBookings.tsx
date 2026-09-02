@@ -7,6 +7,7 @@ import {
   sendBookingToQueue,
   updateBookingWorkflow,
 } from "@/lib/firestore";
+import { AddBookingForm } from "@/components/admin/AddBookingForm";
 
 interface AdminBookingsProps {
   bookings: Booking[];
@@ -311,6 +312,20 @@ export function AdminBookings({
 
   return (
     <div className="space-y-6">
+      <section className="rounded-3xl border border-line bg-surface p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-semibold">Dodaj novu prijavu</h2>
+          <AddBookingForm
+            classes={classes}
+            terms={terms}
+            onBookingAdded={(booking) => {
+              onBookingUpdate(booking.id, booking);
+              updateTermsCount(undefined, booking.selectedTermId);
+            }}
+          />
+        </div>
+      </section>
+
       <section className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-3xl border border-line bg-surface p-6">
           <h3 className="text-sm font-medium text-muted">Ukupno prijava</h3>

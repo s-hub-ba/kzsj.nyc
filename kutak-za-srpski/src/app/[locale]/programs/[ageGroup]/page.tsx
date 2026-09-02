@@ -70,8 +70,13 @@ export default async function ProgramAgeGroupPage({ params }: ProgramAgeGroupPag
           {cls.ageGroup}
         </p>
         <div className="mt-5 space-y-4 text-sm leading-7 text-[var(--muted)] sm:text-base sm:leading-8">
-          {paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
+          {paragraphs.map((paragraph, index) => (
+            <p
+              key={paragraph}
+              className={`rounded-2xl border-l-4 border-[var(--brand)] bg-[var(--surface-2)] px-4 py-3 ${index === 0 ? "font-semibold text-[var(--brand-2)]" : ""}`}
+            >
+              {paragraph}
+            </p>
           ))}
         </div>
       </section>
