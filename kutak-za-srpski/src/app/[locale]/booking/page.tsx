@@ -81,11 +81,6 @@ export default async function BookingPage({ params }: BookingPageProps) {
           </a>
         </div>
 
-        <p className="mt-6 rounded-2xl border border-line bg-[var(--surface-2)] px-4 py-3 text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
-          {isSr
-            ? "Napomena: Prijavom ne garantujete sebi mesto. Mesto se potvrđuje tek nakon potpisanog dokumenta o odricanju odgovornosti i evidentirane uplate. Detalje šaljemo po prijemu vaše prijave."
-            : "Note: Submitting the form does not guarantee your spot. Enrollment is confirmed only after a signed liability waiver and recorded payment. We will send you details after receiving your application."}
-        </p>
       </section>
     </div>
   );

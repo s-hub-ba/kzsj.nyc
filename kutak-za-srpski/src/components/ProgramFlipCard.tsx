@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { buildShortDescription } from "@/lib/classDescriptions";
 import { Locale, SchoolClass, Term } from "@/types/models";
 
 interface ProgramFlipCardProps {
@@ -17,7 +18,10 @@ export function ProgramFlipCard({ item, terms, locale }: ProgramFlipCardProps) {
   const [flipped, setFlipped] = useState(false);
 
   const title = locale === "sr" ? item.title_sr : item.title_en;
-  const description = locale === "sr" ? item.description_sr : item.description_en;
+  const description =
+    locale === "sr"
+      ? item.shortDescription_sr || buildShortDescription(item.description_sr)
+      : item.shortDescription_en || buildShortDescription(item.description_en);
 
   const hasAvailability = useMemo(() => {
     const classTerms = terms.filter((term) => term.classId === item.id);
@@ -36,7 +40,7 @@ export function ProgramFlipCard({ item, terms, locale }: ProgramFlipCardProps) {
         type="button"
         onClick={() => setFlipped((prev) => !prev)}
         aria-pressed={flipped}
-        className="relative block h-[300px] w-full rounded-3xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] sm:h-[320px]"
+        className="relative block h-[380px] w-full rounded-3xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] sm:h-[400px]"
       >
         <div
           className={`relative h-full w-full rounded-3xl transition-transform duration-700 [transform-style:preserve-3d] md:group-hover:[transform:rotateY(180deg)] ${
@@ -62,7 +66,7 @@ export function ProgramFlipCard({ item, terms, locale }: ProgramFlipCardProps) {
 
           <div className="absolute inset-0 rounded-3xl border border-line bg-[var(--surface-2)] p-6 shadow-[var(--shadow)] [backface-visibility:hidden] [transform:rotateY(180deg)]">
             <h3 className="text-xl leading-tight text-[var(--brand-2)] sm:text-2xl">{title}</h3>
-            <p className="mt-3 line-clamp-5 text-sm text-[var(--muted)]">{description}</p>
+            <p className="mt-3 whitespace-pre-line text-sm text-[var(--muted)]">{description}</p>
             <div className="mt-5 border-t border-line pt-4">
               <div className="mb-3 text-xs font-semibold text-[var(--muted)]">
                 {tPrograms("availability")}: {hasAvailability ? tPrograms("spacesAvailable") : tPrograms("spacesUnavailable")}
