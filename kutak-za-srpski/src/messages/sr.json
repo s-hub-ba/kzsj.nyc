@@ -134,7 +134,7 @@
         "noUnderstanding": "Ne razume srpski"
       },
       "message": "Dodatna poruka",
-      "newsletterOptIn": "Želim i prijavu na newsletter (emailovi za rezervaciju ostaju odvojeni od newsletter liste).",
+      "newsletterOptIn": "Želim i prijavu na Njuzleter (emailovi za rezervaciju ostaju odvojeni od Njuzleter liste).",
       "required": "Molimo popunite sva obavezna polja.",
       "success": "Prijava je poslata. Mesto čuvamo tek nakon potpisanog waiver dokumenta i evidentirane uplate.",
       "error": "Došlo je do greške. Pokušajte ponovo.",
@@ -144,7 +144,7 @@
   },
   "blog": {
     "title": "Blog",
-    "intro": "Stručni saveti za roditelje, dvojezično odrastanje i priče iz Kutka. Svaki novi blog automatski šaljemo newsletter pretplatnicima."
+    "intro": "Stručni saveti za roditelje, dvojezično odrastanje i priče iz Kutka. Svaki novi blog automatski šaljemo Njuzleter pretplatnicima."
   },
   "contact": {
     "title": "Kontakt",
@@ -154,14 +154,14 @@
     "visitText": "Nastava je dostupna po dogovoru."
   },
   "newsletter": {
-    "title": "Newsletter",
+    "title": "Njuzleter",
     "description": "Primajte mesečne savete za razvoj srpskog jezika i novosti o upisu.",
     "cta": "Prijavi se",
-    "success": "Uspešno ste prijavljeni na newsletter.",
+    "success": "Uspešno ste prijavljeni na Njuzleter.",
     "error": "Prijava nije uspela. Pokušajte kasnije."
   },
   "newsletterPage": {
-    "title": "Newsletter",
+    "title": "Njuzleter",
     "intro": "Mesečni email sa praktičnim savetima za roditelje, razvoj jezika kod kuće i najavama upisa.",
     "whatYouGet": "Šta dobijate",
     "items": {
@@ -169,7 +169,7 @@
       "2": "Novosti o programima, terminima i upisu.",
       "3": "Obaveštenja o novim blog tekstovima i radionicama."
     },
-    "separationNote": "Napomena: email unet pri rezervaciji nije automatski dodat na newsletter listu, osim ako roditelj to izričito označi u formi."
+    "separationNote": "Napomena: email unet pri rezervaciji nije automatski dodat na Njuzleter listu, osim ako roditelj to izričito označi u formi."
   },
   "faqPage": {
     "title": "Česta pitanja",

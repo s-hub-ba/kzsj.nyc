@@ -90,10 +90,8 @@ export function PageHero({ locale, title, description, variant, eyebrowOverride,
       ? locale === "sr"
         ? "max-w-[28ch] sm:max-w-[24ch] md:max-w-none"
         : "max-w-[30ch] sm:max-w-[26ch] md:max-w-none"
-      : locale === "sr"
-        ? "max-w-[15ch]"
-        : "max-w-[17ch]";
-  const descWidthClass = isCareers ? (locale === "sr" ? "max-w-[44ch]" : "max-w-[50ch]") : locale === "sr" ? "max-w-[75ch]" : "max-w-[85ch]";
+      : "max-w-[22ch] sm:max-w-[30ch] md:max-w-5xl";
+  const descWidthClass = isCareers ? (locale === "sr" ? "max-w-[60ch]" : "max-w-[68ch]") : locale === "sr" ? "max-w-[85ch]" : "max-w-[95ch]";
   const contentOffsetClass = variant === "about" ? "pt-2 sm:pt-3" : "";
   const descriptionSpacingClass = variant === "about" ? "mt-1 sm:mt-2" : "";
   const heroPaddingClass = isCareers

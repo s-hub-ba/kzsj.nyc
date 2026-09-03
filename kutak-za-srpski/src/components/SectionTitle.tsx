@@ -14,9 +14,9 @@ export function SectionTitle({
   locale,
 }: SectionTitleProps) {
   const alignClass = align === "center" ? "text-center items-center" : "text-left items-start";
-  const titleWidthClass = locale === "sr" ? "max-w-[15ch]" : locale === "en" ? "max-w-[18ch]" : "max-w-[17ch]";
+  const titleWidthClass = "max-w-[22ch] sm:max-w-[30ch] md:max-w-5xl";
   const descriptionWidthClass =
-    locale === "sr" ? "max-w-[50ch]" : locale === "en" ? "max-w-[58ch]" : "max-w-2xl";
+    locale === "sr" ? "max-w-[65ch]" : locale === "en" ? "max-w-[72ch]" : "max-w-4xl";
 
   return (
     <div className={`flex flex-col gap-4 ${alignClass}`}>

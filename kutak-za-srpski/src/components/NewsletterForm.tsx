@@ -41,7 +41,7 @@ export function NewsletterForm() {
           className="rounded-full px-4"
           containerClassName="w-full"
         />
-        <button type="submit" className="btn-primary w-full md:w-auto">
+        <button type="submit" className="btn-primary h-12 w-full shrink-0 whitespace-nowrap md:min-w-[140px] md:w-auto">
           {t("cta")}
         </button>
       </div>
