@@ -122,7 +122,7 @@ export function PageHero({ locale, title, description, variant, eyebrowOverride,
         <h1 className={`${titleClass} ${titleWidthClass}`}>
           {title}
         </h1>
-        <p className={`${descClass} ${descWidthClass} ${descriptionSpacingClass}`}>
+        <p className={`${descClass} ${descWidthClass} ${descriptionSpacingClass} whitespace-pre-line`}>
           {description}
         </p>
       </div>

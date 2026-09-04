@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Locale, SchoolClass, Term } from "@/types/models";
 import { useLocale, useTranslations } from "next-intl";
 import { toCanonicalAgeGroup } from "@/lib/programAgeGroups";
-import { buildShortDescription } from "@/lib/classDescriptions";
 
 interface ProgramCardProps {
   item: SchoolClass;
@@ -18,7 +17,6 @@ export function ProgramCard({ item, terms, locale }: ProgramCardProps) {
   const currentLocale = useLocale() as Locale;
 
   const title = locale === "sr" ? item.title_sr : item.title_en;
-  const description = locale === "sr" ? item.description_sr : item.description_en;
   const shortDescription = locale === "sr"
     ? item.shortDescription_sr || item.description_sr
     : item.shortDescription_en || item.description_en;
@@ -33,7 +31,7 @@ export function ProgramCard({ item, terms, locale }: ProgramCardProps) {
 
   const hasAvailability = totalAvailable > 0;
   const detailSlug = item.ageGroup ? toCanonicalAgeGroup(item.ageGroup) : null;
-  const preview = buildShortDescription(shortDescription, 2, 260);
+  const preview = shortDescription;
 
   return (
     <article className="reveal group glass rounded-3xl p-5 shadow-[var(--shadow)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(21,50,80,0.4)] sm:p-6">
@@ -44,7 +42,7 @@ export function ProgramCard({ item, terms, locale }: ProgramCardProps) {
         <Link href={`/${currentLocale}/programs/${detailSlug}`} className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/45 focus-visible:ring-offset-2 focus-visible:ring-offset-white">
           <h3 className="mb-3 text-2xl leading-tight text-[var(--brand-2)] sm:text-[2rem]">{title}</h3>
           <div className="mb-5 rounded-2xl border border-line/80 bg-white/75 px-4 py-4 transition group-hover:border-[var(--brand)]/25 sm:px-5">
-            <p className="text-base leading-7 text-[var(--muted)] sm:text-[17px] sm:leading-8">{preview}</p>
+            <p className="whitespace-pre-line text-base leading-7 text-[var(--muted)] sm:text-[17px] sm:leading-8">{preview}</p>
             <p className="mt-3 text-sm font-semibold text-[var(--brand)]">
               {locale === "sr" ? "Klikni za ceo opis programa" : "Click to read the full program description"}
             </p>
@@ -54,7 +52,7 @@ export function ProgramCard({ item, terms, locale }: ProgramCardProps) {
         <>
           <h3 className="mb-3 text-2xl leading-tight text-[var(--brand-2)] sm:text-[2rem]">{title}</h3>
           <div className="mb-5 rounded-2xl border border-line/80 bg-white/75 px-4 py-4 sm:px-5">
-            <p className="text-base leading-7 text-[var(--muted)] sm:text-[17px] sm:leading-8">{preview}</p>
+            <p className="whitespace-pre-line text-base leading-7 text-[var(--muted)] sm:text-[17px] sm:leading-8">{preview}</p>
           </div>
         </>
       )}
